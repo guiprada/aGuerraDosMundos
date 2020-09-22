@@ -1,0 +1,47 @@
+title = 'The War of the Worlds'
+
+menu_start = 'start game'
+menu_settings = 'settings'
+menu_tilemap_editor = 'map editor'
+menu_exit = 'exit'
+
+settings_menu_title = 'Settings Menu'
+settings_menu_change_language = 'change language'
+settings_menu_change_resolution = 'change resolution'
+settings_menu_change_keymap = 'change keymap'
+settings_menu_fullscreen = 'fullscreen : '
+settings_menu_vsync = 'vsync : '
+settings_menu_msaa =  'msaa : '
+settings_menu_reset = 'reset settings'
+settings_menu_instructions =
+ 'up  down        select setting
+\nenter           apply settings
+\nesc                    go back'
+
+keymap_title = 'Keymap Editor'
+keymap_act_key = 'Action : Key'
+keymap_wait = 'press the key for: '
+keymap_instructions =
+ 'up  down         change action
+\nenter            select action
+\nesc                    go back'
+
+resolution_title = 'Resolution Picker'
+resolution_current = 'Current resolution: '
+resolution_saved = 'Saved resolution: '
+resolution_save_current = 'save current'
+resolution_instructions =
+ 'up  down      select resolution
+\nenter          apply resolution
+\nesc                     go back'
+
+save_settings_instructions =
+ 'enter      save setting
+\nesc              cancel'
+save_settings_timer = 'Cancelling changes in '
+
+language_title = 'Choose Language'
+language_instructions =
+ 'up  down      select language
+\nenter         change language
+\nesc                   go back'

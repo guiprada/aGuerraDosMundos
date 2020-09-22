@@ -1,0 +1,47 @@
+title ='A Guerra dos Mundos'
+
+menu_start = 'iniciar jogo'
+menu_settings = 'configurações'
+menu_tilemap_editor = 'editor de mapa'
+menu_exit = 'sair'
+
+settings_menu_title = 'Menu de Configurações'
+settings_menu_change_language = 'mudar idioma'
+settings_menu_change_resolution = 'mudar resolução'
+settings_menu_change_keymap = 'mudar mapa de teclas'
+settings_menu_fullscreen = 'tela cheia : '
+settings_menu_vsync = 'vsync : '
+settings_menu_msaa =  'msaa : '
+settings_menu_reset = 'restaurar configurações'
+settings_menu_instructions =
+ 'up down   seleciona configuração
+\nenter        aplica configuração
+\nesc                       voltar'
+
+keymap_title = 'Editor do Mapa de Teclas'
+keymap_act_key = 'Ação : Tecla'
+keymap_wait = 'pressione a tecla para: '
+keymap_instructions =
+ 'up  down            mudar ação
+\nenter          selecionar ação
+\nesc                     voltar'
+
+resolution_title = 'Selecionador de Resolução'
+resolution_current = 'Resolução atual: '
+resolution_saved = 'Resolução salva: '
+resolution_save_current = 'Salvar resolução atual'
+resolution_instructions =
+ 'up  down   seleciona resolução
+\nenter         aplica resolução
+\nesc                     voltar'
+
+save_settings_instructions =
+ 'enter    salva configuração
+\nesc                 cancela'
+save_settings_timer = 'Cancelando em '
+
+language_title = 'Escolha o Idioma'
+language_instructions =
+ 'up  down      selecionar idioma
+\nenter              mudar idioma
+\nesc                      voltar'

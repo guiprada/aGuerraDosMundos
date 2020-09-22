@@ -1,0 +1,37 @@
+the engine has those concepts
+    -Gamestates, those are used as primary controllers and have acess to
+        user input events. There is a gamestate template on qpd/ folder.
+
+    -Actions, actions is a table used to bridge user input events
+        (keymap service) and the gamestate controller callbacks.
+
+    -Services are singletons. they are used when there should be
+        a single reference to resources, usualy for configuration.
+        The  services available are
+            - files.lua, manages file resources
+            - fonts.lua, manages fonts resources
+            - keymap.lua, manages the keymap
+            - strings.lua, manages string file for internationalization
+            - window.lua, manages windows settings
+        The files service is used to give each file used in the game an
+        unique identifier of the form files.NAME .
+        Those identifiers are saved on a file named files.conf that is located
+        in the same folder as files.lua(the files service file) qpd/services/ .
+        All other services that have a configuration file should have their
+        location registered.
+
+    -Actors, are the primary buildings blocks, they are prototypes that respond
+        to messages, messages can be sent by gamestates or other Actors.
+
+    -Collections and auto dispatch stacks. Collections are groups of actors,
+        they auto dispatch Messages to its members when it receives it.
+        The registration should be done automatically when the Actor is inserted
+        on the collection.
+
+    -Messages are a syncronous form of dispatch and they may be broadcast,
+        anyone registered as listener will receive it, they are callback based
+        but are dispatched by a central messenge dispatcher service.
+        They can have parameters.
+        The message recipient registers the messages it wants to listen and its
+        callback with the dispatcher and thats all, anyone can send any message.
+        If there is the need for sender authentication it is the receivers onus.
