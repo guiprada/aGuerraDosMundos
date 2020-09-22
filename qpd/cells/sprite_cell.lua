@@ -1,6 +1,6 @@
-local color_cell = {}
+local sprite_cell = {}
 
-function color_cell.make_func(color)
+function sprite_cell.make_func(sprite)
     return  
         function (x, y, tilesize)
             local r, g, b, a = love.graphics.getColor()
@@ -15,8 +15,8 @@ function color_cell.make_func(color)
         end    
 end
 
-function color_cell.new(color)
-    return color_cell.make_func(color)
+function sprite_cell.new(sprite)
+    return sprite_cell.make_func(sprite)
 end
 
-return color_cell
+return sprite_cell

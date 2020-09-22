@@ -28,15 +28,17 @@ function cell_box.set_selector_color(self, color)
     self.selector.color = color
 end
 
-function cell_box.select(self)
-
+function cell_box.get_selected(self)
+    return self.selector.grid_x
 end
 
-function cell_box.up(self)
+function cell_box.left(self)
+    self.selector:left()
+    print("called")
 end
 
-function cell_box.down(self)
-
+function cell_box.right(self)
+    self.selector:right()
 end
 
 function cell_box.draw(self)

@@ -67,7 +67,6 @@ end
 function gs.load(map_file_path)
     gs.camera_speed = 500
     gs.scale_speed = 1.01
-    --gs.cell_box_size = 32
 
     -- save old line width and set it to 5
     gs.old_line_width = love.graphics.getLineWidth()
@@ -82,7 +81,7 @@ function gs.load(map_file_path)
     local map_file_path = map_file_path or files.map_1
     gs.map_matrix = utils.matrix_read_from_file(map_file_path, ',')
 
-    -- calculate the on_screen tilesize, add 1 to tiles height for cell_box
+    -- calculate the on_screen tilesize, add 1 to tiles height for sprite_box
     local tilesize = tilesize(w, h, #gs.map_matrix[1], #gs.map_matrix + 1)
     
     -- camera
@@ -109,8 +108,8 @@ function gs.load(map_file_path)
                                 gs.map_matrix,
                                 gs.color_set)
     
-    -- cell_box 
-    gs.cell_box = cell_box.new( 0,
+    -- sprite_box
+    gs.sprite_box = cell_box.new( 0,
                                 h - tilesize,
                                 w/2,
                                 tilesize,
@@ -134,15 +133,16 @@ function gs.load(map_file_path)
     gs.actions_keydown[keymap.keys.up] = function () gs.selector:up() end
     gs.actions_keydown[keymap.keys.down] = function () gs.selector:down() end
     gs.actions_keydown[keymap.keys.left] = function () gs.selector:left() end
-    gs.actions_keydown[keymap.keys.right] =
-        function ()
-            gs.selector:right()
-        end
+    gs.actions_keydown[keymap.keys.right] = function () gs.selector:right() end
 
     gs.actions_keydown[keymap.keys.action] =
         function ()
-            change_grid(gs.selected_cell)
+            change_grid(gs.sprite_box:get_selected())
         end
+
+    gs.actions_keydown[keymap.keys.next_sprite] = function () gs.sprite_box:right() end
+    gs.actions_keydown[keymap.keys.previous_sprite] = function () gs.sprite_box:left() end
+
 
     gs.actions_keydown[keymap.keys.save] =  
         function ()
@@ -160,7 +160,7 @@ function gs.draw()
         end)
     gs.fps:draw()
 
-    gs.cell_box:draw()
+    gs.sprite_box:draw()
 end
 
 function gs.update(dt)    

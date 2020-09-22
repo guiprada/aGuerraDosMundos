@@ -79,7 +79,7 @@ function gs.load()
     gs.selection_box = selection_box.new(
         "big",
         0,
-        h*1/4,
+        h*1/6,
         w,
         "center",
         color.gray,
@@ -100,7 +100,9 @@ function gs.load()
         "save",
         "select",
         "action",
-        "exit"}
+        "exit",
+        "next_sprite",
+        "previous_sprite"}
 
     for key, value in ipairs(order) do
         gs.selection[value] = gs.selection_box:add_selection(
