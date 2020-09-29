@@ -93,13 +93,14 @@ function gs.load(map_file_path)
     gs.camera:set_viewport(0, 0, w, h - tilesize)
 
     -- create a cell_set
+    local cell_set_size = tilesize*2
     gs.cell_set = {}
     for index, value in ipairs(color_array) do
-        gs.cell_set[index] = color_cell.new(value)
+        gs.cell_set[index] = color_cell.new(value, tilesize)
     end
     -- add sprites
     local brick_sprite = love.graphics.newImage(files.spr_brick)
-    gs.cell_set[#gs.cell_set+1] = sprite_cell.new(brick_sprite)
+    gs.cell_set[#gs.cell_set+1] = sprite_cell.new(brick_sprite, tilesize)
 
     -- offsets
     local offset_x = (w - tilemap_width)/2
