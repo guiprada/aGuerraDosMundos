@@ -16,6 +16,7 @@ local grid_selector = require "qpd.widgets.grid_selector"
 local cell_box = require "qpd.widgets.cell_box"
 
 local color_cell = require "qpd.cells.color_cell"
+local sprite_cell = require "qpd.cells.sprite_cell"
 
 --------------------------------------------------------------------------------
 
@@ -92,10 +93,13 @@ function gs.load(map_file_path)
     gs.camera:set_viewport(0, 0, w, h - tilesize)
 
     -- create a cell_set
-    gs.color_set = {}
+    gs.cell_set = {}
     for index, value in ipairs(color_array) do
-        gs.color_set[index] = color_cell.new(value)
+        gs.cell_set[index] = color_cell.new(value)
     end
+    -- add sprites
+    local brick_sprite = love.graphics.newImage(files.spr_brick)
+    gs.cell_set[#gs.cell_set+1] = sprite_cell.new(brick_sprite)
 
     -- offsets
     local offset_x = (w - tilemap_width)/2
@@ -106,14 +110,14 @@ function gs.load(map_file_path)
                                 offset_y,
                                 tilesize,
                                 gs.map_matrix,
-                                gs.color_set)
+                                gs.cell_set)
     
     -- sprite_box
     gs.sprite_box = cell_box.new( 0,
                                 h - tilesize,
                                 w/2,
                                 tilesize,
-                                gs.color_set)
+                                gs.cell_set)
 
     -- selector for tilemap cell
     gs.selector = grid_selector.new(offset_x,

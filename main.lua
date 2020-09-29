@@ -8,6 +8,8 @@ local strings = require "qpd.services.strings"
 local window = require "qpd.services.window"
 
 function love.load()
+    love.graphics.setDefaultFilter("nearest","nearest")
+
     -- starting files service, should be the first one because we need the
     -- filepaths to start the other services
     files.load("qpd/services/files.conf")

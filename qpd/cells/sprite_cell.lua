@@ -1,17 +1,19 @@
 local sprite_cell = {}
+local utils = require "qpd.utils"
 
 function sprite_cell.make_func(sprite)
     return  
         function (x, y, tilesize)
-            local r, g, b, a = love.graphics.getColor()
-            love.graphics.setColor(unpack(color))
-            love.graphics.rectangle(
-                "fill",
+            local width, height = sprite:getDimensions()
+            local size = utils.max(width, height) 
+            local scale = tilesize/size
+            love.graphics.draw(
+                sprite,
                 x,
                 y,
-                tilesize,
-                tilesize)
-            love.graphics.setColor(r, g, b, a)                
+                0,
+                scale,
+                scale)            
         end    
 end
 
