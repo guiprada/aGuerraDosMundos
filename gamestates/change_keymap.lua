@@ -77,7 +77,7 @@ function gs.load()
         color.magenta)
 
     gs.selection_box = selection_box.new(
-        "big",
+        "regular",
         0,
         h*1/6,
         w,
@@ -105,7 +105,8 @@ function gs.load()
         "previous_sprite",
         "add_top",
         "add_bottom",
-        "add_right"}
+        "add_right",
+        "add_left"}
 
     for key, value in ipairs(order) do
         gs.selection[value] = gs.selection_box:add_selection(

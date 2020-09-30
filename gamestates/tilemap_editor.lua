@@ -86,10 +86,8 @@ function gs.load(map_file_path)
     local tilesize = calculate_tilesize(w, h, #gs.map_matrix[1], #gs.map_matrix + 1)
     
     -- camera
-    gs.map_tile_width = #gs.map_matrix[1]
-    gs.map_tile_height = #gs.map_matrix
-    local tilemap_width = tilesize * gs.map_tile_width
-    local tilemap_height = tilesize * gs.map_tile_height
+    local tilemap_width = tilesize * #gs.map_matrix[1]
+    local tilemap_height = tilesize * #gs.map_matrix
 
     gs.camera = camera.new(tilemap_width, tilemap_height, 1, 3)
     gs.camera:set_viewport(0, 0, w, h - tilesize)
@@ -160,17 +158,17 @@ function gs.load(map_file_path)
             gs.selector:add_line()
         end
 
-    -- gs.actions_keydown[keymap.keys.add_right] = 
-    --     function ()
-    --         gs.tilemap:add_right()
-    --         gs.selector:add_row()
-    --         -- gs.map_tile_width = gs.map_tile_width + 1
-    --         -- local tilesize = calculate_tilesize(w, h, gs.map_tile_width, gs.map_tile_height)
-    --         -- local tilemap_width = tilesize * gs.map_tile_width
-    --         -- local tilemap_height = tilesize * gs.map_tile_height
-    --         -- gs.camera:reset(tilemap_width, tilemap_height)
-    --     end
+    gs.actions_keydown[keymap.keys.add_right] = 
+        function ()
+            gs.tilemap:add_right()
+            gs.selector:add_row()
+        end
 
+    gs.actions_keydown[keymap.keys.add_left] = 
+        function ()
+            gs.tilemap:add_left()
+            gs.selector:add_row()
+        end
 
     gs.actions_keydown[keymap.keys.save] =  
         function ()

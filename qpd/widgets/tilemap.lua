@@ -64,8 +64,14 @@ end
 
 function tilemap.add_right(self)
     local new_index = #self.matrix[1] + 1
-    for i = 1, #self.matrix,  -1 do
+    for i = 1, #self.matrix, 1 do
         self.matrix[i][new_index] = 0
+    end
+end
+
+function tilemap.add_left(self)
+    for i = 1, #self.matrix, 1 do
+        table.insert( self.matrix[i], 1, 0)
     end
 end
 
