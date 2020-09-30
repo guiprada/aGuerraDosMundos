@@ -40,7 +40,7 @@ color_array[16] = color.lime
 
 --------------------------------------------------------------------------------
 
-local function tilesize(w, h, n_tiles_w, n_tiles_h)
+local function calculate_tilesize(w, h, n_tiles_w, n_tiles_h)
     local map_ratio = n_tiles_w/n_tiles_h
     local screen_ratio = w/h
 
@@ -83,17 +83,18 @@ function gs.load(map_file_path)
     gs.map_matrix = utils.matrix_read_from_file(map_file_path, ',')
 
     -- calculate the on_screen tilesize, add 1 to tiles height for sprite_box
-    local tilesize = tilesize(w, h, #gs.map_matrix[1], #gs.map_matrix + 1)
+    local tilesize = calculate_tilesize(w, h, #gs.map_matrix[1], #gs.map_matrix + 1)
     
     -- camera
-    local tilemap_width = tilesize * #gs.map_matrix[1]
-    local tilemap_height = tilesize * #gs.map_matrix
+    gs.map_tile_width = #gs.map_matrix[1]
+    gs.map_tile_height = #gs.map_matrix
+    local tilemap_width = tilesize * gs.map_tile_width
+    local tilemap_height = tilesize * gs.map_tile_height
 
     gs.camera = camera.new(tilemap_width, tilemap_height, 1, 3)
     gs.camera:set_viewport(0, 0, w, h - tilesize)
 
     -- create a cell_set
-    local cell_set_size = tilesize*2
     gs.cell_set = {}
     for index, value in ipairs(color_array) do
         gs.cell_set[index] = color_cell.new(value, tilesize)
@@ -116,7 +117,7 @@ function gs.load(map_file_path)
     -- sprite_box
     gs.sprite_box = cell_box.new( 0,
                                 h - tilesize,
-                                w/2,
+                                w,
                                 tilesize,
                                 gs.cell_set)
 
@@ -147,6 +148,28 @@ function gs.load(map_file_path)
 
     gs.actions_keydown[keymap.keys.next_sprite] = function () gs.sprite_box:right() end
     gs.actions_keydown[keymap.keys.previous_sprite] = function () gs.sprite_box:left() end
+
+    gs.actions_keydown[keymap.keys.add_top] = 
+        function ()
+            gs.tilemap:add_top()
+            gs.selector:add_line()
+        end
+    gs.actions_keydown[keymap.keys.add_bottom] = 
+        function ()
+            gs.tilemap:add_bottom()
+            gs.selector:add_line()
+        end
+
+    -- gs.actions_keydown[keymap.keys.add_right] = 
+    --     function ()
+    --         gs.tilemap:add_right()
+    --         gs.selector:add_row()
+    --         -- gs.map_tile_width = gs.map_tile_width + 1
+    --         -- local tilesize = calculate_tilesize(w, h, gs.map_tile_width, gs.map_tile_height)
+    --         -- local tilemap_width = tilesize * gs.map_tile_width
+    --         -- local tilemap_height = tilesize * gs.map_tile_height
+    --         -- gs.camera:reset(tilemap_width, tilemap_height)
+    --     end
 
 
     gs.actions_keydown[keymap.keys.save] =  

@@ -74,4 +74,12 @@ function grid_selector.left(self)
         self.min_grid_x, self.max_grid_x)
 end
 
+function grid_selector.add_line(self)
+    self.max_grid_y = self.max_grid_y + 1
+end
+
+function grid_selector.add_row(self)
+    self.max_grid_x = self.max_grid_x + 1
+end
+
 return grid_selector

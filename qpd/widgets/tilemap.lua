@@ -44,4 +44,29 @@ function tilemap.save(self, filepath)
     utils.matrix_write_to_file(self.matrix, filepath, ',')
 end
 
+function tilemap.add_top(self)    
+    for i = #self.matrix, 1, -1 do
+        self.matrix[i+1] = self.matrix[i]
+    end
+    self.matrix[1] = {}
+    for i = 1, #self.matrix[2], 1 do
+        self.matrix[1][i] = 0
+    end
+end
+
+function tilemap.add_bottom(self)
+    local new_index = #self.matrix + 1
+    self.matrix[new_index] = {}
+    for i = 1, #self.matrix[1], 1 do
+        self.matrix[new_index][i] = 0
+    end
+end
+
+function tilemap.add_right(self)
+    local new_index = #self.matrix[1] + 1
+    for i = 1, #self.matrix,  -1 do
+        self.matrix[i][new_index] = 0
+    end
+end
+
 return tilemap

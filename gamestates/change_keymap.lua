@@ -102,7 +102,10 @@ function gs.load()
         "action",
         "exit",
         "next_sprite",
-        "previous_sprite"}
+        "previous_sprite",
+        "add_top",
+        "add_bottom",
+        "add_right"}
 
     for key, value in ipairs(order) do
         gs.selection[value] = gs.selection_box:add_selection(
