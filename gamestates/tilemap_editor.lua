@@ -51,6 +51,54 @@ local function calculate_tilesize(w, h, n_tiles_w, n_tiles_h)
     end    
 end
 
+local function set_view()
+        --tile_height + 1 to acomodate cellbox
+        local tilesize = calculate_tilesize(gs.width, gs.height, gs.tile_width, gs.tile_height + 1)
+
+        -- camera
+        local tilemap_width = tilesize * gs.tile_width
+        local tilemap_height = tilesize * gs.tile_height
+    
+        gs.camera = camera.new(tilemap_width, tilemap_height, 1, 3)
+        gs.camera:set_viewport(0, 0, gs.width, gs.height - tilesize)
+    
+        -- create a cell_set
+        gs.cell_set = {}
+        for index, value in ipairs(color_array) do
+            gs.cell_set[index] = color_cell.new(value, tilesize)
+        end
+        -- add sprites
+        local brick_sprite = love.graphics.newImage(files.spr_brick)
+        gs.cell_set[#gs.cell_set+1] = sprite_cell.new(brick_sprite, tilesize)
+    
+        -- offsets
+        local offset_x = (gs.width - tilemap_width)/2
+        local offset_y = (gs.height - tilesize - tilemap_height)/2
+    
+        -- create map
+        gs.tilemap = tilemap.new(   offset_x,
+                                    offset_y,
+                                    tilesize,
+                                    gs.map_matrix,
+                                    gs.cell_set)
+        
+        -- sprite_box
+        gs.sprite_box = cell_box.new( 0,
+                                    gs.height - tilesize,
+                                    gs.width,
+                                    tilesize,
+                                    gs.cell_set)
+    
+        -- selector for tilemap cell
+        gs.selector = grid_selector.new(offset_x,
+                                        offset_y,
+                                        1,
+                                        1,
+                                        gs.tile_width,
+                                        gs.tile_height,
+                                        tilesize)
+end
+
 local function zoom_in()
     gs.camera:set_scale(gs.camera:get_scale() * gs.scale_speed)
 end
@@ -75,58 +123,17 @@ function gs.load(map_file_path)
 
     gs.fps = fps.new()
     
-    local w = love.graphics.getWidth()
-    local h = love.graphics.getHeight()
+    gs.width = love.graphics.getWidth()
+    gs.height = love.graphics.getHeight()
 
     -- read map file
     local map_file_path = map_file_path or files.map_1
     gs.map_matrix = utils.matrix_read_from_file(map_file_path, ',')
 
-    -- calculate the on_screen tilesize, add 1 to tiles height for sprite_box
-    local tilesize = calculate_tilesize(w, h, #gs.map_matrix[1], #gs.map_matrix + 1)
-    
-    -- camera
-    local tilemap_width = tilesize * #gs.map_matrix[1]
-    local tilemap_height = tilesize * #gs.map_matrix
-
-    gs.camera = camera.new(tilemap_width, tilemap_height, 1, 3)
-    gs.camera:set_viewport(0, 0, w, h - tilesize)
-
-    -- create a cell_set
-    gs.cell_set = {}
-    for index, value in ipairs(color_array) do
-        gs.cell_set[index] = color_cell.new(value, tilesize)
-    end
-    -- add sprites
-    local brick_sprite = love.graphics.newImage(files.spr_brick)
-    gs.cell_set[#gs.cell_set+1] = sprite_cell.new(brick_sprite, tilesize)
-
-    -- offsets
-    local offset_x = (w - tilemap_width)/2
-    local offset_y = (h - tilesize - tilemap_height)/2
-
-    -- create map
-    gs.tilemap = tilemap.new(   offset_x,
-                                offset_y,
-                                tilesize,
-                                gs.map_matrix,
-                                gs.cell_set)
-    
-    -- sprite_box
-    gs.sprite_box = cell_box.new( 0,
-                                h - tilesize,
-                                w,
-                                tilesize,
-                                gs.cell_set)
-
-    -- selector for tilemap cell
-    gs.selector = grid_selector.new(offset_x,
-                                    offset_y,
-                                    1,
-                                    1,
-                                    #gs.map_matrix[1],
-                                    #gs.map_matrix,
-                                    tilesize)
+    -- calculate the on_screen view
+    gs.tile_width = #gs.map_matrix[1]
+    gs.tile_height = #gs.map_matrix 
+    set_view()
 
     -- define keyboard actions
     gs.actions_keydown = {}
@@ -151,23 +158,31 @@ function gs.load(map_file_path)
         function ()
             gs.tilemap:add_top()
             gs.selector:add_line()
+            gs.tile_height = gs.tile_height + 1
+            set_view()
         end
     gs.actions_keydown[keymap.keys.add_bottom] = 
         function ()
             gs.tilemap:add_bottom()
             gs.selector:add_line()
+            gs.tile_height = gs.tile_height + 1
+            set_view()
         end
 
     gs.actions_keydown[keymap.keys.add_right] = 
         function ()
             gs.tilemap:add_right()
             gs.selector:add_row()
+            gs.tile_width = gs.tile_width + 1
+            set_view()
         end
 
     gs.actions_keydown[keymap.keys.add_left] = 
         function ()
             gs.tilemap:add_left()
             gs.selector:add_row()
+            gs.tile_width = gs.tile_width + 1
+            set_view()
         end
 
     gs.actions_keydown[keymap.keys.save] =  

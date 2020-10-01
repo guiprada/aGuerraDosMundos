@@ -1,3 +1,8 @@
-- tilemap reset camera on resize
+todo
+
 - load map on game
 - player movement
+
+
+done
+    - tilemap reset camera on resize

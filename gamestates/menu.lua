@@ -51,13 +51,13 @@ function gs.load(this_player)
     gs.menu:add_selection(
         strings.menu_start,
         function ()
-            gamestate.switch("game", gs.player)
+            gamestate.switch("game")
         end)
 
     gs.menu:add_selection(
         strings.menu_settings,
         function ()
-            gamestate.switch("settings_menu", gs.player)
+            gamestate.switch("settings_menu")
         end)
 
     gs.menu:add_selection(
