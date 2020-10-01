@@ -221,6 +221,16 @@ function utils.min(x, y)
     return x < y and x or y
 end
 
+function utils.round(x)
+    if x>0 then
+        if math.fmod(x, 1) >= 0.5 then return math.ceil(x)
+        else return math.floor(x) end
+    else
+        if math.fmod(x, 1) >= 0.5 then return math.floor(x)
+        else return math.ceil(x) end
+    end
+end
+
 function utils.round_2_dec(value)
     -- Rounds floating point number to 2 decimal places.
     if ( value >= 0 ) then

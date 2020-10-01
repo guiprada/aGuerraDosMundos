@@ -81,22 +81,6 @@ local function set_view()
                                     tilesize,
                                     gs.map_matrix,
                                     gs.cell_set)
-        
-        -- sprite_box
-        gs.sprite_box = cell_box.new( 0,
-                                    gs.height - tilesize,
-                                    gs.width,
-                                    tilesize,
-                                    gs.cell_set)
-    
-        -- selector for tilemap cell
-        gs.selector = grid_selector.new(offset_x,
-                                        offset_y,
-                                        1,
-                                        1,
-                                        gs.tile_width,
-                                        gs.tile_height,
-                                        tilesize)
 end
 
 local function zoom_in()
@@ -116,11 +100,7 @@ end
 function gs.load(map_file_path)
     gs.camera_speed = 500
     gs.scale_speed = 1.01
-
-    -- save old line width and set it to 5
-    gs.old_line_width = love.graphics.getLineWidth()
-    love.graphics.setLineWidth(5)
-
+    
     gs.fps = fps.new()
     
     gs.width = love.graphics.getWidth()
@@ -141,67 +121,15 @@ function gs.load(map_file_path)
         function ()
             gamestate.switch("menu")
         end
-    gs.actions_keydown[keymap.keys.up] = function () gs.selector:up() end
-    gs.actions_keydown[keymap.keys.down] = function () gs.selector:down() end
-    gs.actions_keydown[keymap.keys.left] = function () gs.selector:left() end
-    gs.actions_keydown[keymap.keys.right] = function () gs.selector:right() end
-
-    gs.actions_keydown[keymap.keys.action] =
-        function ()
-            change_grid(gs.sprite_box:get_selected())
-        end
-
-    gs.actions_keydown[keymap.keys.next_sprite] = function () gs.sprite_box:right() end
-    gs.actions_keydown[keymap.keys.previous_sprite] = function () gs.sprite_box:left() end
-
-    gs.actions_keydown[keymap.keys.add_top] = 
-        function ()
-            gs.tilemap:add_top()
-            gs.selector:add_line()
-            gs.tile_height = gs.tile_height + 1
-            set_view()
-        end
-    gs.actions_keydown[keymap.keys.add_bottom] = 
-        function ()
-            gs.tilemap:add_bottom()
-            gs.selector:add_line()
-            gs.tile_height = gs.tile_height + 1
-            set_view()
-        end
-
-    gs.actions_keydown[keymap.keys.add_right] = 
-        function ()
-            gs.tilemap:add_right()
-            gs.selector:add_row()
-            gs.tile_width = gs.tile_width + 1
-            set_view()
-        end
-
-    gs.actions_keydown[keymap.keys.add_left] = 
-        function ()
-            gs.tilemap:add_left()
-            gs.selector:add_row()
-            gs.tile_width = gs.tile_width + 1
-            set_view()
-        end
-
-    gs.actions_keydown[keymap.keys.save] =  
-        function ()
-            gs.tilemap:save(
-                map_file_path)
-        end
 end
 
 function gs.draw()
     gs.camera:draw( 
         function ()
             gs.tilemap:draw()
-            gs.selector:draw()
             
         end)
     gs.fps:draw()
-
-    gs.sprite_box:draw()
 end
 
 function gs.update(dt)    
@@ -246,8 +174,6 @@ function gs.resize(w, h)
 end
 
 function gs.unload()
-    love.graphics.setLineWidth(gs.old_line_width)
-
     -- the callbacks are saved by the gamestate
     gs = {}    
 end

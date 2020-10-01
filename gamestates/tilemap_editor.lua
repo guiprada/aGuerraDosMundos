@@ -53,50 +53,64 @@ end
 
 local function set_view()
         --tile_height + 1 to acomodate cellbox
-        local tilesize = calculate_tilesize(gs.width, gs.height, gs.tile_width, gs.tile_height + 1)
+        gs.tilesize = calculate_tilesize(gs.width, gs.height, gs.tile_width, gs.tile_height + 1)
 
         -- camera
-        local tilemap_width = tilesize * gs.tile_width
-        local tilemap_height = tilesize * gs.tile_height
+        local tilemap_width = gs.tilesize * gs.tile_width
+        local tilemap_height = gs.tilesize * gs.tile_height
     
         gs.camera = camera.new(tilemap_width, tilemap_height, 1, 3)
-        gs.camera:set_viewport(0, 0, gs.width, gs.height - tilesize)
+        gs.camera:set_viewport(0, 0, gs.width, gs.height - gs.tilesize)
     
         -- create a cell_set
         gs.cell_set = {}
         for index, value in ipairs(color_array) do
-            gs.cell_set[index] = color_cell.new(value, tilesize)
+            gs.cell_set[index] = color_cell.new(value, gs.tilesize)
         end
         -- add sprites
         local brick_sprite = love.graphics.newImage(files.spr_brick)
-        gs.cell_set[#gs.cell_set+1] = sprite_cell.new(brick_sprite, tilesize)
+        gs.cell_set[#gs.cell_set+1] = sprite_cell.new(brick_sprite, gs.tilesize)
     
         -- offsets
         local offset_x = (gs.width - tilemap_width)/2
-        local offset_y = (gs.height - tilesize - tilemap_height)/2
+        local offset_y = (gs.height - gs.tilesize - tilemap_height)/2
     
         -- create map
         gs.tilemap = tilemap.new(   offset_x,
                                     offset_y,
-                                    tilesize,
+                                    gs.tilesize,
                                     gs.map_matrix,
                                     gs.cell_set)
         
         -- sprite_box
         gs.sprite_box = cell_box.new( 0,
-                                    gs.height - tilesize,
+                                    gs.height - gs.tilesize,
                                     gs.width,
-                                    tilesize,
+                                    gs.tilesize,
                                     gs.cell_set)
     
         -- selector for tilemap cell
+
+        -- logic to keep position on reset
+        local grid_start_x, grid_start_y
+        if gs.selector == nil then
+            grid_start_x = utils.round(gs.tile_width/2)
+            grid_start_y = utils.round(gs.tile_height/2)
+        else
+            grid_start_x = gs.selector.grid_x
+            grid_start_y = gs.selector.grid_y
+        end
+
         gs.selector = grid_selector.new(offset_x,
                                         offset_y,
                                         1,
                                         1,
                                         gs.tile_width,
                                         gs.tile_height,
-                                        tilesize)
+                                        gs.tilesize,
+                                        nil,
+                                        grid_start_x,
+                                        grid_start_y)
 end
 
 local function zoom_in()
@@ -140,12 +154,7 @@ function gs.load(map_file_path)
     gs.actions_keydown[keymap.keys.exit] =
         function ()
             gamestate.switch("menu")
-        end
-    gs.actions_keydown[keymap.keys.up] = function () gs.selector:up() end
-    gs.actions_keydown[keymap.keys.down] = function () gs.selector:down() end
-    gs.actions_keydown[keymap.keys.left] = function () gs.selector:left() end
-    gs.actions_keydown[keymap.keys.right] = function () gs.selector:right() end
-
+        end    
     gs.actions_keydown[keymap.keys.action] =
         function ()
             change_grid(gs.sprite_box:get_selected())
@@ -190,6 +199,29 @@ function gs.load(map_file_path)
             gs.tilemap:save(
                 map_file_path)
         end
+        
+    gs.actions_keyup = {}
+    gs.actions_keyup[keymap.keys.up] = 
+        function ()
+            gs.selector:up()            
+            gs.camera:move(0, -gs.tilesize)
+        end
+    gs.actions_keyup[keymap.keys.down] =
+        function ()
+            gs.selector:down()
+            gs.camera:move(0, gs.tilesize)
+        end
+    gs.actions_keyup[keymap.keys.left] =
+        function ()
+            gs.selector:left()
+            gs.camera:move(-gs.tilesize, 0)
+        end
+    gs.actions_keyup[keymap.keys.right] =
+        function ()
+            gs.selector:right()
+            gs.camera:move(gs.tilesize, 0)
+        end
+
 end
 
 function gs.draw()
@@ -211,26 +243,31 @@ function gs.update(dt)
         zoom_out()
     end
 
-    -- camera panning
-    local move_speed_x = 0
-    local move_speed_y = 0
+    -- -- camera panning
+    -- local move_speed_x = 0
+    -- local move_speed_y = 0
 
-    if love.keyboard.isDown(keymap.keys.pan_up) then
-        move_speed_y = -1        
-    elseif love.keyboard.isDown(keymap.keys.pan_down) then
-        move_speed_y = 1        
-    end
-    if love.keyboard.isDown(keymap.keys.pan_left) then
-        move_speed_x = -1
-    elseif love.keyboard.isDown(keymap.keys.pan_right) then
-        move_speed_x = 1
-    end
-    move_speed_x, move_speed_y = utils.normalize(move_speed_x, move_speed_y)
-    gs.camera:move( move_speed_x*gs.camera_speed*dt,
-                    move_speed_y*gs.camera_speed*dt)
+    -- if love.keyboard.isDown(keymap.keys.pan_up) then
+    --     move_speed_y = -1        
+    -- elseif love.keyboard.isDown(keymap.keys.pan_down) then
+    --     move_speed_y = 1        
+    -- end
+    -- if love.keyboard.isDown(keymap.keys.pan_left) then
+    --     move_speed_x = -1
+    -- elseif love.keyboard.isDown(keymap.keys.pan_right) then
+    --     move_speed_x = 1
+    -- end
+    -- move_speed_x, move_speed_y = utils.normalize(move_speed_x, move_speed_y)
+    -- gs.camera:move( move_speed_x*gs.camera_speed*dt,
+    --                 move_speed_y*gs.camera_speed*dt)
 end
 
 function gs.keypressed(key, scancode, isrepeat)
+    local func = gs.actions_keyup[key]
+
+    if func then
+        func()
+    end
 end
 
 function gs.keyreleased(key, scancode)

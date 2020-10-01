@@ -9,6 +9,7 @@ local window = require "qpd.services.window"
 
 function love.load()
     love.graphics.setDefaultFilter("nearest","nearest")
+    love.keyboard.setKeyRepeat(true)
 
     -- starting files service, should be the first one because we need the
     -- filepaths to start the other services
