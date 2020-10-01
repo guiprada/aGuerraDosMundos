@@ -203,25 +203,20 @@ function gs.load(map_file_path)
     gs.actions_keyup = {}
     gs.actions_keyup[keymap.keys.up] = 
         function ()
-            gs.selector:up()            
-            gs.camera:move(0, -gs.tilesize)
+            gs.selector:up()
         end
     gs.actions_keyup[keymap.keys.down] =
         function ()
             gs.selector:down()
-            gs.camera:move(0, gs.tilesize)
         end
     gs.actions_keyup[keymap.keys.left] =
         function ()
             gs.selector:left()
-            gs.camera:move(-gs.tilesize, 0)
         end
     gs.actions_keyup[keymap.keys.right] =
         function ()
             gs.selector:right()
-            gs.camera:move(gs.tilesize, 0)
         end
-
 end
 
 function gs.draw()
@@ -243,23 +238,8 @@ function gs.update(dt)
         zoom_out()
     end
 
-    -- -- camera panning
-    -- local move_speed_x = 0
-    -- local move_speed_y = 0
-
-    -- if love.keyboard.isDown(keymap.keys.pan_up) then
-    --     move_speed_y = -1        
-    -- elseif love.keyboard.isDown(keymap.keys.pan_down) then
-    --     move_speed_y = 1        
-    -- end
-    -- if love.keyboard.isDown(keymap.keys.pan_left) then
-    --     move_speed_x = -1
-    -- elseif love.keyboard.isDown(keymap.keys.pan_right) then
-    --     move_speed_x = 1
-    -- end
-    -- move_speed_x, move_speed_y = utils.normalize(move_speed_x, move_speed_y)
-    -- gs.camera:move( move_speed_x*gs.camera_speed*dt,
-    --                 move_speed_y*gs.camera_speed*dt)
+    -- center camera
+    gs.camera:set_center(gs.selector:get_center())
 end
 
 function gs.keypressed(key, scancode, isrepeat)

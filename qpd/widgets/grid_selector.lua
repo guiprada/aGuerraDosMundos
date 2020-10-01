@@ -82,4 +82,10 @@ function grid_selector.add_row(self)
     self.max_grid_x = self.max_grid_x + 1
 end
 
+function grid_selector.get_center(self)
+        return 
+            self.offset_x + (self.grid_x - 1) * self.tilesize + self.tilesize/2,
+            self.offset_y + (self.grid_y - 1) * self.tilesize + self.tilesize/2     
+end
+
 return grid_selector
