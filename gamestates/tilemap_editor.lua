@@ -133,7 +133,7 @@ function gs.load(map_file_path)
 
     -- save old line width and set it to 5
     gs.old_line_width = love.graphics.getLineWidth()
-    love.graphics.setLineWidth(5)
+    love.graphics.setLineWidth(2)
 
     gs.fps = fps.new()
     
@@ -150,27 +150,32 @@ function gs.load(map_file_path)
     set_view()
 
     -- define keyboard actions
-    gs.actions_keydown = {}
-    gs.actions_keydown[keymap.keys.exit] =
+    gs.actions_keyup = {}
+    gs.actions_keyup[keymap.keys.exit] =
         function ()
             gamestate.switch("menu")
         end    
-    gs.actions_keydown[keymap.keys.action] =
+    gs.actions_keyup[keymap.keys.action] =
         function ()
             change_grid(gs.sprite_box:get_selected())
         end
 
-    gs.actions_keydown[keymap.keys.next_sprite] = function () gs.sprite_box:right() end
-    gs.actions_keydown[keymap.keys.previous_sprite] = function () gs.sprite_box:left() end
+    gs.actions_keyup[keymap.keys.delete] =
+        function ()
+            change_grid(0)
+        end
 
-    gs.actions_keydown[keymap.keys.add_top] = 
+    gs.actions_keyup[keymap.keys.next_sprite] = function () gs.sprite_box:right() end
+    gs.actions_keyup[keymap.keys.previous_sprite] = function () gs.sprite_box:left() end
+
+    gs.actions_keyup[keymap.keys.add_top] = 
         function ()
             gs.tilemap:add_top()
             gs.selector:add_line()
             gs.tile_height = gs.tile_height + 1
             set_view()
         end
-    gs.actions_keydown[keymap.keys.add_bottom] = 
+    gs.actions_keyup[keymap.keys.add_bottom] = 
         function ()
             gs.tilemap:add_bottom()
             gs.selector:add_line()
@@ -178,7 +183,7 @@ function gs.load(map_file_path)
             set_view()
         end
 
-    gs.actions_keydown[keymap.keys.add_right] = 
+    gs.actions_keyup[keymap.keys.add_right] = 
         function ()
             gs.tilemap:add_right()
             gs.selector:add_row()
@@ -186,7 +191,7 @@ function gs.load(map_file_path)
             set_view()
         end
 
-    gs.actions_keydown[keymap.keys.add_left] = 
+    gs.actions_keyup[keymap.keys.add_left] = 
         function ()
             gs.tilemap:add_left()
             gs.selector:add_row()
@@ -194,26 +199,26 @@ function gs.load(map_file_path)
             set_view()
         end
 
-    gs.actions_keydown[keymap.keys.save] =  
+    gs.actions_keyup[keymap.keys.save] =  
         function ()
             gs.tilemap:save(
                 map_file_path)
         end
         
-    gs.actions_keyup = {}
-    gs.actions_keyup[keymap.keys.up] = 
+    gs.actions_keydown = {}
+    gs.actions_keydown[keymap.keys.up] = 
         function ()
             gs.selector:up()
         end
-    gs.actions_keyup[keymap.keys.down] =
+    gs.actions_keydown[keymap.keys.down] =
         function ()
             gs.selector:down()
         end
-    gs.actions_keyup[keymap.keys.left] =
+    gs.actions_keydown[keymap.keys.left] =
         function ()
             gs.selector:left()
         end
-    gs.actions_keyup[keymap.keys.right] =
+    gs.actions_keydown[keymap.keys.right] =
         function ()
             gs.selector:right()
         end
@@ -243,7 +248,7 @@ function gs.update(dt)
 end
 
 function gs.keypressed(key, scancode, isrepeat)
-    local func = gs.actions_keyup[key]
+    local func = gs.actions_keydown[key]
 
     if func then
         func()
@@ -251,7 +256,7 @@ function gs.keypressed(key, scancode, isrepeat)
 end
 
 function gs.keyreleased(key, scancode)
-    local func = gs.actions_keydown[key]
+    local func = gs.actions_keyup[key]
 
     if func then
         func()

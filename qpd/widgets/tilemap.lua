@@ -37,7 +37,7 @@ function tilemap.draw(self)
 end
 
 function tilemap.change_grid(self, new_val, grid_x, grid_y)
-    self.matrix[grid_y][grid_x] = utils.clamp(new_val, 1, #self.draw_functions)
+    self.matrix[grid_y][grid_x] = utils.clamp(new_val, 0, #self.draw_functions)
 end
 
 function tilemap.save(self, filepath)

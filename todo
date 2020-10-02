@@ -1,5 +1,6 @@
 todo
     - set tilemap cell to zero
+    - collisions :)
 
 done
     - tilemap reset camera on resize

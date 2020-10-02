@@ -97,6 +97,7 @@ function gs.load()
         "select",
         "action",
         "exit",
+        "delete",
         "next_sprite",
         "previous_sprite",
         "add_top",
