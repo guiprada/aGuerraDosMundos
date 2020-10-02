@@ -18,6 +18,8 @@ local cell_box = require "qpd.widgets.cell_box"
 local color_cell = require "qpd.cells.color_cell"
 local sprite_cell = require "qpd.cells.sprite_cell"
 
+local Player = require "entities.Player"
+
 --------------------------------------------------------------------------------
 
 local color_array = {}
@@ -51,34 +53,34 @@ local function calculate_tilesize(w, h, n_tiles_w, n_tiles_h)
     end    
 end
 
-local function set_view()
+local function set_map_view()
         --tile_height + 1 to acomodate cellbox
-        local tilesize = calculate_tilesize(gs.width, gs.height, gs.tile_width, gs.tile_height + 1)
+        gs.tilesize = calculate_tilesize(gs.width, gs.height, gs.tile_width, gs.tile_height + 1)
 
         -- camera
-        local tilemap_width = tilesize * gs.tile_width
-        local tilemap_height = tilesize * gs.tile_height
+        local tilemap_width = gs.tilesize * gs.tile_width
+        local tilemap_height = gs.tilesize * gs.tile_height
     
         gs.camera = camera.new(tilemap_width, tilemap_height, 1, 3)
-        gs.camera:set_viewport(0, 0, gs.width, gs.height - tilesize)
+        gs.camera:set_viewport(0, 0, gs.width, gs.height - gs.tilesize)
     
         -- create a cell_set
         gs.cell_set = {}
         for index, value in ipairs(color_array) do
-            gs.cell_set[index] = color_cell.new(value, tilesize)
+            gs.cell_set[index] = color_cell.new(value, gs.tilesize)
         end
         -- add sprites
         local brick_sprite = love.graphics.newImage(files.spr_brick)
-        gs.cell_set[#gs.cell_set+1] = sprite_cell.new(brick_sprite, tilesize)
+        gs.cell_set[#gs.cell_set+1] = sprite_cell.new(brick_sprite, gs.tilesize)
     
         -- offsets
         local offset_x = (gs.width - tilemap_width)/2
-        local offset_y = (gs.height - tilesize - tilemap_height)/2
+        local offset_y = (gs.height - gs.tilesize - tilemap_height)/2
     
         -- create map
         gs.tilemap = tilemap.new(   offset_x,
                                     offset_y,
-                                    tilesize,
+                                    gs.tilesize,
                                     gs.map_matrix,
                                     gs.cell_set)
 end
@@ -113,7 +115,7 @@ function gs.load(map_file_path)
     -- calculate the on_screen view
     gs.tile_width = #gs.map_matrix[1]
     gs.tile_height = #gs.map_matrix 
-    set_view()
+    set_map_view()
 
     -- define keyboard actions
     gs.actions_keydown = {}
@@ -121,13 +123,16 @@ function gs.load(map_file_path)
         function ()
             gamestate.switch("menu")
         end
+
+    local x, y = gs.camera:get_center()
+    gs.player = Player.new(x, y, gs.tilesize, 0.3)
 end
 
 function gs.draw()
     gs.camera:draw( 
         function ()
             gs.tilemap:draw()
-            
+            gs.player:draw()
         end)
     gs.fps:draw()
 end
@@ -139,23 +144,7 @@ function gs.update(dt)
         zoom_out()
     end
 
-    -- camera panning
-    local move_speed_x = 0
-    local move_speed_y = 0
-
-    if love.keyboard.isDown(keymap.keys.pan_up) then
-        move_speed_y = -1        
-    elseif love.keyboard.isDown(keymap.keys.pan_down) then
-        move_speed_y = 1        
-    end
-    if love.keyboard.isDown(keymap.keys.pan_left) then
-        move_speed_x = -1
-    elseif love.keyboard.isDown(keymap.keys.pan_right) then
-        move_speed_x = 1
-    end
-    move_speed_x, move_speed_y = utils.normalize(move_speed_x, move_speed_y)
-    gs.camera:move( move_speed_x*gs.camera_speed*dt,
-                    move_speed_y*gs.camera_speed*dt)
+    gs.player:update()
 end
 
 function gs.keypressed(key, scancode, isrepeat)

@@ -1,9 +1,9 @@
 todo
-    - load map on game
-    - player movement
-    - broken pixel perfect
     - set tilemap cell to zero
 
 done
     - tilemap reset camera on resize
     - improved cursor movement on level editor
+    - load map on game
+    - player movement
+    - broken pixel perfect
