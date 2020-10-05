@@ -1,5 +1,4 @@
 todo
-    - set tilemap cell to zero
     - collisions :)
 
 done
@@ -8,3 +7,4 @@ done
     - load map on game
     - player movement
     - broken pixel perfect
+    - set tilemap cell to zero

@@ -125,7 +125,8 @@ function gs.load(map_file_path)
         end
 
     local x, y = gs.camera:get_center()
-    gs.player = Player.new(x, y, gs.tilesize, 0.3)
+    local spr_player = love.graphics.newImage(files.spr_him)
+    gs.player = Player.new(x, y, spr_player, gs.tilesize, 150)
 end
 
 function gs.draw()
@@ -144,7 +145,7 @@ function gs.update(dt)
         zoom_out()
     end
 
-    gs.player:update()
+    gs.player:update(dt)
 end
 
 function gs.keypressed(key, scancode, isrepeat)
@@ -160,6 +161,9 @@ end
 
 function gs.resize(w, h)
     fonts.resize(w, h)
+    gs.width = w
+    gs.height = h
+    set_map_view()
 end
 
 function gs.unload()
