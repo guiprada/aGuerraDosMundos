@@ -53,14 +53,14 @@ end
 
 local function set_view()
         --tile_height + 1 to acomodate cellbox
-        gs.tilesize = calculate_tilesize(gs.width, gs.height, gs.tile_width, gs.tile_height + 1)
+        gs.tilesize = calculate_tilesize(gs.width, gs.height, gs.tile_width, gs.tile_height)
 
         -- camera
         local tilemap_width = gs.tilesize * gs.tile_width
         local tilemap_height = gs.tilesize * gs.tile_height
     
         gs.camera = camera.new(tilemap_width, tilemap_height, 1, 3)
-        gs.camera:set_viewport(0, 0, gs.width, gs.height - gs.tilesize)
+        gs.camera:set_viewport(0, 0, gs.width, gs.height)
     
         -- create a cell_set
         gs.cell_set = {}

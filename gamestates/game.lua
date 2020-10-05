@@ -55,14 +55,14 @@ end
 
 local function set_map_view()
         --tile_height + 1 to acomodate cellbox
-        gs.tilesize = calculate_tilesize(gs.width, gs.height, gs.tile_width, gs.tile_height + 1)
+        gs.tilesize = calculate_tilesize(gs.width, gs.height, gs.tile_width, gs.tile_height)
 
         -- camera
         local tilemap_width = gs.tilesize * gs.tile_width
         local tilemap_height = gs.tilesize * gs.tile_height
     
         gs.camera = camera.new(tilemap_width, tilemap_height, 1, 3)
-        gs.camera:set_viewport(0, 0, gs.width, gs.height - gs.tilesize)
+        gs.camera:set_viewport(0, 0, gs.width, gs.height)
     
         -- create a cell_set
         gs.cell_set = {}
@@ -126,7 +126,7 @@ function gs.load(map_file_path)
 
     local x, y = gs.camera:get_center()
     local spr_player = love.graphics.newImage(files.spr_him)
-    gs.player = Player.new(x, y, spr_player, gs.tilesize, 150)
+    gs.player = Player.new(x, y, spr_player, gs.tilesize, 75)
 end
 
 function gs.draw()
@@ -144,6 +144,9 @@ function gs.update(dt)
     elseif love.keyboard.isDown(keymap.keys.zoom_out) then
         zoom_out()
     end
+
+    -- center camera
+    gs.camera:set_center(gs.player:get_center())
 
     gs.player:update(dt)
 end

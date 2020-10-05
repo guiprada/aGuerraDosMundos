@@ -11,7 +11,8 @@ function Player.new(x, y, sprite, size, speed)
     o.speed = speed or 1
     o.sprite = sprite
     o.scale = size/ sprite:getWidth()
-    o.angle = 0
+    o.rot = 0
+    o.offset = -size/2
 
     utils.assign_methods(o, Player)
 
@@ -56,7 +57,11 @@ end
 
 function Player.draw(self)    
     --love.graphics.circle("fill", self.x, self.y, self.size)
-    love.graphics.draw(self.sprite, self.x, self.y, self.angle, self.scale, self.scale)
+    love.graphics.draw(self.sprite, self.x, self.y, self.rot, self.scale, self.scale, self.offset, self.offset)
+end
+
+function Player.get_center(self)
+    return self.x + self.offset, self.y + self.offset
 end
 
 return Player
