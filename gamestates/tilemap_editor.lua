@@ -72,8 +72,8 @@ local function set_view()
         gs.cell_set[#gs.cell_set+1] = sprite_cell.new(brick_sprite, gs.tilesize)
     
         -- offsets
-        local offset_x = (gs.width - tilemap_width)/2
-        local offset_y = (gs.height - gs.tilesize - tilemap_height)/2
+        local offset_x = (gs.width - tilemap_width)/2 - gs.tilesize/2
+        local offset_y = (gs.height - tilemap_height)/2 - gs.tilesize/2
     
         -- create map
         gs.tilemap = tilemap.new(   offset_x,
