@@ -194,7 +194,7 @@ function gs.update(dt)
     end
 
     -- center camera
-    --gs.view.camera:set_center(gs.selector:get_center())
+    gs.view.camera:set_center(gs.selector:get_center())
 end
 
 function gs.keypressed(key, scancode, isrepeat)
