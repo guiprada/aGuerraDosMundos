@@ -7,14 +7,14 @@ local utils = require "qpd.utils"
 local files = require "qpd.services.files"
 local fonts = require "qpd.services.fonts"
 local keymap = require "qpd.services.keymap"
-local camera = require "qpd.camera"
-local color = require "qpd.color"
 
 local fps = require "qpd.widgets.fps"
-local tilemap = require "qpd.widgets.tilemap"
+
+local view = require "qpd.view"
 local grid_selector = require "qpd.widgets.grid_selector"
 local cell_box = require "qpd.widgets.cell_box"
 
+local color = require "qpd.color"
 local color_cell = require "qpd.cells.color_cell"
 local sprite_cell = require "qpd.cells.sprite_cell"
 
@@ -40,96 +40,8 @@ color_array[16] = color.lime
 
 --------------------------------------------------------------------------------
 
-local function calculate_tilesize(w, h, n_tiles_w, n_tiles_h)
-    local map_ratio = n_tiles_w/n_tiles_h
-    local screen_ratio = w/h
-
-    if map_ratio > screen_ratio then -- wider, limited by width
-        return w/n_tiles_w
-    else -- taller, limited by height
-        return h/n_tiles_h
-    end    
-end
-
-local function set_view()
-        --tile_height + 1 to acomodate cellbox
-        gs.tilesize = calculate_tilesize(gs.width, gs.height, gs.tile_width, gs.tile_height)
-
-        -- camera
-        local tilemap_width = gs.tilesize * gs.tile_width
-        local tilemap_height = gs.tilesize * gs.tile_height
-    
-        gs.camera = camera.new(tilemap_width, tilemap_height, 1, 3)
-        gs.camera:set_viewport(0, 0, gs.width, gs.height)
-    
-        -- create a cell_set
-        gs.cell_set = {}
-        for index, value in ipairs(color_array) do
-            gs.cell_set[index] = color_cell.new(value, gs.tilesize)
-        end
-        -- add sprites
-        local brick_sprite = love.graphics.newImage(files.spr_brick)
-        gs.cell_set[#gs.cell_set+1] = sprite_cell.new(brick_sprite, gs.tilesize)
-    
-        -- offsets
-        local offset_x = (gs.width - tilemap_width)/2 - gs.tilesize/2
-        local offset_y = (gs.height - tilemap_height)/2 - gs.tilesize/2
-    
-        -- create map
-        gs.tilemap = tilemap.new(   offset_x,
-                                    offset_y,
-                                    gs.tilesize,
-                                    gs.map_matrix,
-                                    gs.cell_set)
-        
-        -- sprite_box
-        gs.sprite_box = cell_box.new( 0,
-                                    gs.height - gs.tilesize,
-                                    gs.width,
-                                    gs.tilesize,
-                                    gs.cell_set)
-    
-        -- selector for tilemap cell
-
-        -- logic to keep position on reset
-        local grid_start_x, grid_start_y
-        if gs.selector == nil then
-            grid_start_x = utils.round(gs.tile_width/2)
-            grid_start_y = utils.round(gs.tile_height/2)
-        else
-            grid_start_x = gs.selector.grid_x
-            grid_start_y = gs.selector.grid_y
-        end
-
-        gs.selector = grid_selector.new(offset_x,
-                                        offset_y,
-                                        1,
-                                        1,
-                                        gs.tile_width,
-                                        gs.tile_height,
-                                        gs.tilesize,
-                                        nil,
-                                        grid_start_x,
-                                        grid_start_y)
-end
-
-local function zoom_in()
-    gs.camera:set_scale(gs.camera:get_scale() * gs.scale_speed)
-end
-
-local function zoom_out()
-    gs.camera:set_scale(gs.camera:get_scale() / gs.scale_speed)
-end
-
-local function change_grid(new_val)
-    gs.tilemap:change_grid(new_val, gs.selector.grid_x, gs.selector.grid_y)
-end
-
---------------------------------------------------------------------------------
-
 function gs.load(map_file_path)
-    gs.camera_speed = 500
-    gs.scale_speed = 1.01
+    gs.scale_speed = 0.1
 
     -- save old line width and set it to 5
     gs.old_line_width = love.graphics.getLineWidth()
@@ -144,10 +56,48 @@ function gs.load(map_file_path)
     local map_file_path = map_file_path or files.map_1
     gs.map_matrix = utils.matrix_read_from_file(map_file_path, ',')
 
-    -- calculate the on_screen view
-    gs.tile_width = #gs.map_matrix[1]
-    gs.tile_height = #gs.map_matrix 
-    set_view()
+    -- calculate tilesize
+    local tilesize = view.calculate_tilesize(gs.width, gs.height, #gs.map_matrix[1], #gs.map_matrix)
+
+    -- create a cell_set
+    local cell_set = {}
+    for index, value in ipairs(color_array) do
+        cell_set[index] = color_cell.new(value, tilesize)
+    end
+    -- add sprites
+    local brick_sprite = love.graphics.newImage(files.spr_brick)
+    cell_set[#cell_set+1] = sprite_cell.new(brick_sprite, tilesize)
+
+    -- create the on_screen view    
+    gs.view = view.new(gs.map_matrix, cell_set, gs.width, gs.height, tilesize)
+
+    -- sprite_box
+    gs.sprite_box = cell_box.new( 0,
+                                gs.height - gs.view.tilesize,
+                                gs.width,
+                                gs.view.tilesize,
+                                cell_set)
+
+    -- selector with logic to keep position on reset
+    local grid_start_x, grid_start_y
+    if gs.selector == nil then
+        grid_start_x = utils.round(gs.view.tile_width/2)
+        grid_start_y = utils.round(gs.view.tile_height/2)
+    else
+        grid_start_x = gs.selector.grid_x
+        grid_start_y = gs.selector.grid_y
+    end
+
+    gs.selector = grid_selector.new(gs.view.offset_x,
+                                    gs.view.offset_y,
+                                    1,
+                                    1,
+                                    gs.view.tile_width,
+                                    gs.view.tile_height,
+                                    gs.view.tilesize,
+                                    nil,
+                                    grid_start_x,
+                                    grid_start_y)
 
     -- define keyboard actions
     gs.actions_keyup = {}
@@ -157,12 +107,12 @@ function gs.load(map_file_path)
         end    
     gs.actions_keyup[keymap.keys.action] =
         function ()
-            change_grid(gs.sprite_box:get_selected())
+            gs.view:change_grid(gs.sprite_box:get_selected(), gs.selector.grid_x, gs.selector.grid_y)
         end
 
     gs.actions_keyup[keymap.keys.delete] =
         function ()
-            change_grid(0)
+            gs.view:change_grid(0, gs.selector.grid_x, gs.selector.grid_y)
         end
 
     gs.actions_keyup[keymap.keys.next_sprite] = function () gs.sprite_box:right() end
@@ -170,14 +120,14 @@ function gs.load(map_file_path)
 
     gs.actions_keyup[keymap.keys.add_top] = 
         function ()
-            gs.tilemap:add_top()
+            gs.view.tilemap:add_top()
             gs.selector:add_line()
             gs.tile_height = gs.tile_height + 1
             set_view()
         end
     gs.actions_keyup[keymap.keys.add_bottom] = 
         function ()
-            gs.tilemap:add_bottom()
+            gs.view.tilemap:add_bottom()
             gs.selector:add_line()
             gs.tile_height = gs.tile_height + 1
             set_view()
@@ -185,7 +135,7 @@ function gs.load(map_file_path)
 
     gs.actions_keyup[keymap.keys.add_right] = 
         function ()
-            gs.tilemap:add_right()
+            gs.view.tilemap:add_right()
             gs.selector:add_row()
             gs.tile_width = gs.tile_width + 1
             set_view()
@@ -193,7 +143,7 @@ function gs.load(map_file_path)
 
     gs.actions_keyup[keymap.keys.add_left] = 
         function ()
-            gs.tilemap:add_left()
+            gs.view.tilemap:add_left()
             gs.selector:add_row()
             gs.tile_width = gs.tile_width + 1
             set_view()
@@ -201,7 +151,7 @@ function gs.load(map_file_path)
 
     gs.actions_keyup[keymap.keys.save] =  
         function ()
-            gs.tilemap:save(
+            gs.view.tilemap:save(
                 map_file_path)
         end
         
@@ -225,9 +175,9 @@ function gs.load(map_file_path)
 end
 
 function gs.draw()
-    gs.camera:draw( 
+    gs.view.camera:draw( 
         function ()
-            gs.tilemap:draw()
+            gs.view.tilemap:draw()
             gs.selector:draw()
             
         end)
@@ -238,13 +188,13 @@ end
 
 function gs.update(dt)    
     if love.keyboard.isDown(keymap.keys.zoom_in) then
-        zoom_in()        
+        gs.view:zoom_in(gs.scale_speed*dt)       
     elseif love.keyboard.isDown(keymap.keys.zoom_out) then
-        zoom_out()
+        gs.view:zoom_out(gs.scale_speed*dt)
     end
 
     -- center camera
-    gs.camera:set_center(gs.selector:get_center())
+    --gs.view.camera:set_center(gs.selector:get_center())
 end
 
 function gs.keypressed(key, scancode, isrepeat)
