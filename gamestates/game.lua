@@ -8,7 +8,7 @@ local files = require "qpd.services.files"
 local fonts = require "qpd.services.fonts"
 local keymap = require "qpd.services.keymap"
 local fps = require "qpd.widgets.fps"
-local view = require "qpd.view"
+local tilemap_view = require "qpd.tilemap_view"
 local grid_selector = require "qpd.widgets.grid_selector"
 
 local Player = require "entities.Player"
@@ -52,7 +52,7 @@ function gs.load(map_file_path)
     gs.map_matrix = utils.matrix_read_from_file(map_file_path, ',')
 
     -- calculate tilesize
-    local tilesize = view.calculate_tilesize(gs.width, gs.height, #gs.map_matrix[1], #gs.map_matrix)
+    local tilesize = tilemap_view.calculate_tilesize(gs.width, gs.height, #gs.map_matrix[1], #gs.map_matrix)
 
     -- create a cell_set
     local cell_set = {}
@@ -63,8 +63,8 @@ function gs.load(map_file_path)
     local brick_sprite = love.graphics.newImage(files.spr_brick)
     cell_set[#cell_set+1] = sprite_cell.new(brick_sprite, tilesize)
 
-    -- create the on_screen view    
-    gs.view = view.new(gs.map_matrix, cell_set, gs.width, gs.height, tilesize)
+    -- create the on_screen tilemap_view    
+    gs.tilemap_view = tilemap_view.new(gs.map_matrix, cell_set, gs.width, gs.height, tilesize)
 
     -- define keyboard actions
     gs.actions_keydown = {}
@@ -73,15 +73,15 @@ function gs.load(map_file_path)
             gamestate.switch("menu")
         end
 
-    local x, y = gs.view.camera:get_center()
+    local x, y = gs.tilemap_view.camera:get_center()
     local spr_player = love.graphics.newImage(files.spr_him)
-    gs.player = Player.new(x, y, spr_player, gs.view.tilesize, 75)
+    gs.player = Player.new(x, y, spr_player, gs.tilemap_view.tilesize, 75)
 end
 
 function gs.draw()
-    gs.view.camera:draw( 
+    gs.tilemap_view.camera:draw( 
         function ()
-            gs.view.tilemap:draw()
+            gs.tilemap_view.tilemap:draw()
             gs.player:draw()
         end)
     gs.fps:draw()
@@ -89,13 +89,13 @@ end
 
 function gs.update(dt)    
     if love.keyboard.isDown(keymap.keys.zoom_in) then
-        gs.view:zoom_in(gs.scale_speed*dt)       
+        gs.tilemap_view:zoom_in(gs.scale_speed*dt)       
     elseif love.keyboard.isDown(keymap.keys.zoom_out) then
-        gs.view:zoom_out(gs.scale_speed*dt)
+        gs.tilemap_view:zoom_out(gs.scale_speed*dt)
     end
 
     -- center camera
-    gs.view.camera:set_center(gs.player:get_center())
+    gs.tilemap_view.camera:set_center(gs.player:get_center())
 
     gs.player:update(dt)
 end
@@ -115,7 +115,7 @@ function gs.resize(w, h)
     fonts.resize(w, h)
     gs.width = w
     gs.height = h
-    set_map_view()
+    gs.tilemap_view = tilemap_view.new(gs.map_matrix, cell_set, gs.width, gs.height, tilesize)
 end
 
 function gs.unload()

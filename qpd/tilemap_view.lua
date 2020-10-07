@@ -1,4 +1,4 @@
-local view = {}
+local tilemap_view = {}
 
 local utils = require "qpd.utils"
 local tilemap = require "qpd.tilemap"
@@ -8,7 +8,7 @@ local files = require "qpd.services.files"
 
 --------------------------------------------------------------------------------
 
-function view.calculate_tilesize(w, h, n_tiles_w, n_tiles_h)
+function tilemap_view.calculate_tilesize(w, h, n_tiles_w, n_tiles_h)
     local map_ratio = n_tiles_w/n_tiles_h
     local screen_ratio = w/h
 
@@ -19,7 +19,7 @@ function view.calculate_tilesize(w, h, n_tiles_w, n_tiles_h)
     end    
 end
 
-function view.new(matrix, cell_set, width, height, tilesize)
+function tilemap_view.new(matrix, cell_set, width, height, tilesize)
     local o = {}
 
     o.tile_width = #matrix[1]
@@ -45,24 +45,24 @@ function view.new(matrix, cell_set, width, height, tilesize)
                             matrix,
                             cell_set)
 
-    utils.assign_methods(o, view)
+    utils.assign_methods(o, tilemap_view)
     return o
 end
 
 --------------------------------------------------------------------------------
 
-function view.zoom_in(self, factor)
+function tilemap_view.zoom_in(self, factor)
     self.camera:set_scale(self.camera:get_scale() * (1+factor))
 end
 
-function view.zoom_out(self, factor)
+function tilemap_view.zoom_out(self, factor)
     if factor ~= 0 then
         self.camera:set_scale(self.camera:get_scale() / (1+factor))
     end
 end
 
-function view.change_grid(self, new_val, grid_x, grid_y)
+function tilemap_view.change_grid(self, new_val, grid_x, grid_y)
     self.tilemap:change_grid(new_val, grid_x, grid_y)
 end
 
-return view
+return tilemap_view

@@ -10,7 +10,7 @@ local keymap = require "qpd.services.keymap"
 
 local fps = require "qpd.widgets.fps"
 
-local view = require "qpd.view"
+local tilemap_view = require "qpd.tilemap_view"
 local grid_selector = require "qpd.widgets.grid_selector"
 local cell_box = require "qpd.widgets.cell_box"
 
@@ -57,7 +57,7 @@ function gs.load(map_file_path)
     gs.map_matrix = utils.matrix_read_from_file(map_file_path, ',')
 
     -- calculate tilesize
-    local tilesize = view.calculate_tilesize(gs.width, gs.height, #gs.map_matrix[1], #gs.map_matrix)
+    local tilesize = tilemap_view.calculate_tilesize(gs.width, gs.height, #gs.map_matrix[1], #gs.map_matrix)
 
     -- create a cell_set
     local cell_set = {}
@@ -68,33 +68,33 @@ function gs.load(map_file_path)
     local brick_sprite = love.graphics.newImage(files.spr_brick)
     cell_set[#cell_set+1] = sprite_cell.new(brick_sprite, tilesize)
 
-    -- create the on_screen view    
-    gs.view = view.new(gs.map_matrix, cell_set, gs.width, gs.height, tilesize)
+    -- create the on_screen tilemap_view    
+    gs.tilemap_view = tilemap_view.new(gs.map_matrix, cell_set, gs.width, gs.height, tilesize)
 
     -- sprite_box
     gs.sprite_box = cell_box.new( 0,
-                                gs.height - gs.view.tilesize,
+                                gs.height - gs.tilemap_view.tilesize,
                                 gs.width,
-                                gs.view.tilesize,
+                                gs.tilemap_view.tilesize,
                                 cell_set)
 
     -- selector with logic to keep position on reset
     local grid_start_x, grid_start_y
     if gs.selector == nil then
-        grid_start_x = utils.round(gs.view.tile_width/2)
-        grid_start_y = utils.round(gs.view.tile_height/2)
+        grid_start_x = utils.round(gs.tilemap_view.tile_width/2)
+        grid_start_y = utils.round(gs.tilemap_view.tile_height/2)
     else
         grid_start_x = gs.selector.grid_x
         grid_start_y = gs.selector.grid_y
     end
 
-    gs.selector = grid_selector.new(gs.view.offset_x,
-                                    gs.view.offset_y,
+    gs.selector = grid_selector.new(gs.tilemap_view.offset_x,
+                                    gs.tilemap_view.offset_y,
                                     1,
                                     1,
-                                    gs.view.tile_width,
-                                    gs.view.tile_height,
-                                    gs.view.tilesize,
+                                    gs.tilemap_view.tile_width,
+                                    gs.tilemap_view.tile_height,
+                                    gs.tilemap_view.tilesize,
                                     nil,
                                     grid_start_x,
                                     grid_start_y)
@@ -107,12 +107,12 @@ function gs.load(map_file_path)
         end    
     gs.actions_keyup[keymap.keys.action] =
         function ()
-            gs.view:change_grid(gs.sprite_box:get_selected(), gs.selector.grid_x, gs.selector.grid_y)
+            gs.tilemap_view:change_grid(gs.sprite_box:get_selected(), gs.selector.grid_x, gs.selector.grid_y)
         end
 
     gs.actions_keyup[keymap.keys.delete] =
         function ()
-            gs.view:change_grid(0, gs.selector.grid_x, gs.selector.grid_y)
+            gs.tilemap_view:change_grid(0, gs.selector.grid_x, gs.selector.grid_y)
         end
 
     gs.actions_keyup[keymap.keys.next_sprite] = function () gs.sprite_box:right() end
@@ -120,38 +120,38 @@ function gs.load(map_file_path)
 
     gs.actions_keyup[keymap.keys.add_top] = 
         function ()
-            gs.view.tilemap:add_top()
+            gs.tilemap_view.tilemap:add_top()
             gs.selector:add_line()
             gs.tile_height = gs.tile_height + 1
-            set_view()
+            gs.tilemap_view = tilemap_view.new(gs.map_matrix, cell_set, gs.width, gs.height, tilesize)
         end
     gs.actions_keyup[keymap.keys.add_bottom] = 
         function ()
-            gs.view.tilemap:add_bottom()
+            gs.tilemap_view.tilemap:add_bottom()
             gs.selector:add_line()
             gs.tile_height = gs.tile_height + 1
-            set_view()
+            gs.tilemap_view = tilemap_view.new(gs.map_matrix, cell_set, gs.width, gs.height, tilesize)
         end
 
     gs.actions_keyup[keymap.keys.add_right] = 
         function ()
-            gs.view.tilemap:add_right()
+            gs.tilemap_view.tilemap:add_right()
             gs.selector:add_row()
             gs.tile_width = gs.tile_width + 1
-            set_view()
+            gs.tilemap_view = tilemap_view.new(gs.map_matrix, cell_set, gs.width, gs.height, tilesize)
         end
 
     gs.actions_keyup[keymap.keys.add_left] = 
         function ()
-            gs.view.tilemap:add_left()
+            gs.tilemap_view.tilemap:add_left()
             gs.selector:add_row()
             gs.tile_width = gs.tile_width + 1
-            set_view()
+            gs.tilemap_view = tilemap_view.new(gs.map_matrix, cell_set, gs.width, gs.height, tilesize)
         end
 
     gs.actions_keyup[keymap.keys.save] =  
         function ()
-            gs.view.tilemap:save(
+            gs.tilemap_view.tilemap:save(
                 map_file_path)
         end
         
@@ -175,9 +175,9 @@ function gs.load(map_file_path)
 end
 
 function gs.draw()
-    gs.view.camera:draw( 
+    gs.tilemap_view.camera:draw( 
         function ()
-            gs.view.tilemap:draw()
+            gs.tilemap_view.tilemap:draw()
             gs.selector:draw()
             
         end)
@@ -188,13 +188,13 @@ end
 
 function gs.update(dt)    
     if love.keyboard.isDown(keymap.keys.zoom_in) then
-        gs.view:zoom_in(gs.scale_speed*dt)       
+        gs.tilemap_view:zoom_in(gs.scale_speed*dt)       
     elseif love.keyboard.isDown(keymap.keys.zoom_out) then
-        gs.view:zoom_out(gs.scale_speed*dt)
+        gs.tilemap_view:zoom_out(gs.scale_speed*dt)
     end
 
     -- center camera
-    gs.view.camera:set_center(gs.selector:get_center())
+    gs.tilemap_view.camera:set_center(gs.selector:get_center())
 end
 
 function gs.keypressed(key, scancode, isrepeat)
