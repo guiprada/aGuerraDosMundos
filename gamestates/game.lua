@@ -12,6 +12,7 @@ local tilemap_view = require "qpd.tilemap_view"
 local grid_selector = require "qpd.widgets.grid_selector"
 
 local Player = require "entities.Player"
+local grid = require "qpd.grid"
 
 local color = require "qpd.color"
 local color_cell = require "qpd.cells.color_cell"
@@ -72,10 +73,18 @@ function gs.load(map_file_path)
         function ()
             gamestate.switch("menu")
         end
+    
+    -- create grid
+    local collisions = {}
+    for i = 1, #cell_set, 1 do
+        collisions[i] = true
+    end
+    local grid = grid.new(gs.map_matrix, collisions, tilesize)
 
+    -- create player
     local x, y = gs.tilemap_view.camera:get_center()
     local spr_player = love.graphics.newImage(files.spr_him)
-    gs.player = Player.new(x, y, spr_player, gs.tilemap_view.tilesize, 75)
+    gs.player = Player.new(x, y, spr_player, grid, tilesize, 75)
 end
 
 function gs.draw()

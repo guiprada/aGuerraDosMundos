@@ -35,9 +35,9 @@ function tilemap_view.new(matrix, cell_set, width, height, tilesize)
     o.camera:set_viewport(0, 0, width, height)
 
     -- offsets
-    o.offset_x = (width - tilemap_width)/2 - o.tilesize/2
-    o.offset_y = (height - tilemap_height)/2 - o.tilesize/2
-
+    o.offset_x = - o.tilesize/2
+    o.offset_y = - o.tilesize/2
+    
     -- create map
     o.tilemap = tilemap.new(o.offset_x,
                             o.offset_y,

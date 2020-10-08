@@ -80,13 +80,13 @@ function gs.load(map_file_path)
 
     -- selector with logic to keep position on reset
     local grid_start_x, grid_start_y
-    if gs.selector == nil then
-        grid_start_x = utils.round(gs.tilemap_view.tile_width/2)
-        grid_start_y = utils.round(gs.tilemap_view.tile_height/2)
-    else
-        grid_start_x = gs.selector.grid_x
-        grid_start_y = gs.selector.grid_y
-    end
+    -- if gs.selector == nil then
+        grid_start_x = math.ceil(gs.tilemap_view.tile_width/2)
+        grid_start_y = math.ceil(gs.tilemap_view.tile_height/2)
+    -- else
+    --     grid_start_x = gs.selector.grid_x
+    --     grid_start_y = gs.selector.grid_y
+    -- end
 
     gs.selector = grid_selector.new(gs.tilemap_view.offset_x,
                                     gs.tilemap_view.offset_y,
@@ -215,6 +215,9 @@ end
 
 function gs.resize(w, h)
     fonts.resize(w, h)
+    gs.width = w
+    gs.height = h
+    gs.tilemap_view = tilemap_view.new(gs.map_matrix, cell_set, gs.width, gs.height, tilesize)
 end
 
 function gs.unload()
