@@ -122,14 +122,14 @@ function gs.load(map_file_path)
         function ()
             gs.tilemap_view.tilemap:add_top()
             gs.selector:add_line()
-            gs.tile_height = gs.tile_height + 1
+            --gs.tile_height = gs.tile_height + 1
             gs.tilemap_view = tilemap_view.new(gs.map_matrix, cell_set, gs.width, gs.height, tilesize)
         end
     gs.actions_keyup[keymap.keys.add_bottom] = 
         function ()
             gs.tilemap_view.tilemap:add_bottom()
             gs.selector:add_line()
-            gs.tile_height = gs.tile_height + 1
+            --gs.tile_height = gs.tile_height + 1
             gs.tilemap_view = tilemap_view.new(gs.map_matrix, cell_set, gs.width, gs.height, tilesize)
         end
 
@@ -137,7 +137,7 @@ function gs.load(map_file_path)
         function ()
             gs.tilemap_view.tilemap:add_right()
             gs.selector:add_row()
-            gs.tile_width = gs.tile_width + 1
+            --gs.tile_width = gs.tile_width + 1
             gs.tilemap_view = tilemap_view.new(gs.map_matrix, cell_set, gs.width, gs.height, tilesize)
         end
 
@@ -145,7 +145,7 @@ function gs.load(map_file_path)
         function ()
             gs.tilemap_view.tilemap:add_left()
             gs.selector:add_row()
-            gs.tile_width = gs.tile_width + 1
+            --gs.tile_width = gs.tile_width + 1
             gs.tilemap_view = tilemap_view.new(gs.map_matrix, cell_set, gs.width, gs.height, tilesize)
         end
 
