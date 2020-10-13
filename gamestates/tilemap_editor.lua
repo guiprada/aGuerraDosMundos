@@ -41,7 +41,7 @@ color_array[16] = color.lime
 --------------------------------------------------------------------------------
 
 function gs.load(map_file_path)
-    gs.scale_speed = 0.1
+    gs.scale_speed = 0.6
 
     -- save old line width and set it to 5
     gs.old_line_width = love.graphics.getLineWidth()
@@ -121,7 +121,8 @@ function gs.load(map_file_path)
     gs.actions_keyup[keymap.keys.add_top] = 
         function ()
             gs.tilemap_view.tilemap:add_top()
-            gs.selector:add_line()
+            gs
+            .selector:add_line()
             --gs.tile_height = gs.tile_height + 1
             gs.tilemap_view = tilemap_view.new(gs.map_matrix, cell_set, gs.width, gs.height, tilesize)
         end
