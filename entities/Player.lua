@@ -23,52 +23,51 @@ end
 function Player.update(self, dt)
     local diag = 1/math.sqrt(2)
     local new_x, new_y = self.x, self.y
-    local front_x, front_y = new_x, new_y
+
     if love.keyboard.isDown(keymap.keys.up) and (not love.keyboard.isDown(keymap.keys.down)) then        
         if love.keyboard.isDown(keymap.keys.left) and love.keyboard.isDown(keymap.keys.right) then
-            new_y = self.y - self.speed * dt
-            front_x, front_y = new_x, new_y - self.size/2
+            new_y = self.y - self.speed * dt            
         elseif love.keyboard.isDown(keymap.keys.left) then
             new_y = self.y - diag * self.speed * dt
-            new_x = self.x - diag * self.speed * dt
-            front_x, front_y = new_x - self.size/2, new_y - self.size/2
+            new_x = self.x - diag * self.speed * dt            
         elseif love.keyboard.isDown(keymap.keys.right) then
             new_y = self.y - diag * self.speed * dt
-            new_x = self.x + diag * self.speed * dt
-            front_x, front_y = new_x + self.size/2, new_y - self.size/2
+            new_x = self.x + diag * self.speed * dt            
         else
-            new_y = self.y - self.speed * dt
-            front_x, front_y = new_x, new_y - self.size/2
+            new_y = self.y - self.speed * dt            
         end
     elseif love.keyboard.isDown(keymap.keys.down) and (not love.keyboard.isDown(keymap.keys.up)) then
         if love.keyboard.isDown(keymap.keys.left) and love.keyboard.isDown(keymap.keys.right) then
-            new_y = self.y + self.speed * dt
-            front_x, front_y = new_x, new_y + self.size/2
+            new_y = self.y + self.speed * dt            
         elseif love.keyboard.isDown(keymap.keys.left) then
             new_y = self.y + diag * self.speed * dt
             new_x = self.x - diag * self.speed * dt
-            front_x, front_y = self.x - self.size/2, new_y + self.size/2
         elseif love.keyboard.isDown(keymap.keys.right) then
             new_y = self.y + diag * self.speed * dt
             new_x = self.x + diag * self.speed * dt
-            front_x, front_y = self.x + self.size/2, new_y + self.size/2
         else 
             new_y = self.y + self.speed * dt
-            front_x, front_y = self.x, new_y + self.size/2
         end
     else
         if love.keyboard.isDown(keymap.keys.left) then
             new_x = self.x - self.speed * dt
-            front_x, front_y = self.x - self.size/2, new_y
         end
         if love.keyboard.isDown(keymap.keys.right) then
             new_x = self.x + self.speed * dt
-            front_x, front_y = self.x + self.size/2, new_y
         end
     end
 
+
+    top_x, top_y = new_x, new_y - self.size/2
+    botton_x, botton_y = new_x, new_y + self.size/2
+    left_x, left_y = new_x - self.size/2, new_y
+    right_x, right_y = new_x + self.size/2, new_y
+
     --check collision
-    if not self.grid:is_colliding(front_x, front_y) then
+    if  not self.grid:is_colliding(top_x, top_y) and
+        not self.grid:is_colliding(botton_x, botton_y) and
+        not self.grid:is_colliding(left_x, left_y) and
+        not self.grid:is_colliding(right_x, right_y) then
         self.x, self.y = new_x, new_y
     end
 end
