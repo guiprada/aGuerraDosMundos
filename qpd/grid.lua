@@ -25,4 +25,13 @@ function grid.is_colliding(self, x, y)
 	return self.collisions[grid_value] or false
 end
 
+function grid.get_visible_grid(self, start_x, start_y, end_x, end_y)
+
+end
+
+function grid.get_point_cell(self, px, py)
+    
+    return cellx, celly
+end
+
 return grid

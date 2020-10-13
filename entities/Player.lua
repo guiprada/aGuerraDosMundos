@@ -58,17 +58,39 @@ function Player.update(self, dt)
     end
 
 
-    top_x, top_y = new_x, new_y - self.size/2
-    botton_x, botton_y = new_x, new_y + self.size/2
-    left_x, left_y = new_x - self.size/2, new_y
-    right_x, right_y = new_x + self.size/2, new_y
+    local size = math.floor(self.size/2)
+    top_x, top_y = new_x, new_y - size
+    botton_x, botton_y = new_x, new_y + size
+    left_x, left_y = new_x - size, new_y
+    right_x, right_y = new_x + size, new_y
 
     --check collision
     if  not self.grid:is_colliding(top_x, top_y) and
-        not self.grid:is_colliding(botton_x, botton_y) and
-        not self.grid:is_colliding(left_x, left_y) and
+        not self.grid:is_colliding(botton_x, botton_y) then
+
+        self.y = new_y
+    elseif  not self.grid:is_colliding(top_x, top_y) and
+            new_y < self.y then
+
+        self.y = new_y
+    elseif not self.grid:is_colliding(botton_x, botton_y) and
+            new_y > self.y then
+            
+        self.y = new_y
+    end
+    if  not self.grid:is_colliding(left_x, left_y) and
         not self.grid:is_colliding(right_x, right_y) then
-        self.x, self.y = new_x, new_y
+
+        self.x = new_x
+
+    elseif  not self.grid:is_colliding(left_x, left_y) and
+            new_x < self.x then
+
+        self.x = new_x
+    elseif  not self.grid:is_colliding(right_x, right_y) and
+            new_x > self.x then
+    
+        self.x = new_x
     end
 end
 

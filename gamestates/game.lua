@@ -64,16 +64,6 @@ function gs.load(map_file_path)
     local brick_sprite = love.graphics.newImage(files.spr_brick)
     cell_set[#cell_set+1] = sprite_cell.new(brick_sprite, tilesize)
 
-    -- create the on_screen tilemap_view    
-    gs.tilemap_view = tilemap_view.new(gs.map_matrix, cell_set, gs.width, gs.height, tilesize)
-
-    -- define keyboard actions
-    gs.actions_keydown = {}
-    gs.actions_keydown[keymap.keys.exit] =
-        function ()
-            gamestate.switch("menu")
-        end
-    
     -- create grid
     local collisions = {}
     for i = 1, #cell_set, 1 do
@@ -81,16 +71,26 @@ function gs.load(map_file_path)
     end
     local grid = grid.new(gs.map_matrix, collisions, tilesize)
 
+    -- create the on_screen tilemap_view    
+    gs.tilemap_view = tilemap_view.new(grid, cell_set, gs.width, gs.height, tilesize)
+
     -- create player
     local x, y = gs.tilemap_view.camera:get_center()
     local spr_player = love.graphics.newImage(files.spr_him)
     gs.player = Player.new(x, y, spr_player, grid, tilesize, 75)
+
+    -- define keyboard actions
+    gs.actions_keydown = {}
+    gs.actions_keydown[keymap.keys.exit] =
+        function ()
+            gamestate.switch("menu")
+        end
 end
 
 function gs.draw()
     gs.tilemap_view.camera:draw( 
         function ()
-            gs.tilemap_view.tilemap:draw()
+            gs.tilemap_view:draw()
             gs.player:draw()
         end)
     gs.fps:draw()

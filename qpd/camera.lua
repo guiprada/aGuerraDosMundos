@@ -59,6 +59,15 @@ function camera.get_center(self)
     return  self._drift_x, self._drift_y
 end
 
+function camera.get_visible_quad(self)
+    local start_x = self._drift_x - self._h/2
+    local start_y = self._drift_y - self._w/2
+    local end_x = self._drift_x + self._h/2
+    local end_y = self._drift_y + self._w/2
+
+    return start_x, start_y, end_x, end_y
+end
+
 function camera.move(self, x, y)
     self._drift_x = utils.clamp(
         self._drift_x + x,

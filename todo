@@ -1,8 +1,9 @@
 todo
     - collisions :)
-        -- add front to player
-        
-    - do not draw tiles out of screen
+        ++  collide and slide
+        -- 
+
+    - culling
 
 done
     - tilemap reset camera on resize

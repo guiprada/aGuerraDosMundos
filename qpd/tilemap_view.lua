@@ -19,11 +19,13 @@ function tilemap_view.calculate_tilesize(w, h, n_tiles_w, n_tiles_h)
     end    
 end
 
-function tilemap_view.new(matrix, cell_set, width, height, tilesize)
+function tilemap_view.new(grid, cell_set, width, height, tilesize)
     local o = {}
 
-    o.tile_width = #matrix[1]
-    o.tile_height = #matrix 
+    o.grid = grid
+
+    o.tile_width = #o.grid.matrix[1]
+    o.tile_height = #o.grid.matrix 
 
     o.tilesize = tilesize or calculate_tilesize(width, height, o.tile_width, o.tile_height)
 
@@ -42,7 +44,7 @@ function tilemap_view.new(matrix, cell_set, width, height, tilesize)
     o.tilemap = tilemap.new(o.offset_x,
                             o.offset_y,
                             o.tilesize,
-                            matrix,
+                            o.grid.matrix,
                             cell_set)
 
     utils.assign_methods(o, tilemap_view)
@@ -63,6 +65,12 @@ end
 
 function tilemap_view.change_grid(self, new_val, grid_x, grid_y)
     self.tilemap:change_grid(new_val, grid_x, grid_y)
+end
+
+function tilemap_view.draw(self)
+    local start_x, start_y, end_x, end_y = self.camera:get_visible_quad()
+
+    self.tilemap:draw()
 end
 
 return tilemap_view

@@ -11,6 +11,7 @@ local keymap = require "qpd.services.keymap"
 local fps = require "qpd.widgets.fps"
 
 local tilemap_view = require "qpd.tilemap_view"
+local grid = require "qpd.grid"
 local grid_selector = require "qpd.widgets.grid_selector"
 local cell_box = require "qpd.widgets.cell_box"
 
@@ -68,8 +69,9 @@ function gs.load(map_file_path)
     local brick_sprite = love.graphics.newImage(files.spr_brick)
     cell_set[#cell_set+1] = sprite_cell.new(brick_sprite, tilesize)
 
+    local grid = grid.new(gs.map_matrix, nil, tilesize)
     -- create the on_screen tilemap_view    
-    gs.tilemap_view = tilemap_view.new(gs.map_matrix, cell_set, gs.width, gs.height, tilesize)
+    gs.tilemap_view = tilemap_view.new(grid, cell_set, gs.width, gs.height, tilesize)
 
     -- sprite_box
     gs.sprite_box = cell_box.new( 0,
