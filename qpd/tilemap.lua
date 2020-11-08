@@ -18,18 +18,44 @@ end
 
 --------------------------------------------------------------------------------
 
-function tilemap.draw(self)
-    for n_line, line in ipairs(self.matrix) do
-        for n_column, value in ipairs(line) do
-            local func = self.draw_functions[value]
-            if func then
-                func(
-                    (n_column - 1) *self.tilesize + self.x,
-                    (n_line - 1)*self.tilesize + self.y,
-                    self.tilesize)
-            else
-                if value ~= 0 then
-                    print("draw function for: " .. value .. " not found!")
+function tilemap.draw(self, start_x, start_y, end_x, end_y)
+    local draw_counter = 0
+    if start_x and start_y and end_x and end_y then
+        for n_line, line in ipairs(self.matrix) do
+            for n_column, value in ipairs(line) do
+                local func = self.draw_functions[value]
+                if func then
+                    local this_x = (n_column - 1) *self.tilesize + self.x
+                    local this_y = (n_line - 1)*self.tilesize + self.y
+                    if utils.check_collision(   this_x, this_y, self.tilesize, self.tilesize,
+                                                start_x, start_y, end_x - start_x, end_y - start_y) then
+                        func(
+                            this_x,
+                            this_y,
+                            self.tilesize)
+                        draw_counter = draw_counter + 1
+                    end
+                else
+                    if value ~= 0 then
+                        print("draw function for: " .. value .. " not found!")
+                    end
+                end
+            end
+        end
+        print(draw_counter)
+    else
+        for n_line, line in ipairs(self.matrix) do
+            for n_column, value in ipairs(line) do
+                local func = self.draw_functions[value]
+                if func then
+                    func(
+                        (n_column - 1) *self.tilesize + self.x,
+                        (n_line - 1)*self.tilesize + self.y,
+                        self.tilesize)
+                else
+                    if value ~= 0 then
+                        print("draw function for: " .. value .. " not found!")
+                    end
                 end
             end
         end

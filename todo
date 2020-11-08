@@ -4,6 +4,7 @@ todo
         -- 
 
     - culling
+    - fog + smog
 
 done
     - tilemap reset camera on resize

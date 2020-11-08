@@ -69,8 +69,8 @@ end
 
 function tilemap_view.draw(self)
     local start_x, start_y, end_x, end_y = self.camera:get_visible_quad()
-
-    self.tilemap:draw()
+    
+    self.tilemap:draw(start_x, start_y, end_x, end_y)
 end
 
 return tilemap_view
