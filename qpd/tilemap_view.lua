@@ -70,7 +70,22 @@ end
 function tilemap_view.draw(self)
     local start_x, start_y, end_x, end_y = self.camera:get_visible_quad()
     
-    self.tilemap:draw(start_x, start_y, end_x, end_y)
+    start_x = start_x
+    end_x = end_x
+    start_y = start_y
+    end_y = end_y
+
+    local tilesize = self.camera._w / self.grid.width
+
+    grid_start_x, grid_start_y = self.grid:get_grid_pos(start_x, start_y, tilesize)
+    grid_end_x, grid_end_y = self.grid:get_grid_pos(end_x, end_y, tilesize)
+    
+    grid_start_x = utils.clamp(grid_start_x, 1, self.grid.width)
+    grid_end_x = utils.clamp(grid_end_x, 1, self.grid.width)
+    grid_start_y = utils.clamp(grid_start_y, 1, self.grid.height)
+    grid_end_y =utils.clamp(grid_end_y, 1, self.grid.height)
+
+    self.tilemap:draw(grid_start_x, grid_start_y, grid_end_x, grid_end_y)
 end
 
 return tilemap_view

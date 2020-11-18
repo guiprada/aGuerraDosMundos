@@ -25,4 +25,12 @@ function grid.is_colliding(self, x, y)
 	return self.collisions[grid_value] or false
 end
 
+function grid.get_grid_pos(self, x, y, tilesize)
+	this_tilesize = tilesize or self.tilesize
+	local grid_x, grid_y = -1, -1
+	grid_x = math.floor(x / this_tilesize) + 1--lua arrays start at 1
+	grid_y = math.floor(y / this_tilesize) + 1 --lua arrays start at 1
+	return grid_x, grid_y
+end
+
 return grid
