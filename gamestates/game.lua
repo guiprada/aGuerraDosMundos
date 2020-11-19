@@ -69,7 +69,7 @@ function gs.load(map_file_path)
     for i = 1, #cell_set, 1 do
         collisions[i] = true
     end
-    local grid = grid.new(gs.map_matrix, collisions, tilesize)
+    local grid = grid.new(gs.map_matrix, collisions)
 
     -- create the on_screen tilemap_view    
     gs.tilemap_view = tilemap_view.new(grid, cell_set, gs.width, gs.height, tilesize)
@@ -106,7 +106,7 @@ function gs.update(dt)
     -- center camera
     gs.tilemap_view.camera:set_center(gs.player:get_center())
 
-    gs.player:update(dt)
+    gs.player:update(dt, gs.tilemap_view.tilesize)
 end
 
 function gs.keypressed(key, scancode, isrepeat)

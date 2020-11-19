@@ -69,7 +69,7 @@ function gs.load(map_file_path)
     local brick_sprite = love.graphics.newImage(files.spr_brick)
     cell_set[#cell_set+1] = sprite_cell.new(brick_sprite, tilesize)
 
-    local grid = grid.new(gs.map_matrix, nil, tilesize)
+    local grid = grid.new(gs.map_matrix, nil)
     -- create the on_screen tilemap_view    
     gs.tilemap_view = tilemap_view.new(grid, cell_set, gs.width, gs.height, tilesize)
 
@@ -109,12 +109,12 @@ function gs.load(map_file_path)
         end    
     gs.actions_keyup[keymap.keys.action] =
         function ()
-            gs.tilemap_view:change_grid(gs.sprite_box:get_selected(), gs.selector.grid_x, gs.selector.grid_y)
+            gs.tilemap_view.tilemap:change_matrix(gs.sprite_box:get_selected(), gs.selector.grid_x, gs.selector.grid_y)
         end
 
     gs.actions_keyup[keymap.keys.delete] =
         function ()
-            gs.tilemap_view:change_grid(0, gs.selector.grid_x, gs.selector.grid_y)
+            gs.tilemap_view.tilemap:change_matrix(0, gs.selector.grid_x, gs.selector.grid_y)
         end
 
     gs.actions_keyup[keymap.keys.next_sprite] = function () gs.sprite_box:right() end
@@ -180,7 +180,7 @@ end
 function gs.draw()
     gs.tilemap_view.camera:draw( 
         function ()
-            gs.tilemap_view.tilemap:draw()
+            gs.tilemap_view:draw()
             gs.selector:draw()
             
         end)

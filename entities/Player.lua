@@ -20,7 +20,7 @@ function Player.new(x, y, sprite, grid, size, speed)
     return o
 end
 
-function Player.update(self, dt)
+function Player.update(self, dt, tilesize)
     local diag = 1/math.sqrt(2)
     local new_x, new_y = self.x, self.y
 
@@ -65,29 +65,29 @@ function Player.update(self, dt)
     right_x, right_y = new_x + size, new_y
 
     --check collision
-    if  not self.grid:is_colliding(top_x, top_y) and
-        not self.grid:is_colliding(botton_x, botton_y) then
+    if  not self.grid:is_colliding(top_x, top_y, tilesize) and
+        not self.grid:is_colliding(botton_x, botton_y, tilesize) then
 
         self.y = new_y
-    elseif  not self.grid:is_colliding(top_x, top_y) and
+    elseif  not self.grid:is_colliding(top_x, top_y, tilesize) and
             new_y < self.y then
 
         self.y = new_y
-    elseif not self.grid:is_colliding(botton_x, botton_y) and
+    elseif not self.grid:is_colliding(botton_x, botton_y, tilesize) and
             new_y > self.y then
             
         self.y = new_y
     end
-    if  not self.grid:is_colliding(left_x, left_y) and
-        not self.grid:is_colliding(right_x, right_y) then
+    if  not self.grid:is_colliding(left_x, left_y, tilesize) and
+        not self.grid:is_colliding(right_x, right_y, tilesize) then
 
         self.x = new_x
 
-    elseif  not self.grid:is_colliding(left_x, left_y) and
+    elseif  not self.grid:is_colliding(left_x, left_y, tilesize) and
             new_x < self.x then
 
         self.x = new_x
-    elseif  not self.grid:is_colliding(right_x, right_y) and
+    elseif  not self.grid:is_colliding(right_x, right_y, tilesize) and
             new_x > self.x then
     
         self.x = new_x
