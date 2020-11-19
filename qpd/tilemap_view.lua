@@ -79,8 +79,7 @@ function tilemap_view.new(grid, cell_set, width, height, tilesize)
     o.tile_height = #o.grid.matrix 
 
     o.tilesize = tilesize or calculate_tilesize(width, height, o.tile_width, o.tile_height)
-    --o.tilesize = o.camera._w / o.tile_width
-    
+
     -- camera
     local tilemap_width = o.tilesize * o.tile_width
     local tilemap_height = o.tilesize * o.tile_height
