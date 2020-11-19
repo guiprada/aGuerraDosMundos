@@ -7,7 +7,7 @@ local camera = require "qpd.camera"
 local files = require "qpd.services.files"
 
 --------------------------------------------------------------------------------
--- draw helper
+-- helper functions
 
 local function _get_matrix_pos(x, y, tilesize)		
 	matrix_x = math.floor(x / tilesize) + 1--lua arrays start at 1
@@ -28,7 +28,7 @@ local function _draw(tilemap, tilesize, matrix_start_x, matrix_start_y, matrix_e
                     local this_y = (n_column - 1)* tilesize + tilemap.y
                     func(   this_x,
                             this_y,
-                            tilemap.tilesize)
+                            tilesize)
                     draw_counter = draw_counter + 1
                 elseif value ~= nil and value~=0 then
                     print("draw function for: " .. value .. " not found!")
@@ -55,26 +55,26 @@ local function _draw(tilemap, tilesize, matrix_start_x, matrix_start_y, matrix_e
     end
 end
 
---------------------------------------------------------------------------------
-
-function tilemap_view.calculate_tilesize(w, h, n_tiles_w, n_tiles_h)
+local function _calculate_tilesize(w, h, n_tiles_w, n_tiles_h)
     local map_ratio = n_tiles_w/n_tiles_h
     local screen_ratio = w/h
 
-    if map_ratio > screen_ratio then -- wider, limited by width
-        return w/n_tiles_w
-    else -- taller, limited by height
+    if map_ratio > screen_ratio then -- wider, limited by height
         return h/n_tiles_h
+    else -- taller, limited by width
+        return w/n_tiles_w
     end    
 end
 
-function tilemap_view.new(matrix, cell_set, width, height, tilesize)
+--------------------------------------------------------------------------------
+
+function tilemap_view.new(matrix, cell_set, width, height)
     local o = {}
 
     local tile_width = #matrix[1]
     local tile_height = #matrix 
 
-    o.tilesize = tilesize or calculate_tilesize(width, height, tile_width, tile_height)
+    o.tilesize = _calculate_tilesize(width, height, tile_width, tile_height)
 
     -- camera
     local tilemap_width = o.tilesize * tile_width

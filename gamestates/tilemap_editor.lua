@@ -57,38 +57,35 @@ function gs.load(map_file_path)
     local map_file_path = map_file_path or files.map_1
     gs.map_matrix = utils.matrix_read_from_file(map_file_path, ',')
 
-    -- calculate tilesize
-    local tilesize = tilemap_view.calculate_tilesize(gs.width, gs.height, #gs.map_matrix[1], #gs.map_matrix)
-
     -- create a cell_set
     local cell_set = {}
     for index, value in ipairs(color_array) do
-        cell_set[index] = color_cell.new(value, tilesize)
+        cell_set[index] = color_cell.new(value)
     end
     -- add sprites
     local brick_sprite = love.graphics.newImage(files.spr_brick)
-    cell_set[#cell_set+1] = sprite_cell.new(brick_sprite, tilesize)
-
-    local grid = grid.new(gs.map_matrix, nil)
+    cell_set[#cell_set+1] = sprite_cell.new(brick_sprite)
+    
     -- create the on_screen tilemap_view    
-    gs.tilemap_view = tilemap_view.new(gs.map_matrix, cell_set, gs.width, gs.height, tilesize)
+    gs.tilemap_view = tilemap_view.new(gs.map_matrix, cell_set, gs.width, gs.height)
 
     -- sprite_box
+    gs.cell_box_size_factor = 3
     gs.sprite_box = cell_box.new( 0,
-                                gs.height - gs.tilemap_view.tilesize,
+                                gs.height - gs.tilemap_view.tilesize * gs.cell_box_size_factor,
                                 gs.width,
-                                gs.tilemap_view.tilesize,
+                                gs.tilemap_view.tilesize * gs.cell_box_size_factor,
                                 cell_set)
 
     -- selector with logic to keep position on reset
     local grid_start_x, grid_start_y
-    -- if gs.selector == nil then
+    if gs.selector == nil then
         grid_start_x = math.ceil(gs.tilemap_view.tilemap.tile_width/2)
         grid_start_y = math.ceil(gs.tilemap_view.tilemap.tile_height/2)
-    -- else
-    --     grid_start_x = gs.selector.grid_x
-    --     grid_start_y = gs.selector.grid_y
-    -- end
+    else
+        grid_start_x = gs.selector.grid_x
+        grid_start_y = gs.selector.grid_y
+    end
 
     gs.selector = grid_selector.new(-gs.tilemap_view.tilesize/2,
                                     -gs.tilemap_view.tilesize/2,
@@ -220,7 +217,14 @@ function gs.resize(w, h)
     fonts.resize(w, h)
     gs.width = w
     gs.height = h
-    gs.tilemap_view = tilemap_view.new(gs.map_matrix, cell_set, gs.width, gs.height, tilesize)
+    gs.tilemap_view = tilemap_view.new(gs.map_matrix, gs.tilemap_view.tilemap.draw_functions, gs.width, gs.height)
+
+    gs.sprite_box = cell_box.new( 0,
+                                gs.height - gs.tilemap_view.tilesize * gs.cell_box_size_factor,
+                                gs.width,
+                                gs.tilemap_view.tilesize * gs.cell_box_size_factor,
+                                gs.tilemap_view.tilemap.draw_functions)
+
 end
 
 function gs.unload()

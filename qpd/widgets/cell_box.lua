@@ -59,7 +59,8 @@ function cell_box.draw(self)
         line = math.floor(index/w_cells)
         func(
             (column - 1)*self.tilesize + self.x,
-            (line)*self.tilesize + self.y)
+            (line)*self.tilesize + self.y,
+            self.tilesize)
     end
     self.selector:draw()
 end

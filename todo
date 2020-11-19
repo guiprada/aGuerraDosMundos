@@ -7,6 +7,7 @@ todo
     - health, hunger and sanity systems    
     - fog + smog
     - animation system
+    - sanitize reset and new functions
 
 done
     - tilemap reset camera on resize

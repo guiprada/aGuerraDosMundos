@@ -51,18 +51,19 @@ function gs.load(map_file_path)
     -- read map file
     local map_file_path = map_file_path or files.map_1
     gs.map_matrix = utils.matrix_read_from_file(map_file_path, ',')
-
-    -- calculate tilesize
-    local tilesize = tilemap_view.calculate_tilesize(gs.width, gs.height, #gs.map_matrix[1], #gs.map_matrix)
-
+    
     -- create a cell_set
     local cell_set = {}
+    -- initiate cell_set
     for index, value in ipairs(color_array) do
-        cell_set[index] = color_cell.new(value, tilesize)
+        cell_set[index] = color_cell.new(value)
     end
     -- add sprites
     local brick_sprite = love.graphics.newImage(files.spr_brick)
-    cell_set[#cell_set+1] = sprite_cell.new(brick_sprite, tilesize)
+    cell_set[#cell_set+1] = sprite_cell.new(brick_sprite)
+
+    -- create the on_screen tilemap_view    
+    gs.tilemap_view = tilemap_view.new(gs.map_matrix, cell_set, gs.width, gs.height)
 
     -- create grid
     local collisions = {}
@@ -71,13 +72,10 @@ function gs.load(map_file_path)
     end
     local grid = grid.new(gs.map_matrix, collisions)
 
-    -- create the on_screen tilemap_view    
-    gs.tilemap_view = tilemap_view.new(gs.map_matrix, cell_set, gs.width, gs.height, tilesize)
-
     -- create player
     local x, y = gs.tilemap_view.camera:get_center()
     local spr_player = love.graphics.newImage(files.spr_him)
-    gs.player = Player.new(x, y, spr_player, grid, tilesize, 75)
+    gs.player = Player.new(x, y, spr_player, grid, gs.tilemap_view.tilesize, 75)
 
     -- define keyboard actions
     gs.actions_keydown = {}
@@ -124,7 +122,7 @@ function gs.resize(w, h)
     fonts.resize(w, h)
     gs.width = w
     gs.height = h
-    gs.tilemap_view = tilemap_view.new(gs.map_matrix, cell_set, gs.width, gs.height)
+    gs.tilemap_view = tilemap_view.new(gs.map_matrix, gs.tilemap_view.tilemap.draw_functions, gs.width, gs.height)
 end
 
 function gs.unload()

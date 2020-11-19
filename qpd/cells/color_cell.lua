@@ -1,8 +1,8 @@
 local color_cell = {}
 
-function color_cell.make_func(color, tilesize)
+function color_cell.make_func(color)
     return  
-        function (x, y)
+        function (x, y, tilesize)
             local r, g, b, a = love.graphics.getColor()
             love.graphics.setColor(unpack(color))
             love.graphics.rectangle(
@@ -15,8 +15,8 @@ function color_cell.make_func(color, tilesize)
         end    
 end
 
-function color_cell.new(color, tilesize)
-    return color_cell.make_func(color, tilesize)
+function color_cell.new(color)
+    return color_cell.make_func(color)
 end
 
 return color_cell
