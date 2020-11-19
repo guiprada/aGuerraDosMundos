@@ -16,7 +16,6 @@ local function _get_matrix_pos(x, y, tilesize)
 end
 
 local function _draw(tilemap, tilesize, matrix_start_x, matrix_start_y, matrix_end_x, matrix_end_y)
-    local draw_counter = 0
     if matrix_start_x and matrix_start_y and matrix_end_x and matrix_end_y then
          for n_column = matrix_start_y, matrix_end_y, 1 do
             local this_column = tilemap.matrix[n_column]
@@ -29,13 +28,11 @@ local function _draw(tilemap, tilesize, matrix_start_x, matrix_start_y, matrix_e
                     func(   this_x,
                             this_y,
                             tilesize)
-                    draw_counter = draw_counter + 1
                 elseif value ~= nil and value~=0 then
                     print("draw function for: " .. value .. " not found!")
                 end
             end
         end
-        print(draw_counter)
     else
         for n_line, line in ipairs(tilemap.matrix) do
             for n_column, value in ipairs(line) do
@@ -75,13 +72,13 @@ function tilemap_view.new(matrix, cell_set, width, height)
     local tile_height = #matrix 
 
     o.tilesize = _calculate_tilesize(width, height, tile_width, tile_height)
-
+    
     -- camera
     local tilemap_width = o.tilesize * tile_width
     local tilemap_height = o.tilesize * tile_height
 
     o.camera = camera.new(tilemap_width, tilemap_height, 1, 3)
-    o.camera:set_viewport(0, 0, width, height)
+    o.camera:set_viewport(0, 0, tilemap_width, tilemap_height)
 
     
     -- offsets

@@ -12,6 +12,7 @@ local tilemap_view = require "qpd.tilemap_view"
 local grid_selector = require "qpd.widgets.grid_selector"
 
 local Player = require "entities.Player"
+local Tripod = require "entities.Tripod"
 local grid = require "qpd.grid"
 
 local color = require "qpd.color"
@@ -41,6 +42,9 @@ color_array[16] = color.lime
 --------------------------------------------------------------------------------
 
 function gs.load(map_file_path)
+    local player_speed = 75
+    local default_zoom = 3
+
     gs.scale_speed = 0.1
     
     gs.fps = fps.new()
@@ -64,6 +68,9 @@ function gs.load(map_file_path)
 
     -- create the on_screen tilemap_view    
     gs.tilemap_view = tilemap_view.new(gs.map_matrix, cell_set, gs.width, gs.height)
+    
+    -- set camera zoom
+    gs.tilemap_view.camera:set_scale(default_zoom)
 
     -- create grid
     local collisions = {}
@@ -75,7 +82,12 @@ function gs.load(map_file_path)
     -- create player
     local x, y = gs.tilemap_view.camera:get_center()
     local spr_player = love.graphics.newImage(files.spr_him)
-    gs.player = Player.new(x, y, spr_player, grid, gs.tilemap_view.tilesize, 75)
+    gs.player = Player.new(x, y, spr_player, grid, gs.tilemap_view.tilesize, player_speed)
+
+    -- create a Tripods
+    local spr_tripod = love.graphics.newImage(files.spr_tripod)
+    tripods = {}
+    tripods[1] = Tripod.new(x + 75, y + 75, spr_tripod, gs.tilemap_view.tilesize)
 
     -- define keyboard actions
     gs.actions_keydown = {}
@@ -90,6 +102,9 @@ function gs.draw()
         function ()
             gs.tilemap_view:draw()
             gs.player:draw()
+            for _, item in ipairs(tripods) do
+                item:draw()
+            end
         end)
     gs.fps:draw()
 end
@@ -103,6 +118,10 @@ function gs.update(dt)
 
     -- center camera
     gs.tilemap_view.camera:set_center(gs.player:get_center())
+
+    for _, item in ipairs(tripods) do
+        item:update(dt)
+    end
 
     gs.player:update(dt, gs.tilemap_view.tilesize)
 end

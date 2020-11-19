@@ -1,8 +1,7 @@
-todo
-    - eliminate external tilesize calculation
+todo    
+    - enemy
     - colision check should be on gamestate
     - dead center camera system
-    - enemy
     - distracting rocks
     - health, hunger and sanity systems    
     - fog + smog
@@ -19,3 +18,4 @@ done
     - collisions :)
         --  collide and slide
     - culling
+    - eliminate external tilesize calculation
