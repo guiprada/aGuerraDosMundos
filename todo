@@ -1,4 +1,6 @@
-todo    
+todo
+    - eliminate external tilesize calculation
+    - colision check should be on gamestate
     - dead center camera system
     - enemy
     - distracting rocks
