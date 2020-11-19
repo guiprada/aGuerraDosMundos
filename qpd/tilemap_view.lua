@@ -68,34 +68,30 @@ function tilemap_view.calculate_tilesize(w, h, n_tiles_w, n_tiles_h)
     end    
 end
 
-function tilemap_view.new(grid, cell_set, width, height, tilesize)
+function tilemap_view.new(matrix, cell_set, width, height, tilesize)
     local o = {}
 
-    o.grid = grid
+    local tile_width = #matrix[1]
+    local tile_height = #matrix 
 
-    
-
-    o.tile_width = #o.grid.matrix[1]
-    o.tile_height = #o.grid.matrix 
-
-    o.tilesize = tilesize or calculate_tilesize(width, height, o.tile_width, o.tile_height)
+    o.tilesize = tilesize or calculate_tilesize(width, height, tile_width, tile_height)
 
     -- camera
-    local tilemap_width = o.tilesize * o.tile_width
-    local tilemap_height = o.tilesize * o.tile_height
+    local tilemap_width = o.tilesize * tile_width
+    local tilemap_height = o.tilesize * tile_height
 
     o.camera = camera.new(tilemap_width, tilemap_height, 1, 3)
     o.camera:set_viewport(0, 0, width, height)
 
     
     -- offsets
-    o.offset_x = - o.tilesize/2
-    o.offset_y = - o.tilesize/2
+    local offset_x = - o.tilesize/2
+    local offset_y = - o.tilesize/2
     
     -- create map
-    o.tilemap = tilemap.new(o.offset_x,
-                            o.offset_y,
-                            o.grid.matrix,
+    o.tilemap = tilemap.new(offset_x,
+                            offset_y,
+                            matrix,
                             cell_set)
 
     utils.assign_methods(o, tilemap_view)
@@ -120,10 +116,10 @@ function tilemap_view.draw(self)
     matrix_start_x, matrix_start_y = _get_matrix_pos(start_x, start_y, self.tilesize)
     matrix_end_x, matrix_end_y = _get_matrix_pos(end_x, end_y, self.tilesize)
     
-    matrix_start_x = utils.clamp(matrix_start_x, 1, self.grid.width)
-    matrix_end_x = utils.clamp(matrix_end_x, 1, self.grid.width)
-    matrix_start_y = utils.clamp(matrix_start_y, 1, self.grid.height)
-    matrix_end_y =utils.clamp(matrix_end_y, 1, self.grid.height)
+    matrix_start_x = utils.clamp(matrix_start_x, 1, self.tilemap.tile_width)
+    matrix_end_x = utils.clamp(matrix_end_x, 1, self.tilemap.tile_width)
+    matrix_start_y = utils.clamp(matrix_start_y, 1, self.tilemap.tile_height)
+    matrix_end_y =utils.clamp(matrix_end_y, 1, self.tilemap.tile_height)
 
     _draw(self.tilemap, self.tilesize, matrix_start_x, matrix_start_y, matrix_end_x, matrix_end_y)
 end

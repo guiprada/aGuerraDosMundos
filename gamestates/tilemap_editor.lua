@@ -71,7 +71,7 @@ function gs.load(map_file_path)
 
     local grid = grid.new(gs.map_matrix, nil)
     -- create the on_screen tilemap_view    
-    gs.tilemap_view = tilemap_view.new(grid, cell_set, gs.width, gs.height, tilesize)
+    gs.tilemap_view = tilemap_view.new(gs.map_matrix, cell_set, gs.width, gs.height, tilesize)
 
     -- sprite_box
     gs.sprite_box = cell_box.new( 0,
@@ -83,19 +83,19 @@ function gs.load(map_file_path)
     -- selector with logic to keep position on reset
     local grid_start_x, grid_start_y
     -- if gs.selector == nil then
-        grid_start_x = math.ceil(gs.tilemap_view.tile_width/2)
-        grid_start_y = math.ceil(gs.tilemap_view.tile_height/2)
+        grid_start_x = math.ceil(gs.tilemap_view.tilemap.tile_width/2)
+        grid_start_y = math.ceil(gs.tilemap_view.tilemap.tile_height/2)
     -- else
     --     grid_start_x = gs.selector.grid_x
     --     grid_start_y = gs.selector.grid_y
     -- end
 
-    gs.selector = grid_selector.new(gs.tilemap_view.offset_x,
-                                    gs.tilemap_view.offset_y,
+    gs.selector = grid_selector.new(-gs.tilemap_view.tilesize/2,
+                                    -gs.tilemap_view.tilesize/2,
                                     1,
                                     1,
-                                    gs.tilemap_view.tile_width,
-                                    gs.tilemap_view.tile_height,
+                                    gs.tilemap_view.tilemap.tile_width,
+                                    gs.tilemap_view.tilemap.tile_height,
                                     gs.tilemap_view.tilesize,
                                     nil,
                                     grid_start_x,

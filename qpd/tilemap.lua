@@ -11,6 +11,9 @@ function tilemap.new(x, y, matrix, draw_functions)
     o.matrix = matrix
     o.draw_functions = draw_functions
 
+    o.tile_width = #matrix[1]
+    o.tile_height = #matrix 
+
     utils.assign_methods(o, tilemap)
     return o
 end

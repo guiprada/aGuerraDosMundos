@@ -72,7 +72,7 @@ function gs.load(map_file_path)
     local grid = grid.new(gs.map_matrix, collisions)
 
     -- create the on_screen tilemap_view    
-    gs.tilemap_view = tilemap_view.new(grid, cell_set, gs.width, gs.height, tilesize)
+    gs.tilemap_view = tilemap_view.new(gs.map_matrix, cell_set, gs.width, gs.height, tilesize)
 
     -- create player
     local x, y = gs.tilemap_view.camera:get_center()
@@ -124,7 +124,7 @@ function gs.resize(w, h)
     fonts.resize(w, h)
     gs.width = w
     gs.height = h
-    gs.tilemap_view = tilemap_view.new(gs.map_matrix, cell_set, gs.width, gs.height, tilesize)
+    gs.tilemap_view = tilemap_view.new(gs.map_matrix, cell_set, gs.width, gs.height)
 end
 
 function gs.unload()
