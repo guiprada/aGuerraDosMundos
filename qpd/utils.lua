@@ -201,15 +201,6 @@ function utils.clamp(value, min_value, max_value)
     return value
 end
 
-function utils.normalize( x, y)
-    local norm = (x^2 + y^2)^(1/2)
-    if norm ~= 0 then
-        return x/norm, y/norm
-    else
-        return 0, 0
-    end
-end
-
 function utils.max(x, y)
     -- Returns the greatest value amongst x and y.
 
@@ -315,6 +306,22 @@ function utils.middle_point(p1, p2)
 	middle.x = (p1.x + p2.x)/2
 	middle.y = (p1.y +p2.y)/2
 	return middle
+end
+
+function utils.normalize( x, y)
+    local norm = (x^2 + y^2)^(1/2)
+    if norm ~= 0 then
+        return x/norm, y/norm
+    else
+        return 0, 0
+    end
+end
+
+function utils.lerp(p1, p2, distance)
+    local p = {x = p2.x - p1.x, y = p2.y - p1.y}
+    p.x, p.y = utils.normalize(p.x, p.y)
+    p.x, p.y = p.x * distance, p.y * distance
+    return p1.x + p.x, p1.y + p.y
 end
 
 ------------------------------------------------------------------------- tables
@@ -704,7 +711,19 @@ function utils.matrix_print(matrix, separator)
     local separator = separator or ' '
     utils.matrix_write_to_file(matrix, nil, separator)
 end
+--------------------------------------------------------------------------grid
+
+function utils.point_to_grid(x, y, tilesize)		
+	grid_x = math.floor(x / tilesize) + 1--lua arrays start at 1
+	grid_y = math.floor(y / tilesize) + 1 --lua arrays start at 1
+	return grid_x, grid_y
+end
+
+function utils.grid_to_center_point(x, y, tilesize)
+	center_x = (x-1)*tilesize + math.ceil(tilesize/2)
+	center_y = (y-1)*tilesize + math.ceil(tilesize/2)
+	return center_x, center_y
+end
 
 utils.run_tests()
-
 return utils

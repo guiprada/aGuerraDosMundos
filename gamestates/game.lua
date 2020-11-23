@@ -43,7 +43,9 @@ color_array[16] = color.lime
 
 function gs.load(map_file_path)
     local player_speed = 75
+    local tripod_speed = 50
     local default_zoom = 3
+    local n_tripods = 10
 
     gs.scale_speed = 0.1
     
@@ -86,8 +88,13 @@ function gs.load(map_file_path)
 
     -- create a Tripods
     local spr_tripod = love.graphics.newImage(files.spr_tripod)
-    tripods = {}
-    tripods[1] = Tripod.new(x + 75, y + 75, spr_tripod, gs.tilemap_view.tilesize)
+    tripods = {}    
+    for i=1, n_tripods, 1 do
+        local new_start = grid:get_valid_pos()
+        local this_x, this_y = utils.grid_to_center_point(new_start.x, new_start.y, gs.tilemap_view.tilesize)
+        local new_target = grid:get_valid_pos()
+        tripods[i] = Tripod.new(this_x, this_y, spr_tripod, grid, gs.tilemap_view.tilesize, gs.tilemap_view.tilesize, new_target, tripod_speed)
+    end
 
     -- define keyboard actions
     gs.actions_keydown = {}
@@ -120,7 +127,7 @@ function gs.update(dt)
     gs.tilemap_view.camera:set_center(gs.player:get_center())
 
     for _, item in ipairs(tripods) do
-        item:update(dt)
+        item:update(dt, gs.player, gs.tilemap_view.tilesize)
     end
 
     gs.player:update(dt, gs.tilemap_view.tilesize)

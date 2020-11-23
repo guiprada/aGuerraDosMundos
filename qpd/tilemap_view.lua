@@ -9,12 +9,6 @@ local files = require "qpd.services.files"
 --------------------------------------------------------------------------------
 -- helper functions
 
-local function _get_matrix_pos(x, y, tilesize)		
-	matrix_x = math.floor(x / tilesize) + 1--lua arrays start at 1
-	matrix_y = math.floor(y / tilesize) + 1 --lua arrays start at 1
-	return matrix_x, matrix_y
-end
-
 local function _draw(tilemap, tilesize, matrix_start_x, matrix_start_y, matrix_end_x, matrix_end_y)
     if matrix_start_x and matrix_start_y and matrix_end_x and matrix_end_y then
          for n_column = matrix_start_y, matrix_end_y, 1 do
@@ -110,8 +104,8 @@ end
 function tilemap_view.draw(self)
     local start_x, start_y, end_x, end_y = self.camera:get_visible_quad()
 
-    matrix_start_x, matrix_start_y = _get_matrix_pos(start_x, start_y, self.tilesize)
-    matrix_end_x, matrix_end_y = _get_matrix_pos(end_x, end_y, self.tilesize)
+    matrix_start_x, matrix_start_y = utils.point_to_grid(start_x, start_y, self.tilesize)
+    matrix_end_x, matrix_end_y = utils.point_to_grid(end_x, end_y, self.tilesize)
     
     matrix_start_x = utils.clamp(matrix_start_x, 1, self.tilemap.tile_width)
     matrix_end_x = utils.clamp(matrix_end_x, 1, self.tilemap.tile_width)
