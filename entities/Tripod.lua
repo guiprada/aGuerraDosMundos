@@ -6,10 +6,15 @@ function Tripod._get_next_grid(self, tilesize)
     -- get allowed grids to go
     for i = -1, 1, 1 do
         for j = -1, 1, 1 do
-            print(self._grid_cell.x - i, self._grid_cell.y - j)
-            if not self.grid:is_colliding_grid(self._grid_cell.x - i, self._grid_cell.y - j, tilesize) then
-                local new_value = {x = self._grid_cell.x - i, y = self._grid_cell.y - j}
-                table.insert(allowed, new_value)
+            local grid_x, grid_y = self._grid_cell.x - i, self._grid_cell.y - j
+            if (    grid_x >= 1 and
+                    grid_x <= self.grid.width and
+                    grid_y >= 1 and
+                    grid_y <= self.grid.height ) then
+                if not self.grid:is_colliding_grid(self._grid_cell.x - i, self._grid_cell.y - j, tilesize) then
+                    local new_value = {x = self._grid_cell.x - i, y = self._grid_cell.y - j}
+                    table.insert(allowed, new_value)
+                end
             end
         end
     end
