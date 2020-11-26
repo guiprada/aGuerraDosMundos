@@ -87,8 +87,8 @@ function gs.load(map_file_path)
         grid_start_y = gs.selector.grid_y
     end
 
-    gs.selector = grid_selector.new(-gs.tilemap_view.tilesize/2,
-                                    -gs.tilemap_view.tilesize/2,
+    gs.selector = grid_selector.new(0,
+                                    0,
                                     1,
                                     1,
                                     gs.tilemap_view.tilemap.tile_width,

@@ -321,7 +321,11 @@ function utils.lerp(p1, p2, distance)
     local p = {x = p2.x - p1.x, y = p2.y - p1.y}
     p.x, p.y = utils.normalize(p.x, p.y)
     p.x, p.y = p.x * distance, p.y * distance
-    return p1.x + p.x, p1.y + p.y
+    if utils.distance(p1, p2) <= distance then
+        return p2.x, p2.y, true
+    else
+        return p1.x + p.x, p1.y + p.y, false
+    end
 end
 
 ------------------------------------------------------------------------- tables

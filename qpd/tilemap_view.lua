@@ -73,15 +73,10 @@ function tilemap_view.new(matrix, cell_set, width, height)
 
     o.camera = camera.new(tilemap_width, tilemap_height, 1, 3)
     o.camera:set_viewport(0, 0, tilemap_width, tilemap_height)
-
-    
-    -- offsets
-    local offset_x = - o.tilesize/2
-    local offset_y = - o.tilesize/2
     
     -- create map
-    o.tilemap = tilemap.new(offset_x,
-                            offset_y,
+    o.tilemap = tilemap.new(0,
+                            0,
                             matrix,
                             cell_set)
 

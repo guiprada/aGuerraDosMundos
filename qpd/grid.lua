@@ -44,11 +44,9 @@ function grid.new(matrix, collisions)
 end
 
 function grid.is_colliding(self, x, y, tilesize)
-	local grid_y = math.ceil(y/tilesize) + 1
-	local grid_x = math.ceil(x/tilesize) + 1
-
-	local grid_value = self.matrix[grid_y][grid_x]
-	return self.collisions[grid_value] or false
+	local grid_y = math.floor(y/tilesize) + 1
+	local grid_x = math.floor(x/tilesize) + 1
+	return self:is_colliding_grid(grid_x, grid_y, tilesize)
 end
 
 function grid.is_colliding_grid(self, grid_x, grid_y, tilesize)

@@ -13,8 +13,8 @@ function Player.new(x, y, sprite, grid, size, speed)
     o.grid = grid
     o.scale = size/ sprite:getWidth()
     o.rot = 0
-    o.offset = -size/2
-
+    o.offset = (o.size/2) * (1/o.scale)
+    
     utils.assign_methods(o, Player)
 
     return o
@@ -57,8 +57,12 @@ function Player.update(self, dt, tilesize)
         end
     end
 
+    -- if not self.grid:is_colliding(new_x, new_y, tilesize) then
+    --     self.x, self.y = new_x, new_y
+    -- end
+    
 
-    local size = math.floor(self.size/2)
+    local size = self.size/2
     top_x, top_y = new_x, new_y - size
     botton_x, botton_y = new_x, new_y + size
     left_x, left_y = new_x - size, new_y
@@ -95,7 +99,7 @@ function Player.update(self, dt, tilesize)
 end
 
 function Player.draw(self)    
-    --love.graphics.circle("fill", self.x, self.y, self.size)
+    love.graphics.circle("fill", self.x, self.y, self.size/2)
     love.graphics.draw(self.sprite, self.x, self.y, self.rot, self.scale, self.scale, self.offset, self.offset)
 end
 

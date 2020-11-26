@@ -44,10 +44,10 @@ color_array[16] = color.lime
 function gs.load(map_file_path)
     local player_speed = 75
     local tripod_speed = 50
-    local default_zoom = 3
+    local default_zoom = 1
     local n_tripods = 10
 
-    gs.scale_speed = 0.1
+    gs.scale_speed = 0.5
     
     gs.fps = fps.new()
     
@@ -83,6 +83,8 @@ function gs.load(map_file_path)
 
     -- create player
     local x, y = gs.tilemap_view.camera:get_center()
+    x, y = utils.point_to_grid(x, y, gs.tilemap_view.tilesize)
+    x, y = utils.grid_to_center_point(x, y, gs.tilemap_view.tilesize)
     local spr_player = love.graphics.newImage(files.spr_him)
     gs.player = Player.new(x, y, spr_player, grid, gs.tilemap_view.tilesize, player_speed)
 
