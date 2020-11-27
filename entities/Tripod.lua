@@ -108,9 +108,7 @@ end
 
 function Tripod.update(self, dt, player, tilesize)
     self._curr_cell.x, self._curr_cell.y = utils.point_to_grid(self.x, self.y, tilesize)
-    if self.grid:is_colliding_grid(self._curr_cell.x, self._curr_cell.y, tilesize) then
-        print("we are in collision")
-    end
+
     -- has reached the target?
     if  self._curr_cell.x == self._target.x and
         self._curr_cell.y == self._target.y then

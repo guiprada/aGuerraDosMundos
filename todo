@@ -1,10 +1,14 @@
 todo    
     - enemy
-    - colision check should be on gamestate
+        - enemy collisions
+            - collision timer
+        - enemy chase
+    - health, hunger and sanity systems
     - dead center camera system
-    - distracting rocks
-    - health, hunger and sanity systems    
     - fog + smog
+
+    - colision check should be on gamestate?    
+    - distracting rocks    
     - animation system
     - sanitize reset and new functions
 

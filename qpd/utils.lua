@@ -293,6 +293,10 @@ function utils.check_collision_quad(h1, h2)
     return utils.check_collision(h1.x, h1.y, h1.w, h1.h, h2.x, h2.y, h2.w, h2.h)
 end
 
+function utils.check_collision_center(x1, y1, s1, x2, y2, s2)
+    return utils.check_collision(   x1 - s1/2, y1 - s1/2, s1, s1,
+                                    x2 - s2/2, y2 - s2/2, s2, s2)
+end
 ------------------------------------------------------------------------- points
 
 function utils.distance(p1, p2)
