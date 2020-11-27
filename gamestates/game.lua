@@ -44,7 +44,7 @@ color_array[16] = color.lime
 function gs.load(map_file_path)
     local player_speed = 75
     local tripod_speed = 50
-    local default_zoom = 1
+    local default_zoom = 3
     local n_tripods = 50
 
     gs.scale_speed = 0.5
