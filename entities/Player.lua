@@ -99,7 +99,7 @@ function Player.update(self, dt, tilesize)
 end
 
 function Player.draw(self)    
-    love.graphics.circle("fill", self.x, self.y, self.size/2)
+    --love.graphics.circle("fill", self.x, self.y, self.size/2)
     love.graphics.draw(self.sprite, self.x, self.y, self.rot, self.scale, self.scale, self.offset, self.offset)
 end
 
