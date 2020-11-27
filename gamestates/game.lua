@@ -45,7 +45,7 @@ function gs.load(map_file_path)
     local player_speed = 75
     local tripod_speed = 50
     local default_zoom = 1
-    local n_tripods = 10
+    local n_tripods = 5000
 
     gs.scale_speed = 0.5
     

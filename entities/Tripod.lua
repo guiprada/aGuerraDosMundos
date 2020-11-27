@@ -1,12 +1,12 @@
 local Tripod = {}
 local utils = require "qpd.utils"
 
-function Tripod._get_next_grid(self, tilesize)
+function Tripod._get_next_cell(self, tilesize)
     local allowed = {}
     -- get allowed grids to go
     for i = -1, 1, 1 do
         for j = -1, 1, 1 do
-            local grid_x, grid_y = self._grid_cell.x + i, self._grid_cell.y + j
+            local grid_x, grid_y = self._curr_cell.x + i, self._curr_cell.y + j
             if (    grid_x >= 1 and
                     grid_x <= self.grid.width and
                     grid_y >= 1 and
@@ -21,7 +21,7 @@ function Tripod._get_next_grid(self, tilesize)
 
     -- get allowed grids
     -- for i = -1, 1, 2 do
-    --     local grid_x, grid_y = self._grid_cell.x + i, self._grid_cell.y
+    --     local grid_x, grid_y = self._curr_cell.x + i, self._curr_cell.y
     --     if (    grid_x >= 1 and
     --             grid_x <= self.grid.width and
     --             grid_y >= 1 and
@@ -33,7 +33,7 @@ function Tripod._get_next_grid(self, tilesize)
     --     end
     -- end
     -- for i = -1, 1, 2 do
-    --     local grid_x, grid_y = self._grid_cell.x, self._grid_cell.y + i
+    --     local grid_x, grid_y = self._curr_cell.x, self._curr_cell.y + i
     --     if (    grid_x >= 1 and
     --             grid_x <= self.grid.width and
     --             grid_y >= 1 and
@@ -56,23 +56,24 @@ function Tripod._get_next_grid(self, tilesize)
                 next_grid = allowed[i]
             end
         end
-        self._last_grid = self._grid_cell
-        self._next_grid = next_grid
-        if  self._last_grid.x == self._next_grid.x and
-            self._last_grid.y == self._next_grid.y then
+        self._last_cell.x, self._last_cell.y = self._curr_cell.x, self._curr_cell.y
+        self._next_cell.x, self._next_cell.y = next_grid.x, next_grid.y
+        if  self._last_cell.x == self._next_cell.x and
+            self._last_cell.y == self._next_cell.y then
             self._is_stuck = true
-        -- else
-        --     self._is_stuck = false
         end
 
         if self._is_stuck then
-            self._last_try = self._last_try + 1
-            if self._last_try> #allowed then self._last_try = 1 end
-            next_grid = allowed[self._last_try]
-            self._next_grid.x, self._next_grid.y = next_grid.x, next_grid.y
+            self._target = self.grid:get_valid_pos()
+            self._is_stuck = false
+            -- self._last_try = self._last_try + 1
+            -- if self._last_try> #allowed then self._last_try = 1 end
+            -- next_grid = allowed[self._last_try]
+            -- self._next_cell.x, self._next_cell.y = next_grid.x, next_grid.y
         end
     else
         print("error: Tripod has nowhere to go!")
+        self._next_cell.x, self._next_cell.y = self._curr_cell.x, self._curr_cell.y        
     end
 end
 
@@ -90,37 +91,44 @@ function Tripod.new(x, y, sprite, grid, size, tilesize, target, speed)
     o._start = {}
     o._start.x, o._start.y = utils.point_to_grid(o.x , o.y, tilesize)
     o._target = target
-    o._grid_cell = {}
-    o._grid_cell.x, o._grid_cell.y = o._start.x, o._start.y
+    o._curr_cell = {}
+    o._curr_cell.x, o._curr_cell.y = o._start.x, o._start.y
     o._last_try = 1
+    
 
     o.speed = speed
     
     utils.assign_methods(o, Tripod)
-
-    o._next_grid = {}
-    o:_get_next_grid(tilesize)
+    o._last_cell = {}
+    o._next_cell = {}
+    o:_get_next_cell(tilesize)
 
     return o
 end
 
 function Tripod.update(self, dt, player, tilesize)
-    self._grid_cell.x, self._grid_cell.y = utils.point_to_grid(self.x, self.y, tilesize)
-    if self.grid:is_colliding_grid(self._grid_cell.x, self._grid_cell.y, tilesize) then
+    self._curr_cell.x, self._curr_cell.y = utils.point_to_grid(self.x, self.y, tilesize)
+    if self.grid:is_colliding_grid(self._curr_cell.x, self._curr_cell.y, tilesize) then
         print("we are in collision")
     end
     -- has reached the target?
-    if  self._grid_cell.x == self._target.x and
-        self._grid_cell.y == self._target.y then
+    if  self._curr_cell.x == self._target.x and
+        self._curr_cell.y == self._target.y then
         self:_aquire_target(player, tilesize)
     end
 
     self:_move(dt, tilesize)
 end
 
-function Tripod.draw(self)
-    --love.graphics.circle("fill", self.x, self.y, self.size/2)
+function Tripod.draw(self)    
     love.graphics.draw(self.sprite, self.x, self.y, self.rot, self.scale, self.scale, self.offset, self.offset)
+
+    if self._is_stuck then
+        local r, g, b, a = love.graphics.getColor()
+        love.graphics.setColor(255, 0, 0)
+        love.graphics.circle("fill", self.x, self.y, self.size/2)
+        love.graphics.setColor(r, g, b, a)
+    end
 end
 
 function Tripod._aquire_target(self, player, tilesize)
@@ -128,12 +136,12 @@ function Tripod._aquire_target(self, player, tilesize)
 end
 
 function Tripod._move(self, dt, tilesize)    
-    local px, py = utils.grid_to_center_point(self._next_grid.x, self._next_grid.y, tilesize)
+    local px, py = utils.grid_to_center_point(self._next_cell.x, self._next_cell.y, tilesize)
     local has_reached = false
     self.x, self.y, has_reached = utils.lerp(self, {x = px, y = py}, self.speed * dt)
 
     if has_reached then
-        self:_get_next_grid(tilesize)
+        self:_get_next_cell(tilesize)
     end
 end
 
