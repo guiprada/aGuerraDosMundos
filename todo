@@ -2,6 +2,7 @@ todo
     - enemy
         - enemy collisions
             - collision timer
+        - enemy direction
         - enemy chase
     - health, hunger and sanity systems
         - gameover
