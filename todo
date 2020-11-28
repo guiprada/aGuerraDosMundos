@@ -4,6 +4,7 @@ todo
             - collision timer
         - enemy chase
     - health, hunger and sanity systems
+    - gameplay tunning
     - dead center camera system
     - fog + smog
 
