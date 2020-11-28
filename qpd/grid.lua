@@ -5,17 +5,14 @@ local utils = require "qpd.utils"
 
 -----------------------------------------------------------------------
 function grid._is_collision(self, n)
-	for key, item in ipairs(self.collisions) do
-		if item == n then
-			return true
-		end
-	end
-	return false
+	return self.collisions[n] or false
 end
 
 -----------------------------------------------------------------------
 function grid.get_valid_pos(self)
-	return self.array_grid_valid_pos[love.math.random(#self.array_grid_valid_pos)]
+	local pos = {}
+	pos = self.array_grid_valid_pos[love.math.random(#self.array_grid_valid_pos)]
+	return pos
 end
 
 function grid.new(matrix, collisions)
