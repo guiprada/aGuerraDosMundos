@@ -18,6 +18,7 @@ local grid = require "qpd.grid"
 local color = require "qpd.color"
 local color_cell = require "qpd.cells.color_cell"
 local sprite_cell = require "qpd.cells.sprite_cell"
+local timer = require "qpd.timer"
 
 --------------------------------------------------------------------------------
 
@@ -46,7 +47,9 @@ function gs.load(map_file_path)
     local tripod_speed = 50
     local default_zoom = 3
     local n_tripods = 50
-
+    local disable_collision_duration = 2
+    
+    gs.damage_points = 10
     gs.scale_speed = 0.5
     
     gs.fps = fps.new()
@@ -88,6 +91,12 @@ function gs.load(map_file_path)
     local spr_player = love.graphics.newImage(files.spr_him)
     gs.player = Player.new(x, y, spr_player, grid, gs.tilemap_view.tilesize, player_speed)
 
+    -- create player collision timer
+    gs.player_collision_enabled = false
+    local enable_player_collision = function() gs.player_collision_enabled = true end
+    gs.player_collision_timer = timer.new(disable_collision_duration, enable_player_collision)
+    gs.player_collision_timer:reset()
+
     -- create a Tripods
     local spr_tripod = love.graphics.newImage(files.spr_tripod)
     gs.tripods = {}    
@@ -110,7 +119,7 @@ function gs.draw()
     gs.tilemap_view.camera:draw( 
         function ()
             gs.tilemap_view:draw()
-            gs.player:draw()
+            gs.player:draw(gs.player_collision_enabled)
             for _, item in ipairs(gs.tripods) do
                 item:draw()
             end
@@ -133,12 +142,17 @@ function gs.update(dt)
     --  enemy update and check collision with player
     for _, item in ipairs(gs.tripods) do
         item:update(dt, gs.player, gs.tilemap_view.tilesize)
-
-        if utils.check_collision_center(item.x, item.y, item.size,
-                                        gs.player.x, gs.player.y, gs.player.size) then
-            print("collided with player")
+        
+        if gs.player_collision_enabled then
+            if utils.check_collision_circle(item.x, item.y, item.size,
+                                            gs.player.x, gs.player.y, gs.player.size) then
+                gs.player:take_health(gs.damage_points)
+                gs.player_collision_enabled = false
+                gs.player_collision_timer:reset()
+            end
         end
     end
+    gs.player_collision_timer:update(dt)
 end
 
 function gs.keypressed(key, scancode, isrepeat)

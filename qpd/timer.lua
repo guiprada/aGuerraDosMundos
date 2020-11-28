@@ -5,6 +5,7 @@ local utils = require "qpd.utils"
 --------------------------------------------------------------------------------
 
 function timer.reset(self, duration, callback)
+    self.enabled = true
     self.duration = duration or self.duration
     self.callback = callback or self.callback
     self._timer = self.duration
@@ -12,8 +13,9 @@ end
 
 function timer.update(self, dt)
     self._timer = self._timer - dt
-    if self._timer <= 0 then
+    if self.enabled and self._timer <= 0 then
         self.callback()
+        self.enabled = false
     end
 end
 
@@ -29,6 +31,7 @@ function timer.new(duration, callback)
     utils.assign_methods(o, timer)
 
     o:reset(duration, callback)
+    o.enabled = false
     return o
 end
 

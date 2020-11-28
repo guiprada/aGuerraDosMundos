@@ -297,6 +297,11 @@ function utils.check_collision_center(x1, y1, s1, x2, y2, s2)
     return utils.check_collision(   x1 - s1/2, y1 - s1/2, s1, s1,
                                     x2 - s2/2, y2 - s2/2, s2, s2)
 end
+
+function utils.check_collision_circle(x1, y1, r1, x2, y2, r2)
+    local distance = utils.distance({x = x1, y = y1},{x = x2, y = y2})
+    return (r1+r2) > distance
+end
 ------------------------------------------------------------------------- points
 
 function utils.distance(p1, p2)

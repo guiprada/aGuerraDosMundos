@@ -14,6 +14,7 @@ function Player.new(x, y, sprite, grid, size, speed)
     o.scale = size/ sprite:getWidth()
     o.rot = 0
     o.offset = (o.size/2) * (1/o.scale)
+    o._health = 100
     
     utils.assign_methods(o, Player)
 
@@ -98,13 +99,32 @@ function Player.update(self, dt, tilesize)
     end
 end
 
-function Player.draw(self)    
+function Player.draw(self, collision_enabled)    
     --love.graphics.circle("fill", self.x, self.y, self.size/2)
     love.graphics.draw(self.sprite, self.x, self.y, self.rot, self.scale, self.scale, self.offset, self.offset)
+
+    -- health shadow
+    local r, g, b, a = love.graphics.getColor()
+    local damage = self:get_health()/100
+    love.graphics.setColor(0, 0, 0, 1 - damage)
+    love.graphics.circle("fill", self.x, self.y, (self.size/2)-0.5)
+    love.graphics.setColor(r, g, b, a)
+    
+    if not collision_enabled then
+        love.graphics.circle("fill", self.x, self.y, self.size/4)
+    end
 end
 
 function Player.get_center(self)
     return self.x, self.y
+end
+
+function Player.take_health(self, h_much)
+    self._health = self._health - h_much
+end
+
+function Player.get_health(self)
+    return self._health
 end
 
 return Player
