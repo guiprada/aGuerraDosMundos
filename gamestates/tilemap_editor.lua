@@ -120,33 +120,48 @@ function gs.load(map_file_path)
     gs.actions_keyup[keymap.keys.add_top] = 
         function ()
             gs.tilemap_view.tilemap:add_top()
-            gs
-            .selector:add_line()
-            --gs.tile_height = gs.tile_height + 1
+            gs.selector:add_line()
+            local zoom_level = gs.tilemap_view.camera:get_scale()
             gs.tilemap_view = tilemap_view.new(gs.map_matrix, cell_set, gs.width, gs.height, tilesize)
+            gs.tilemap_view.camera:set_scale(zoom_level)
+            gs.selector = grid_selector.new(0, 0, 1, 1, gs.tilemap_view.tilemap.tile_width, gs.tilemap_view.tilemap.tile_height, gs.tilemap_view.tilesize, nil,
+                gs.selector.grid_x,
+                gs.selector.grid_y+1)
         end
     gs.actions_keyup[keymap.keys.add_bottom] = 
         function ()
             gs.tilemap_view.tilemap:add_bottom()
             gs.selector:add_line()
-            --gs.tile_height = gs.tile_height + 1
+            local zoom_level = gs.tilemap_view.camera:get_scale()
             gs.tilemap_view = tilemap_view.new(gs.map_matrix, cell_set, gs.width, gs.height, tilesize)
+            gs.tilemap_view.camera:set_scale(zoom_level)
+            gs.selector = grid_selector.new(0, 0, 1, 1, gs.tilemap_view.tilemap.tile_width, gs.tilemap_view.tilemap.tile_height, gs.tilemap_view.tilesize, nil,
+                gs.selector.grid_x,
+                gs.selector.grid_y)
         end
 
     gs.actions_keyup[keymap.keys.add_right] = 
         function ()
             gs.tilemap_view.tilemap:add_right()
             gs.selector:add_row()
-            --gs.tile_width = gs.tile_width + 1
+            local zoom_level = gs.tilemap_view.camera:get_scale()
             gs.tilemap_view = tilemap_view.new(gs.map_matrix, cell_set, gs.width, gs.height, tilesize)
+            gs.tilemap_view.camera:set_scale(zoom_level)
+            gs.selector = grid_selector.new(0, 0, 1, 1, gs.tilemap_view.tilemap.tile_width, gs.tilemap_view.tilemap.tile_height, gs.tilemap_view.tilesize, nil,
+                gs.selector.grid_x,
+                gs.selector.grid_y)
         end
 
     gs.actions_keyup[keymap.keys.add_left] = 
         function ()
             gs.tilemap_view.tilemap:add_left()
             gs.selector:add_row()
-            --gs.tile_width = gs.tile_width + 1
+            local zoom_level = gs.tilemap_view.camera:get_scale()
             gs.tilemap_view = tilemap_view.new(gs.map_matrix, cell_set, gs.width, gs.height, tilesize)
+            gs.tilemap_view.camera:set_scale(zoom_level)
+            gs.selector = grid_selector.new(0, 0, 1, 1, gs.tilemap_view.tilemap.tile_width, gs.tilemap_view.tilemap.tile_height, gs.tilemap_view.tilesize, nil,
+                gs.selector.grid_x+1,
+                gs.selector.grid_y)
         end
 
     gs.actions_keyup[keymap.keys.save] =  
