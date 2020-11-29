@@ -38,6 +38,8 @@ function love.load()
     gamestate.register("love", love)
     gamestate.register("menu", require "gamestates.menu")
     gamestate.register("game", require "gamestates.game")
+    gamestate.register("victory", require "gamestates.victory")
+    gamestate.register("gameover", require "gamestates.gameover")
     gamestate.register("settings_menu", require "gamestates.settings_menu")
     gamestate.register("save_settings", require "gamestates.save_settings")
     gamestate.register(

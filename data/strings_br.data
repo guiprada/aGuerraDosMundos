@@ -45,3 +45,6 @@ language_instructions =
  'up  down      selecionar idioma
 \nenter              mudar idioma
 \nesc                      voltar'
+
+gameover = 'Perdeu!'
+victory = 'Parabens!'

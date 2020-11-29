@@ -47,7 +47,7 @@ function gs.load(map_file_path)
     local tripod_speed = 50
     local default_zoom = 3
     local n_tripods = 50
-    local disable_collision_duration = 2
+    local disable_collision_duration = 1
     
     gs.damage_points = 10
     gs.scale_speed = 0.5
@@ -89,7 +89,7 @@ function gs.load(map_file_path)
     x, y = utils.point_to_grid(x, y, gs.tilemap_view.tilesize)
     x, y = utils.grid_to_center_point(x, y, gs.tilemap_view.tilesize)
     local spr_player = love.graphics.newImage(files.spr_him)
-    gs.player = Player.new(x, y, spr_player, grid, gs.tilemap_view.tilesize, player_speed)
+    gs.player = Player.new(x, y, spr_player, grid, gs.tilemap_view.tilesize, gs.tilemap_view.tilesize, player_speed)
 
     -- create player collision timer
     gs.player_collision_enabled = false
@@ -136,7 +136,7 @@ function gs.update(dt)
 
     -- center camera
     gs.tilemap_view.camera:set_center(gs.player:get_center())
-
+        
     gs.player:update(dt, gs.tilemap_view.tilesize)
     
     --  enemy update and check collision with player
@@ -153,6 +153,16 @@ function gs.update(dt)
         end
     end
     gs.player_collision_timer:update(dt)
+
+    -- check win or loose
+    if gs.player.health <=0 then
+        gamestate.switch("gameover")
+    elseif  (gs.player.cell.x < 3 or
+        gs.player.cell.x > (gs.tilemap_view.tilemap.tile_width -2) or
+        gs.player.cell.y < 3 or
+        gs.player.cell.y > (gs.tilemap_view.tilemap.tile_height -2) ) then
+        gamestate.switch("victory")
+    end
 end
 
 function gs.keypressed(key, scancode, isrepeat)

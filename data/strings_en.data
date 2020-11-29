@@ -45,3 +45,6 @@ language_instructions =
  'up  down      select language
 \nenter         change language
 \nesc                   go back'
+
+gameover = 'You Lost!'
+victory = 'You Win!"

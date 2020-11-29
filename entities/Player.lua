@@ -3,7 +3,7 @@ local Player = {}
 local keymap = require "qpd.services.keymap"
 local utils = require "qpd.utils"
 
-function Player.new(x, y, sprite, grid, size, speed)
+function Player.new(x, y, sprite, grid, size, tilesize, speed)
     local o = {}
     o.x = x or 0
     o.y = y or 0
@@ -15,6 +15,8 @@ function Player.new(x, y, sprite, grid, size, speed)
     o.rot = -math.pi/2
     o.offset = (o.size/2) * (1/o.scale)
     o.health = 100
+    o.cell = {}
+    o.cell.x, o.cell.y = utils.point_to_grid(o.x, o.y, tilesize)
     
     utils.assign_methods(o, Player)
 
@@ -101,6 +103,9 @@ function Player.update(self, dt, tilesize)
     
         self.x = new_x
     end
+
+    -- update cell
+    self.cell.x, self.cell.y = utils.point_to_grid(self.x, self.y, tilesize)
 end
 
 function Player.draw(self, collision_enabled)    
@@ -110,7 +115,7 @@ function Player.draw(self, collision_enabled)
     -- save color
     local r, g, b, a = love.graphics.getColor()
     -- health shadow    
-    local damage = self:get_health()/100
+    local damage = self.health/100
     love.graphics.setColor(0, 0, 0, 1 - damage)
     love.graphics.circle("fill", self.x, self.y, (self.size/2)+0.5)
         
@@ -129,10 +134,6 @@ end
 
 function Player.take_health(self, h_much)
     self.health = self.health - h_much
-end
-
-function Player.get_health(self)
-    return self.health
 end
 
 return Player
