@@ -1,6 +1,15 @@
 local Tripod = {}
 local utils = require "qpd.utils"
 
+
+function Tripod._update_rotation(self)
+    local delta_x = self._next_cell.x - self._curr_cell.x
+    local delta_y = self._next_cell.y - self._curr_cell.y
+
+    self.rot = math.atan2(delta_y, delta_x)
+end
+
+
 function Tripod._get_next_cell(self, tilesize)
     local allowed = {}
     -- get allowed grids to go
@@ -18,32 +27,6 @@ function Tripod._get_next_cell(self, tilesize)
             end
         end
     end
-
-    -- get allowed grids
-    -- for i = -1, 1, 2 do
-    --     local grid_x, grid_y = self._curr_cell.x + i, self._curr_cell.y
-    --     if (    grid_x >= 1 and
-    --             grid_x <= self.grid.width and
-    --             grid_y >= 1 and
-    --             grid_y <= self.grid.height ) then
-    --         if not self.grid:is_colliding_grid(grid_x, grid_y, tilesize) then
-    --             local new_value = {x = grid_x, y = grid_y}
-    --             table.insert(allowed, new_value)
-    --         end
-    --     end
-    -- end
-    -- for i = -1, 1, 2 do
-    --     local grid_x, grid_y = self._curr_cell.x, self._curr_cell.y + i
-    --     if (    grid_x >= 1 and
-    --             grid_x <= self.grid.width and
-    --             grid_y >= 1 and
-    --             grid_y <= self.grid.height ) then
-    --         if not self.grid:is_colliding_grid(grid_x, grid_y, tilesize) then
-    --             local new_value = {x = grid_x, y = grid_y}
-    --             table.insert(allowed, new_value)
-    --         end
-    --     end
-    -- end
     
     -- see which one gets it closer to target
     if #allowed >= 2 then
@@ -66,15 +49,13 @@ function Tripod._get_next_cell(self, tilesize)
         if self._is_stuck then
             self._target = self.grid:get_valid_pos()
             self._is_stuck = false
-            -- self._last_try = self._last_try + 1
-            -- if self._last_try> #allowed then self._last_try = 1 end
-            -- next_grid = allowed[self._last_try]
-            -- self._next_cell.x, self._next_cell.y = next_grid.x, next_grid.y
         end
     else
         print("error: Tripod has nowhere to go!")
         self._next_cell.x, self._next_cell.y = self._curr_cell.x, self._curr_cell.y        
     end
+
+    self:_update_rotation()
 end
 
 function Tripod.new(x, y, sprite, grid, size, tilesize, target, speed)
@@ -94,7 +75,6 @@ function Tripod.new(x, y, sprite, grid, size, tilesize, target, speed)
     o._curr_cell = {}
     o._curr_cell.x, o._curr_cell.y = o._start.x, o._start.y
     o._last_try = 1
-    
 
     o.speed = speed
     
