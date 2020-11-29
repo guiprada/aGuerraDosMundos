@@ -66,6 +66,7 @@ function Player.update(self, dt, tilesize)
         self.rot = math.atan2(delta_y, delta_x)
     end
 
+    --
     local size = self.size/2
     top_x, top_y = new_x, new_y - size
     botton_x, botton_y = new_x, new_y + size
@@ -111,7 +112,7 @@ function Player.draw(self, collision_enabled)
     -- health shadow    
     local damage = self:get_health()/100
     love.graphics.setColor(0, 0, 0, 1 - damage)
-    love.graphics.circle("fill", self.x, self.y, (self.size/2)-0.5)
+    love.graphics.circle("fill", self.x, self.y, (self.size/2)+0.5)
         
     if not collision_enabled then
         love.graphics.setColor(1,0,0, 0.6)
