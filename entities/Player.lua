@@ -12,7 +12,7 @@ function Player.new(x, y, sprite, grid, size, speed)
     o.sprite = sprite
     o.grid = grid
     o.scale = size/ sprite:getWidth()
-    o.rot = 0
+    o.rot = -math.pi/2
     o.offset = (o.size/2) * (1/o.scale)
     o._health = 100
     
@@ -58,10 +58,13 @@ function Player.update(self, dt, tilesize)
         end
     end
 
-    -- if not self.grid:is_colliding(new_x, new_y, tilesize) then
-    --     self.x, self.y = new_x, new_y
-    -- end
-    
+    -- update rotation
+    local delta_x = new_x - self.x
+    local delta_y = new_y - self.y
+
+    if delta_x~=0 or delta_y~=0 then
+        self.rot = math.atan2(delta_y, delta_x)
+    end
 
     local size = self.size/2
     top_x, top_y = new_x, new_y - size

@@ -46,7 +46,7 @@ function gs.load(map_file_path)
     local player_speed = 75
     local tripod_speed = 50
     local default_zoom = 3
-    local n_tripods = 500
+    local n_tripods = 50
     local disable_collision_duration = 2
     
     gs.damage_points = 10

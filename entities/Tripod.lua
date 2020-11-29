@@ -1,14 +1,12 @@
 local Tripod = {}
 local utils = require "qpd.utils"
 
-
 function Tripod._update_rotation(self)
     local delta_x = self._next_cell.x - self._curr_cell.x
     local delta_y = self._next_cell.y - self._curr_cell.y
 
     self.rot = math.atan2(delta_y, delta_x)
 end
-
 
 function Tripod._get_next_cell(self, tilesize)
     local allowed = {}
