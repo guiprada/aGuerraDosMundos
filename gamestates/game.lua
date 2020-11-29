@@ -144,8 +144,8 @@ function gs.update(dt)
         item:update(dt, gs.player, gs.tilemap_view.tilesize)
         
         if gs.player_collision_enabled then
-            if utils.check_collision_circle(item.x, item.y, item.size,
-                                            gs.player.x, gs.player.y, gs.player.size) then
+            if utils.check_collision_circle(item.x, item.y, item.size/2,
+                                            gs.player.x, gs.player.y, gs.player.size/2) then
                 gs.player:take_health(gs.damage_points)
                 gs.player_collision_enabled = false
                 gs.player_collision_timer:reset()
