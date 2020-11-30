@@ -32,6 +32,9 @@ function Tripod._get_next_cell(self, player, tilesize)
     if player and self:_can_see(player, tilesize) then
         self._target.x = player._cell.x
         self._target.y = player._cell.y
+        self.speed = 2 * self.start_speed
+    else
+        self.speed = self.start_speed
     end
     local allowed = {}
     -- get allowed grids to go
@@ -107,6 +110,7 @@ function Tripod.new(x, y, sprite, grid, _size, tilesize, target, speed, vision_d
 
     o.sprite = sprite
     o.grid = grid
+    o.start_speed = speed
     o.speed = speed
     o.vision_dist = vision_dist or 10*tilesize
     if vision_angle then
