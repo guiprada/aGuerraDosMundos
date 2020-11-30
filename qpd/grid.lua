@@ -43,10 +43,10 @@ end
 function grid.is_colliding(self, x, y, tilesize)
 	local grid_y = math.floor(y/tilesize) + 1
 	local grid_x = math.floor(x/tilesize) + 1
-	return self:is_colliding_grid(grid_x, grid_y, tilesize)
+	return self:is_colliding_grid(grid_x, grid_y)
 end
 
-function grid.is_colliding_grid(self, grid_x, grid_y, tilesize)
+function grid.is_colliding_grid(self, grid_x, grid_y)
 	local grid_value = self.matrix[grid_y][grid_x]
 	return self.collisions[grid_value] or false
 end

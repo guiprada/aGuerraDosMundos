@@ -144,8 +144,8 @@ function gs.update(dt)
         item:update(dt, gs.player, gs.tilemap_view.tilesize)
         
         if gs.player_collision_enabled then
-            if utils.check_collision_circle(item.x, item.y, item.size/2,
-                                            gs.player.x, gs.player.y, gs.player.size/2) then
+            if utils.check_collision_circle(item._x, item._y, item._size/2,
+                                            gs.player._x, gs.player._y, gs.player._size/2) then
                 gs.player:take_health(gs.damage_points)
                 gs.player_collision_enabled = false
                 gs.player_collision_timer:reset()
@@ -157,10 +157,10 @@ function gs.update(dt)
     -- check win or loose
     if gs.player.health <=0 then
         gamestate.switch("gameover")
-    elseif  (gs.player.cell.x < 3 or
-        gs.player.cell.x > (gs.tilemap_view.tilemap.tile_width -2) or
-        gs.player.cell.y < 3 or
-        gs.player.cell.y > (gs.tilemap_view.tilemap.tile_height -2) ) then
+    elseif  (gs.player._cell.x < 3 or
+        gs.player._cell.x > (gs.tilemap_view.tilemap.tile_width -2) or
+        gs.player._cell.y < 3 or
+        gs.player._cell.y > (gs.tilemap_view.tilemap.tile_height -2) ) then
         gamestate.switch("victory")
     end
 end
