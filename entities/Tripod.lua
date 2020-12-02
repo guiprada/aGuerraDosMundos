@@ -5,6 +5,7 @@ local function check_unobstructed(origin, angle, distance, grid, tilesize)
     local current_cell = {}
     local x, y = origin.x, origin.y
 
+    -- we go tile by tile
     local step_x = math.cos( angle ) * tilesize
     local step_y = math.sin( angle ) * tilesize
 

@@ -47,4 +47,4 @@ language_instructions =
 \nesc                   go back'
 
 gameover = 'You Lost!'
-victory = 'You Win!"
+victory = 'You Win!'
