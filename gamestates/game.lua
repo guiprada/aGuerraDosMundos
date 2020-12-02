@@ -43,12 +43,16 @@ color_array[16] = color.lime
 --------------------------------------------------------------------------------
 
 function gs.load(map_file_path)
+    local default_zoom = 3   
+
     local player_speed = 75
     local tripod_speed = 50
-    local default_zoom = 3
-    local n_tripods = 50
+    local tripod_speed_boost = 1.5
+    local tripod_vision_dist_factor = 10
+    local tripod_vision_angle = math.pi/10
+    local n_tripods = 50    
     local disable_collision_duration = 1
-    
+        
     gs.damage_points = 10
     gs.scale_speed = 0.5
     
@@ -104,7 +108,7 @@ function gs.load(map_file_path)
         local new_start = grid:get_valid_pos()
         local this_x, this_y = utils.grid_to_center_point(new_start.x, new_start.y, gs.tilemap_view.tilesize)
         local new_target = grid:get_valid_pos()
-        gs.tripods[i] = Tripod.new(this_x, this_y, spr_tripod, grid, gs.tilemap_view.tilesize, gs.tilemap_view.tilesize, new_target, tripod_speed)
+        gs.tripods[i] = Tripod.new(this_x, this_y, spr_tripod, grid, gs.tilemap_view.tilesize, gs.tilemap_view.tilesize, new_target, tripod_speed, tripod_speed_boost, tripod_vision_dist_factor*gs.tilemap_view.tilesize, tripod_vision_angle)
     end
 
     -- define keyboard actions
@@ -144,8 +148,8 @@ function gs.update(dt)
         item:update(dt, gs.player, gs.tilemap_view.tilesize)
         
         if gs.player_collision_enabled then
-            if utils.check_collision_circle(item._x, item._y, item._size/2,
-                                            gs.player._x, gs.player._y, gs.player._size/2) then
+            if utils.check_collision_circle(item.x, item.y, item._size/2,
+                                            gs.player.x, gs.player.y, gs.player._size/2) then
                 gs.player:take_health(gs.damage_points)
                 gs.player_collision_enabled = false
                 gs.player_collision_timer:reset()
