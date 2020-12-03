@@ -51,7 +51,7 @@ function gs.load(map_file_path)
     local lover_min_distance = 30
     local lover_max_distance = 80
     local tripod_speed = 50
-    local tripod_speed_boost = 1.5
+    local tripod_speed_boost = 1.4
     local tripod_vision_dist_factor = 10
     local tripod_vision_angle = math.pi/10
     local tripod_min_path = 15
@@ -59,7 +59,7 @@ function gs.load(map_file_path)
     local n_tripods = 30    
     local disable_collision_duration = 1
         
-    gs.damage_points = 10
+    gs.damage_points = 33
     gs.scale_speed = 0.5
     
     gs.fps = fps.new()
@@ -136,7 +136,7 @@ function gs.load(map_file_path)
             new_start = grid:get_valid_pos()
         end
         local new_end = grid:get_valid_pos()
-        while utils.distance(new_start, new_end) < tripod_min_path  do
+        while utils.distance(new_start, new_end) <= tripod_min_path  do
             new_end = grid:get_valid_pos()
         end
         gs.tripods[i] = Tripod.new(new_start, new_end, spr_tripod, grid, gs.tilemap_view.tilesize, gs.tilemap_view.tilesize, tripod_speed, tripod_speed_boost, tripod_vision_dist_factor*gs.tilemap_view.tilesize, tripod_vision_angle)
@@ -202,7 +202,7 @@ function gs.update(dt)
                 gs.player_collision_timer:reset()
             end
         end
-        if gs.lover_collision_enabled then
+        if gs.lover_collision_enabled and gs.lover._is_active then
             if utils.check_collision_circle(item.x, item.y, item._size/2,
                                             gs.lover.x, gs.lover.y, gs.lover._size/2) then
                 gs.lover:take_health(gs.damage_points)

@@ -32,7 +32,7 @@ function Tripod._update__rotation(self)
 
 
     local o2 = math.atan2(delta_y, delta_x)
-    self._rot = utils.lerp_rotation(self._rot, o2, self.vision_angle*4)
+    self._rot = utils.lerp_rotation(self._rot, o2, self.vision_angle)
 end
 
 function Tripod._get_next_cell(self, targets, tilesize)
@@ -91,11 +91,7 @@ function Tripod._get_next_cell(self, targets, tilesize)
         self._last_cell.x, self._last_cell.y = self._curr_cell.x, self._curr_cell.y
         self._next_cell.x, self._next_cell.y = next_grid.x, next_grid.y
         if  self._last_cell.x == self._next_cell.x and
-            self._last_cell.y == self._next_cell.y then
-            self._is_stuck = true
-        end
-
-        if self._is_stuck then
+            self._last_cell.y == self._next_cell.y then -- is_stuck
             self._target_cell = self.grid:get_valid_pos()
             self._is_stuck = false
         end
@@ -117,8 +113,8 @@ function Tripod._can_see(self, target, tilesize)
         local delta_x = p_target.x - p_self.x
         local angle = math.atan2(delta_y, delta_x)
 
-        if  self._rot - self.vision_angle < angle or
-            self._rot + self.vision_angle > angle then
+        if  self._rot - (self.vision_angle/2) < angle or
+            self._rot + (self.vision_angle/2) > angle then
         -- it is in view
         -- check unobstructed
             if check_unobstructed(p_self, angle, self.vision_dist, self.grid, tilesize) then
@@ -138,11 +134,7 @@ function Tripod.new(start_cell, end_cell, sprite, grid, _size, tilesize, speed, 
     o.speed = speed
     o.speed_boost = speed_boost
     o.vision_dist = vision_dist or 10*tilesize
-    if vision_angle then
-        o.vision_angle = vision_angle/2
-    else
-        o.vision_angle = math.pi/10
-    end
+    o.vision_angle = vision_angle or math.pi/5
 
     o.x, o.y = utils.grid_to_center_point(start_cell.x, start_cell.y, tilesize)
     o.last_x, o.last_y = o.x, o.y
@@ -172,7 +164,7 @@ function Tripod.update(self, dt, targets, tilesize)
     -- has reached the target?
     if  self._curr_cell.x == self._target_cell.x and
         self._curr_cell.y == self._target_cell.y then
-        self:_aquire_target_cell(tilesize)
+        self:_flip_target_cell(tilesize)
     end
 
     self:_move(dt, targets, tilesize)
@@ -189,19 +181,19 @@ function Tripod.draw(self)
     end
 end
 
-function Tripod._aquire_target_cell(self, tilesize)
+function Tripod._flip_target_cell(self, tilesize)
     if  self._target_cell.x == self._end_cell.x and
         self._target_cell.y == self._end_cell.y then
-        self._target_cell.x, self._start_cell.y = self._start_cell.x, self._target_cell.y
+        self._target_cell.x, self._target_cell.y = self._start_cell.x, self._start_cell.y
     elseif  self._target_cell.x == self._start_cell.x and
             self._target_cell.y == self._start_cell.y then
-        self._target_cell.x, self._start_cell.y = self._end_cell.x, self._end_cell.y
+        self._target_cell.x, self._target_cell.y = self._end_cell.x, self._end_cell.y
     else
         local furthest = "_end_cell"
         if utils.distance(self._curr_cell, self._start_cell) > utils.distance(self._curr_cell, self._end_cell) then
             furthest = "_start_cell"
         end
-        self._target_cell.x, self._start_cell.y = self[furthest].x, self[furthest].y
+        self._target_cell.x, self._target_cell.y = self[furthest].x, self[furthest].y
     end
 end
 

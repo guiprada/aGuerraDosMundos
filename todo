@@ -1,7 +1,8 @@
 todo   
+    - add character color option
+    - facil, medio e dificil
     - food items
     - decouple lover and target
-    - add character color option
     - add character to menu    
     - health, hunger and sanity systems
         - gameover
