@@ -1,8 +1,8 @@
 todo   
     - food items
-    - lerp Tripod rotation
     - decouple lover and target
-    - add character color option      
+    - add character color option
+    - add character to menu    
     - health, hunger and sanity systems
         - gameover
         - win
@@ -43,3 +43,4 @@ done
     - add lover to win condition
     - add lover damage to lose condition
     - add lover rotation
+    - lerp Tripod rotation

@@ -26,7 +26,9 @@ function Tripod._update__rotation(self)
     local delta_x = self._next_cell.x - self._curr_cell.x
     local delta_y = self._next_cell.y - self._curr_cell.y
 
-    self._rot = math.atan2(delta_y, delta_x)
+    --self._rot = math.atan2(delta_y, delta_x)
+    local o2 = math.atan2(delta_y, delta_x)
+    self._rot = utils.lerp_rotation(self._rot, o2, self.vision_angle/10)
 end
 
 function Tripod._get_next_cell(self, targets, tilesize)

@@ -337,6 +337,23 @@ function utils.lerp(p1, p2, distance)
     end
 end
 
+function utils.lerp_rotation(o1, o2, step)
+    -- direction
+    if o1 - o2 > o2 - o1 then
+        if o1+step > o2 then
+            return o2, true
+        else
+            return o1 + step, false
+        end
+    else
+        if o1-step < o2 then
+            return o2, true
+        else
+            return o1 - step, false
+        end
+    end
+end
+
 ------------------------------------------------------------------------- tables
 
 function utils.tables_average( tables, indexer)
