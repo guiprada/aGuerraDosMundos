@@ -52,7 +52,7 @@ function gs.load(map_file_path)
     local tripod_speed_boost = 1.5
     local tripod_vision_dist_factor = 10
     local tripod_vision_angle = math.pi/10
-    local n_tripods = 50    
+    local n_tripods = 30    
     local disable_collision_duration = 1
         
     gs.damage_points = 10
