@@ -123,7 +123,7 @@ function Tripod._can_see(self, target, tilesize)
     return false
 end
 
-function Tripod.new(x, y, sprite, grid, _size, tilesize, target_cell, speed, speed_boost, vision_dist, vision_angle)
+function Tripod.new(start_cell, end_cell, sprite, grid, _size, tilesize, speed, speed_boost, vision_dist, vision_angle)
     local o = {}
 
     o._sprite = sprite
@@ -138,21 +138,19 @@ function Tripod.new(x, y, sprite, grid, _size, tilesize, target_cell, speed, spe
         o.vision_angle = math.pi/10
     end
 
-    o.x = x
-    o.y = y
+    o.x, o.y = utils.grid_to_center_point(start_cell.x, start_cell.y, tilesize)
+    o._start_cell = start_cell
+    o._end_cell = end_cell
+    o._target_cell = {}
+    o._target_cell.x, o._target_cell.y = end_cell.x, end_cell.y
+    o._curr_cell = {}
+    o._curr_cell.x, o._curr_cell.y = o._start_cell.x, o._start_cell.y
     
     o._size = _size or 1
     o._scale = _size/ sprite:getWidth()
     o._rot = 0
     o._offset = (o._size/2) * (1/o._scale)
-        
-    o._start_cell = {}
-    o._start_cell.x, o._start_cell.y = utils.point_to_grid(o.x , o.y, tilesize)
-    o._target_cell = target_cell
-    o._curr_cell = {}
-    o._curr_cell.x, o._curr_cell.y = o._start_cell.x, o._start_cell.y
-    o._last_try = 1
-    
+      
     utils.assign_methods(o, Tripod)
     o._last_cell = {}
     o._next_cell = {}
@@ -185,7 +183,19 @@ function Tripod.draw(self)
 end
 
 function Tripod._aquire_target_cell(self, tilesize)
-    self._target_cell, self._start_cell = self._start_cell, self._target_cell
+    if  self._target_cell.x == self._end_cell.x and
+        self._target_cell.y == self._end_cell.y then
+        self._target_cell.x, self._start_cell.y = self._start_cell.x, self._target_cell.y
+    elseif  self._target_cell.x == self._start_cell.x and
+            self._target_cell.y == self._start_cell.y then
+        self._target_cell.x, self._start_cell.y = self._end_cell.x, self._end_cell.y
+    else
+        local furthest = "_end_cell"
+        if utils.distance(self._curr_cell, self._start_cell) > utils.distance(self._curr_cell, self._end_cell) then
+            furthest = "_start_cell"
+        end
+        self._target_cell.x, self._start_cell.y = self[furthest].x, self[furthest].y
+    end
 end
 
 function Tripod._move(self, dt, targets, tilesize)    

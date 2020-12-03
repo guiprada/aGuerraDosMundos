@@ -48,10 +48,13 @@ function gs.load(map_file_path)
 
     local player_speed = 75
     local lover_speed_factor = 0.95
+    local lover_min_distance = 30
+    local lover_max_distance = 80
     local tripod_speed = 50
     local tripod_speed_boost = 1.5
     local tripod_vision_dist_factor = 10
     local tripod_vision_angle = math.pi/10
+    local tripod_min_path = 15
     local n_tripods = 30    
     local disable_collision_duration = 1
         
@@ -109,24 +112,30 @@ function gs.load(map_file_path)
 
     -- create lover
     local spr_lover = love.graphics.newImage(files.spr_pink)
-    local lover_start_cell = grid:get_valid_pos()    
+    local lover_start_cell = grid:get_valid_pos()
+    local lover_player_distance = utils.distance(gs.player._cell, lover_start_cell)
+    while   lover_player_distance < lover_min_distance or
+            lover_player_distance > lover_max_distance do
+        lover_start_cell = grid:get_valid_pos()
+        lover_player_distance = utils.distance(gs.player._cell, lover_start_cell)
+    end
     gs.lover = Lover.new(lover_start_cell.x, lover_start_cell.y, spr_lover, grid, gs.tilemap_view.tilesize, gs.player, gs.tilemap_view.tilesize, player_speed*lover_speed_factor)
     -- create lover collision timer
     gs.lover_collision_enabled = false
     local enable_lover_collision = function() gs.lover_collision_enabled = true end
     gs.lover_collision_timer = timer.new(disable_collision_duration, enable_lover_collision)
     gs.lover_collision_timer:reset()
-    
-
 
     -- create a Tripods
     local spr_tripod = love.graphics.newImage(files.spr_tripod)
     gs.tripods = {}
     for i=1, n_tripods, 1 do
         local new_start = grid:get_valid_pos()
-        local this_x, this_y = utils.grid_to_center_point(new_start.x, new_start.y, gs.tilemap_view.tilesize)
-        local new_target = grid:get_valid_pos()
-        gs.tripods[i] = Tripod.new(this_x, this_y, spr_tripod, grid, gs.tilemap_view.tilesize, gs.tilemap_view.tilesize, new_target, tripod_speed, tripod_speed_boost, tripod_vision_dist_factor*gs.tilemap_view.tilesize, tripod_vision_angle)
+        local new_end = grid:get_valid_pos()
+        while utils.distance(new_start, new_end) < tripod_min_path  do
+            new_end = grid:get_valid_pos()
+        end
+        gs.tripods[i] = Tripod.new(new_start, new_end, spr_tripod, grid, gs.tilemap_view.tilesize, gs.tilemap_view.tilesize, tripod_speed, tripod_speed_boost, tripod_vision_dist_factor*gs.tilemap_view.tilesize, tripod_vision_angle)
     end
 
     -- create targets
