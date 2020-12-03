@@ -73,4 +73,8 @@ function Lover.draw(self, collision_enabled)
     love.graphics.setColor(r, g, b, a)
 end
 
+function Lover.take_health(self, h_much)
+    self.health = self.health - h_much
+end
+
 return Lover

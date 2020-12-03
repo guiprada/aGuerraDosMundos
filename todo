@@ -1,6 +1,4 @@
-todo
-    
-    - add lover damage to lose condition
+todo   
     - food items
     - lerp Tripod rotation
     - add lover rotation
@@ -44,3 +42,4 @@ done
     - colision check should be on gamestate
     - add lover to Tripod chase if _is_active = true
     - add lover to win condition
+    - add lover damage to lose condition

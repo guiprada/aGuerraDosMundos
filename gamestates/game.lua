@@ -189,6 +189,14 @@ function gs.update(dt)
                 gs.player_collision_timer:reset()
             end
         end
+        if gs.lover_collision_enabled then
+            if utils.check_collision_circle(item.x, item.y, item._size/2,
+                                            gs.lover.x, gs.lover.y, gs.lover._size/2) then
+                gs.lover:take_health(gs.damage_points)
+                gs.lover_collision_enabled = false
+                gs.lover_collision_timer:reset()
+            end
+        end
     end
     gs.player_collision_timer:update(dt)
     gs.lover_collision_timer:update(dt)
@@ -202,7 +210,7 @@ function gs.update(dt)
     -- end
 
     -- check win or loose
-    if gs.player.health <=0 then
+    if gs.player.health <=0 or gs.lover.health <= 0 then
         gamestate.switch("gameover")
     elseif gs.lover._is_active and 
         (gs.player._cell.x < 3 or
