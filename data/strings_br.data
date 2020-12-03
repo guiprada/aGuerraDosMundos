@@ -55,5 +55,11 @@ color_instructions =
 \nenter              mudar cor
 \nesc                   voltar'
 
+difficulty_title = 'Escolha a Dificuldade'
+difficulty_instructions =
+'up  down      selecionar dificuldade
+\nenter             mudar dificuldade
+\nesc                          voltar'
+
 gameover = 'Perdeu!'
 victory = 'Parabens!'

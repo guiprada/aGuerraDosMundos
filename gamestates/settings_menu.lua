@@ -24,6 +24,10 @@ local function change_friend_color()
     gamestate.switch("change_color", "friend_color")
 end
 
+local function change_difficulty()
+    gamestate.switch("change_difficulty")
+end
+
 local function change_language()
     gamestate.switch("change_language")
 end
@@ -108,6 +112,9 @@ function gs.load()
     gs.selection_box:add_selection(
         strings.settings_menu_change_friend_color,
         change_friend_color)
+    gs.selection_box:add_selection(
+        strings.settings_menu_change_difficulty,
+        change_difficulty)
     gs.selection_box:add_selection(
         strings.settings_menu_change_language,
         change_language)

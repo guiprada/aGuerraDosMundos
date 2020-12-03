@@ -19,9 +19,10 @@ local function exit()
     gamestate.switch("settings_menu")
 end
 
-local function save(target, value)
+local function save(value)
     local game_conf = utils.table_read_from_conf(files.game_conf)
-    game_conf[target] = value
+    game_conf.difficulty = value
+    print(value)
     utils.table_write_to_file(game_conf, files.game_conf)
     exit()
 end
@@ -29,13 +30,12 @@ end
 --------------------------------------------------------------------------------
 
 function gs.load(args)
-    local target = args
     
     local w = love.graphics.getWidth()
     local h = love.graphics.getHeight()
 
     gs.title = text_box.new(
-        strings.color_title, 
+        strings.difficulty_title, 
         "huge",
         0,
         0,
@@ -44,7 +44,7 @@ function gs.load(args)
         color.yellow)
 
     gs.instructions = text_box.new( 
-        strings.color_instructions,
+        strings.difficulty_instructions,
         "regular",
         0,
         h*7/8,
@@ -61,9 +61,9 @@ function gs.load(args)
         color.gray,
         color.red)
 
-    local colors = utils.table_read_from_conf(files.available_colors)
-    for key, value in pairs(colors) do
-        gs.selection_box:add_selection(key, function() save(target, key) end)
+    local difficulties = utils.table_read_from_conf(files.available_difficulty)
+    for key, value in ipairs(difficulties) do
+        gs.selection_box:add_selection(value, function() save(key) end)
     end
 
     gs.actions = {}

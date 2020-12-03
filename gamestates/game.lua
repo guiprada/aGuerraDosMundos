@@ -46,6 +46,7 @@ color_array[16] = color.lime
 function gs.load(map_file_path)
     print(files.game_conf)
     local game_conf = utils.table_read_from_conf(files.game_conf)
+    local difficulty_factor = game_conf.difficulty/3
 
     local default_zoom = game_conf.default_zoom
 
@@ -59,7 +60,7 @@ function gs.load(map_file_path)
     local tripod_vision_angle = game_conf.tripod_vision_angle
     local tripod_min_path = game_conf.tripod_min_path
     local tripod_min_distance = game_conf.tripod_min_distance
-    local n_tripods = game_conf.n_tripods
+    local n_tripods = game_conf.n_tripods * difficulty_factor
     local disable_collision_duration = game_conf.disable_collision_duration
         
     gs.damage_points = game_conf.damage_points

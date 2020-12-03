@@ -1,6 +1,4 @@
 todo   
-    - add character color option
-    - facil, medio e dificil
     - food items
     - decouple lover and target
     - add character to menu    
@@ -45,3 +43,5 @@ done
     - add lover damage to lose condition
     - add lover rotation
     - lerp Tripod rotation
+    - add character color option
+    - facil, medio e dificil
