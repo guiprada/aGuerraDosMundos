@@ -1,7 +1,6 @@
 todo   
     - food items
     - lerp Tripod rotation
-    - add lover rotation
     - decouple lover and target
     - add character color option      
     - health, hunger and sanity systems
@@ -43,3 +42,4 @@ done
     - add lover to Tripod chase if _is_active = true
     - add lover to win condition
     - add lover damage to lose condition
+    - add lover rotation

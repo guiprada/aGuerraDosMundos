@@ -32,6 +32,7 @@ function Lover.new(cell_x, cell_y, sprite, grid, size, target, tilesize, speed)
     o.target = target
     o.speed = speed
     o.x, o.y = utils.grid_to_center_point(cell_x, cell_y, tilesize)
+    o.old_x, o.old_y = o.x, o.y
     o.health = 100
 
     o._target_cell = {}
@@ -46,7 +47,12 @@ function Lover.update(self, dt, tilesize)
         if utils.distance(self, self.target) > 10* tilesize then
             self._is_active =  false
         end
+        self.old_x, self.old_y = self.x, self.y
         self:_move(dt, tilesize)
+        delta_x, delta_y = self.x - self.old_x, self.y - self.old_y
+        if delta_x~=0 or delta_y~=0 then
+            self._rot = math.atan2(delta_y, delta_x)
+        end
     elseif utils.distance(self, self.target) < 3* tilesize then
         self._is_active = true
         self._target_cell.x, self._target_cell.y = self.target._cell.x, self.target._cell.y  

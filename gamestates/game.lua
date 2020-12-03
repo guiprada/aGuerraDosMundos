@@ -55,6 +55,7 @@ function gs.load(map_file_path)
     local tripod_vision_dist_factor = 10
     local tripod_vision_angle = math.pi/10
     local tripod_min_path = 15
+    local tripod_min_distance = 30
     local n_tripods = 30    
     local disable_collision_duration = 1
         
@@ -105,10 +106,10 @@ function gs.load(map_file_path)
     gs.player = Player.new(x, y, spr_player, grid, gs.tilemap_view.tilesize, gs.tilemap_view.tilesize, player_speed)
 
     -- create player collision timer
-    gs.player_collision_enabled = false
+    gs.player_collision_enabled = true
     local enable_player_collision = function() gs.player_collision_enabled = true end
     gs.player_collision_timer = timer.new(disable_collision_duration, enable_player_collision)
-    gs.player_collision_timer:reset()
+    --gs.player_collision_timer:reset()
 
     -- create lover
     local spr_lover = love.graphics.newImage(files.spr_pink)
@@ -121,16 +122,19 @@ function gs.load(map_file_path)
     end
     gs.lover = Lover.new(lover_start_cell.x, lover_start_cell.y, spr_lover, grid, gs.tilemap_view.tilesize, gs.player, gs.tilemap_view.tilesize, player_speed*lover_speed_factor)
     -- create lover collision timer
-    gs.lover_collision_enabled = false
+    gs.lover_collision_enabled = true
     local enable_lover_collision = function() gs.lover_collision_enabled = true end
     gs.lover_collision_timer = timer.new(disable_collision_duration, enable_lover_collision)
-    gs.lover_collision_timer:reset()
+    --gs.lover_collision_timer:reset()
 
     -- create a Tripods
     local spr_tripod = love.graphics.newImage(files.spr_tripod)
     gs.tripods = {}
     for i=1, n_tripods, 1 do
         local new_start = grid:get_valid_pos()
+        while utils.distance(gs.player._cell, new_start) < tripod_min_distance do
+            new_start = grid:get_valid_pos()
+        end
         local new_end = grid:get_valid_pos()
         while utils.distance(new_start, new_end) < tripod_min_path  do
             new_end = grid:get_valid_pos()
