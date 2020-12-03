@@ -22,6 +22,7 @@ todo
     - gameplay tunning
     - distracting rocks    
     - animation system
+    - dont draw( cull) out of screen entities( but update)
     - sanitize reset and new functions
     - extertal world
 
