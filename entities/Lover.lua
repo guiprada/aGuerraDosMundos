@@ -7,13 +7,14 @@ function Lover._move(self, dt, tilesize)
     local has_reached = false
     self.x, self.y, has_reached = utils.lerp({x = self.x, y = self.y}, {x = px, y = py}, self.speed * dt)
     
+    self._cell.x, self._cell.y = utils.point_to_grid(self.x, self.y, tilesize)
+
     if has_reached then
         self._target_cell.x, self._target_cell.y = self.target._cell.x, self.target._cell.y
     elseif self.grid:is_colliding(self.x, self.y, tilesize) then
         self._is_active = false
     end
 end
-
 
 function Lover.new(cell_x, cell_y, sprite, grid, size, target, tilesize, speed)
     local o = {}
@@ -22,6 +23,8 @@ function Lover.new(cell_x, cell_y, sprite, grid, size, target, tilesize, speed)
     o._scale = size/ sprite:getWidth()
     o._rot = -math.pi/2
     o._offset = (o._size/2) * (1/o._scale)
+    o._cell = {}
+    o._cell.x, o._cell.y = cell_x, cell_y
 
     o._sprite = sprite
     o.grid = grid

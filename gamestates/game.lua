@@ -117,13 +117,18 @@ function gs.load(map_file_path)
 
     -- create a Tripods
     local spr_tripod = love.graphics.newImage(files.spr_tripod)
-    gs.tripods = {}    
+    gs.tripods = {}
     for i=1, n_tripods, 1 do
         local new_start = grid:get_valid_pos()
         local this_x, this_y = utils.grid_to_center_point(new_start.x, new_start.y, gs.tilemap_view.tilesize)
         local new_target = grid:get_valid_pos()
         gs.tripods[i] = Tripod.new(this_x, this_y, spr_tripod, grid, gs.tilemap_view.tilesize, gs.tilemap_view.tilesize, new_target, tripod_speed, tripod_speed_boost, tripod_vision_dist_factor*gs.tilemap_view.tilesize, tripod_vision_angle)
     end
+
+    -- create targets
+    gs.targets = {}
+    gs.targets[1] = gs.player
+    gs.targets[2] = gs.lover
 
     -- define keyboard actions
     gs.actions_keydown = {}
@@ -160,8 +165,14 @@ function gs.update(dt)
     gs.lover:update(dt, gs.tilemap_view.tilesize)
     
     --  enemy update and check collision with player
+    if gs.lover._is_active then
+        gs.targets[2] = gs.lover
+    else
+        gs.targets[2] = nil
+    end
+        
     for _, item in ipairs(gs.tripods) do
-        item:update(dt, gs.player, gs.tilemap_view.tilesize)
+        item:update(dt, gs.targets, gs.tilemap_view.tilesize)
         
         if gs.player_collision_enabled then
             if utils.check_collision_circle(item.x, item.y, item._size/2,
@@ -176,12 +187,12 @@ function gs.update(dt)
     gs.lover_collision_timer:update(dt)
 
     -- check Tripod spawned outside
-    for _, item in ipairs(gs.tripods) do
-        if  item._curr_cell.x < 1 or item._curr_cell.x > gs.tilemap_view.tilemap.tile_width or
-            item._curr_cell.y < 1 or item._curr_cell.y > gs.tilemap_view.tilemap.tile_height then
-            print("outside")
-        end
-    end
+    -- for _, item in ipairs(gs.tripods) do
+    --     if  item._curr_cell.x < 1 or item._curr_cell.x > gs.tilemap_view.tilemap.tile_width or
+    --         item._curr_cell.y < 1 or item._curr_cell.y > gs.tilemap_view.tilemap.tile_height then
+    --         print("outside")
+    --     end
+    -- end
 
     -- check win or loose
     if gs.player.health <=0 then

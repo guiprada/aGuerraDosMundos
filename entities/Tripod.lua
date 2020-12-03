@@ -29,14 +29,31 @@ function Tripod._update__rotation(self)
     self._rot = math.atan2(delta_y, delta_x)
 end
 
-function Tripod._get_next_cell(self, target, tilesize)
-    if target and self:_can_see(target, tilesize) then
-        self._target_cell.x = target._cell.x
-        self._target_cell.y = target._cell.y
+function Tripod._get_next_cell(self, targets, tilesize)
+    local viable_targets = {}
+    for _, target in ipairs(targets) do
+        if self:_can_see(target, tilesize) then
+            table.insert(viable_targets, target)
+        end 
+    end
+    if #viable_targets >= 1 then
+        local closest = viable_targets[1]
+        local min_distance = utils.distance(self, closest)
+        for i = 2, #viable_targets, 1 do
+            local this_distance = utils.distance(self, viable_targets[i])
+            if this_distance < min_distance then
+                closest = viable_targets[i]
+                min_distance = this_distance
+            end
+        end
+        
+        self._target_cell.x = closest._cell.x
+        self._target_cell.y = closest._cell.y
         self.speed = self.speed_boost * self.start_speed
     else
         self.speed = self.start_speed
     end
+
     local allowed = {}
     -- get allowed grids to go
     for i = -1, 1, 1 do
@@ -139,12 +156,12 @@ function Tripod.new(x, y, sprite, grid, _size, tilesize, target_cell, speed, spe
     utils.assign_methods(o, Tripod)
     o._last_cell = {}
     o._next_cell = {}
-    o:_get_next_cell(nil, tilesize)
+    o:_get_next_cell({}, tilesize)
 
     return o
 end
 
-function Tripod.update(self, dt, target, tilesize)
+function Tripod.update(self, dt, targets, tilesize)
     self._curr_cell.x, self._curr_cell.y = utils.point_to_grid(self.x, self.y, tilesize)
 
     -- has reached the target?
@@ -153,7 +170,7 @@ function Tripod.update(self, dt, target, tilesize)
         self:_aquire_target_cell(tilesize)
     end
 
-    self:_move(dt, target, tilesize)
+    self:_move(dt, targets, tilesize)
 end
 
 function Tripod.draw(self)    
@@ -171,13 +188,13 @@ function Tripod._aquire_target_cell(self, tilesize)
     self._target_cell, self._start_cell = self._start_cell, self._target_cell
 end
 
-function Tripod._move(self, dt, target, tilesize)    
+function Tripod._move(self, dt, targets, tilesize)    
     local px, py = utils.grid_to_center_point(self._next_cell.x, self._next_cell.y, tilesize)
     local has_reached = false
     self.x, self.y, has_reached = utils.lerp({x = self.x, y = self.y}, {x = px, y = py}, self.speed * dt)
 
     if has_reached then
-        self:_get_next_cell(target, tilesize)
+        self:_get_next_cell(targets, tilesize)
     end
 end
 
