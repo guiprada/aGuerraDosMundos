@@ -65,6 +65,7 @@ function gs.load(map_file_path)
     -- add sprites
     local brick_sprite = love.graphics.newImage(files.spr_brick)
     cell_set[#cell_set+1] = sprite_cell.new(brick_sprite)
+    cell_set[#cell_set+1] = cell_set[#cell_set]
     
     -- create the on_screen tilemap_view    
     gs.tilemap_view = tilemap_view.new(gs.map_matrix, cell_set, gs.width, gs.height)

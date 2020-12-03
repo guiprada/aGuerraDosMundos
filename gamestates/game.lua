@@ -67,25 +67,29 @@ function gs.load(map_file_path)
     local map_file_path = map_file_path or files.map_1
     gs.map_matrix = utils.matrix_read_from_file(map_file_path, ',')
     
-    -- create a cell_set
-    local cell_set = {}
-    -- initiate cell_set
+    -- create a gs.cell_set
+    gs.cell_set = {}
+    -- initiate gs.cell_set
     for index, value in ipairs(color_array) do
-        cell_set[index] = color_cell.new(value)
+        gs.cell_set[index] = color_cell.new(value)
     end
     -- add sprites
     local brick_sprite = love.graphics.newImage(files.spr_brick)
-    cell_set[#cell_set+1] = sprite_cell.new(brick_sprite)
+    gs.cell_set[#gs.cell_set+1] = sprite_cell.new(brick_sprite)
+    gs.brick_index = #gs.cell_set
+    gs.cell_set[#gs.cell_set+1] = gs.cell_set[gs.brick_index]
+    gs.door_index = #gs.cell_set
+    gs.open_door_index = 9 -- green color    
 
     -- create the on_screen tilemap_view    
-    gs.tilemap_view = tilemap_view.new(gs.map_matrix, cell_set, gs.width, gs.height)
+    gs.tilemap_view = tilemap_view.new(gs.map_matrix, gs.cell_set, gs.width, gs.height)
     
     -- set camera zoom
     gs.tilemap_view.camera:set_scale(default_zoom)
 
     -- create grid
     local collisions = {}
-    for i = 1, #cell_set, 1 do
+    for i = 1, #gs.cell_set, 1 do
         collisions[i] = true
     end
     local grid = grid.new(gs.map_matrix, collisions)
@@ -163,14 +167,17 @@ function gs.update(dt)
         
     gs.player:update(dt, gs.tilemap_view.tilesize)
     gs.lover:update(dt, gs.tilemap_view.tilesize)
-    
-    --  enemy update and check collision with player
+        
+    -- open door and activate lover chase
     if gs.lover._is_active then
         gs.targets[2] = gs.lover
+        gs.cell_set[gs.door_index] = gs.cell_set[gs.open_door_index]
     else
         gs.targets[2] = nil
+        gs.cell_set[gs.door_index] = gs.cell_set[gs.brick_index]
     end
-        
+
+    --  enemy update and check collision with player
     for _, item in ipairs(gs.tripods) do
         item:update(dt, gs.targets, gs.tilemap_view.tilesize)
         
@@ -197,7 +204,8 @@ function gs.update(dt)
     -- check win or loose
     if gs.player.health <=0 then
         gamestate.switch("gameover")
-    elseif  (gs.player._cell.x < 3 or
+    elseif gs.lover._is_active and 
+        (gs.player._cell.x < 3 or
         gs.player._cell.x > (gs.tilemap_view.tilemap.tile_width -2) or
         gs.player._cell.y < 3 or
         gs.player._cell.y > (gs.tilemap_view.tilemap.tile_height -2) ) then
