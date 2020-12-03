@@ -12,6 +12,7 @@ local tilemap_view = require "qpd.tilemap_view"
 local grid_selector = require "qpd.widgets.grid_selector"
 
 local Player = require "entities.Player"
+local Lover = require "entities.Lover"
 local Tripod = require "entities.Tripod"
 local grid = require "qpd.grid"
 
@@ -46,6 +47,7 @@ function gs.load(map_file_path)
     local default_zoom = 3   
 
     local player_speed = 75
+    local lover_speed_factor = 0.95
     local tripod_speed = 50
     local tripod_speed_boost = 1.5
     local tripod_vision_dist_factor = 10
@@ -92,7 +94,7 @@ function gs.load(map_file_path)
     local x, y = gs.tilemap_view.camera:get_center()
     x, y = utils.point_to_grid(x, y, gs.tilemap_view.tilesize)
     x, y = utils.grid_to_center_point(x, y, gs.tilemap_view.tilesize)
-    local spr_player = love.graphics.newImage(files.spr_him)
+    local spr_player = love.graphics.newImage(files.spr_blue)
     gs.player = Player.new(x, y, spr_player, grid, gs.tilemap_view.tilesize, gs.tilemap_view.tilesize, player_speed)
 
     -- create player collision timer
@@ -100,6 +102,18 @@ function gs.load(map_file_path)
     local enable_player_collision = function() gs.player_collision_enabled = true end
     gs.player_collision_timer = timer.new(disable_collision_duration, enable_player_collision)
     gs.player_collision_timer:reset()
+
+    -- create lover
+    local spr_lover = love.graphics.newImage(files.spr_pink)
+    local lover_start_cell = grid:get_valid_pos()    
+    gs.lover = Lover.new(lover_start_cell.x, lover_start_cell.y, spr_lover, grid, gs.tilemap_view.tilesize, gs.player, gs.tilemap_view.tilesize, player_speed*lover_speed_factor)
+    -- create lover collision timer
+    gs.lover_collision_enabled = false
+    local enable_lover_collision = function() gs.lover_collision_enabled = true end
+    gs.lover_collision_timer = timer.new(disable_collision_duration, enable_lover_collision)
+    gs.lover_collision_timer:reset()
+    
+
 
     -- create a Tripods
     local spr_tripod = love.graphics.newImage(files.spr_tripod)
@@ -127,6 +141,7 @@ function gs.draw()
             for _, item in ipairs(gs.tripods) do
                 item:draw()
             end
+            gs.lover:draw(gs.lover_collision_enabled)
         end)
     gs.fps:draw()
 end
@@ -142,6 +157,7 @@ function gs.update(dt)
     gs.tilemap_view.camera:set_center(gs.player:get_center())
         
     gs.player:update(dt, gs.tilemap_view.tilesize)
+    gs.lover:update(dt, gs.tilemap_view.tilesize)
     
     --  enemy update and check collision with player
     for _, item in ipairs(gs.tripods) do
@@ -157,6 +173,15 @@ function gs.update(dt)
         end
     end
     gs.player_collision_timer:update(dt)
+    gs.lover_collision_timer:update(dt)
+
+    -- check Tripod spawned outside
+    for _, item in ipairs(gs.tripods) do
+        if  item._curr_cell.x < 1 or item._curr_cell.x > gs.tilemap_view.tilemap.tile_width or
+            item._curr_cell.y < 1 or item._curr_cell.y > gs.tilemap_view.tilemap.tile_height then
+            print("outside")
+        end
+    end
 
     -- check win or loose
     if gs.player.health <=0 then

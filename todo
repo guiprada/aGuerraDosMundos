@@ -1,9 +1,6 @@
-todo    
-    - enemy
-        - enemy collisions
-            - collision timer
-        - enemy direction
-        - enemy chase
+todo  
+    - lerp Tripod rotation
+    - add character color option      
     - health, hunger and sanity systems
         - gameover
         - win
@@ -27,3 +24,8 @@ done
         --  collide and slide
     - culling
     - eliminate external tilesize calculation
+    - enemy
+        - enemy collisions
+            - collision timer
+        - enemy direction
+        - enemy chase

@@ -109,7 +109,7 @@ end
 function Tripod.new(x, y, sprite, grid, _size, tilesize, target_cell, speed, speed_boost, vision_dist, vision_angle)
     local o = {}
 
-    o.sprite = sprite
+    o._sprite = sprite
     o.grid = grid
     o.start_speed = speed
     o.speed = speed
@@ -157,7 +157,7 @@ function Tripod.update(self, dt, target, tilesize)
 end
 
 function Tripod.draw(self)    
-    love.graphics.draw(self.sprite, self.x, self.y, self._rot, self._scale, self._scale, self._offset, self._offset)
+    love.graphics.draw(self._sprite, self.x, self.y, self._rot, self._scale, self._scale, self._offset, self._offset)
 
     if self._is_stuck then
         local r, g, b, a = love.graphics.getColor()

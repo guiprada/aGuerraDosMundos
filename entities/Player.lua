@@ -7,14 +7,14 @@ function Player.new(x, y, sprite, grid, size, tilesize, speed)
     local o = {}
      
     o.speed = speed or 1
-    o.sprite = sprite    
+    o._sprite = sprite    
     o.grid = grid
     o.health = 100
 
     o.x = x or 0
     o.y = y or 0
-    
-    o._size = size or 1
+
+    o._size = size
     o._scale = size/ sprite:getWidth()
     o._rot = -math.pi/2
     o._offset = (o._size/2) * (1/o._scale)
@@ -114,7 +114,7 @@ end
 
 function Player.draw(self, collision_enabled)    
     --love.graphics.circle("fill", self.x, self.y, self._size/2)
-    love.graphics.draw(self.sprite, self.x, self.y, self._rot, self._scale, self._scale, self._offset, self._offset)
+    love.graphics.draw(self._sprite, self.x, self.y, self._rot, self._scale, self._scale, self._offset, self._offset)
 
     -- save color
     local r, g, b, a = love.graphics.getColor()
