@@ -1,8 +1,8 @@
-local Lover = {}
+local Friend = {}
 
 local utils = require "qpd.utils"
 
-function Lover._move(self, dt, tilesize)    
+function Friend._move(self, dt, tilesize)    
     local px, py = utils.grid_to_center_point(self._target_cell.x, self._target_cell.y, tilesize)
     local has_reached = false
     self.x, self.y, has_reached = utils.lerp({x = self.x, y = self.y}, {x = px, y = py}, self.speed * dt)
@@ -16,7 +16,7 @@ function Lover._move(self, dt, tilesize)
     end
 end
 
-function Lover.new(cell_x, cell_y, sprite, grid, size, target, tilesize, speed)
+function Friend.new(cell_x, cell_y, sprite, grid, size, target, tilesize, speed)
     local o = {}
     o._is_active = false
     o._size = size
@@ -37,12 +37,12 @@ function Lover.new(cell_x, cell_y, sprite, grid, size, target, tilesize, speed)
 
     o._target_cell = {}
 
-    utils.assign_methods(o, Lover)
+    utils.assign_methods(o, Friend)
     return o
     -- body
 end
 
-function Lover.update(self, dt, tilesize)
+function Friend.update(self, dt, tilesize)
     if self._is_active then
         if utils.distance(self, self.target) > 10* tilesize then
             self._is_active =  false
@@ -59,7 +59,7 @@ function Lover.update(self, dt, tilesize)
     end
 end
 
-function Lover.draw(self, collision_enabled)    
+function Friend.draw(self, collision_enabled)    
     --love.graphics.circle("fill", self.x, self.y, self._size/2)
     love.graphics.draw(self._sprite, self.x, self.y, self._rot, self._scale, self._scale, self._offset, self._offset)
 
@@ -79,8 +79,8 @@ function Lover.draw(self, collision_enabled)
     love.graphics.setColor(r, g, b, a)
 end
 
-function Lover.take_health(self, h_much)
+function Friend.take_health(self, h_much)
     self.health = self.health - h_much
 end
 
-return Lover
+return Friend

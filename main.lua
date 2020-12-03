@@ -50,6 +50,7 @@ function love.load()
         "change_language",
         require "gamestates.change_language")
     gamestate.register("tilemap_editor", require "gamestates.tilemap_editor")
+    gamestate.register("change_color", require "gamestates.change_color")
 
     -- detect first time run
     local has_run = io.open(files.has_run)

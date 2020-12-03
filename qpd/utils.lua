@@ -530,7 +530,6 @@ function utils.table_read_from_conf(filepath, separator)
                 key = tonumber(key) or key
 
                 value = tonumber(value) or utils.string_maybe_bool(value)
-
                 new_table[key] = value
             end
         end

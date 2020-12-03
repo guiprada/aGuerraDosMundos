@@ -16,6 +16,14 @@ local window = require "qpd.services.window"
 
 --------------------------------------------------------------------------------
 
+local function change_player_color()
+    gamestate.switch("change_color", "player_color")
+end
+
+local function change_friend_color()
+    gamestate.switch("change_color", "friend_color")
+end
+
 local function change_language()
     gamestate.switch("change_language")
 end
@@ -94,6 +102,12 @@ function gs.load()
         color.gray,
         color.red)
 
+    gs.selection_box:add_selection(
+        strings.settings_menu_change_player_color,
+        change_player_color)
+    gs.selection_box:add_selection(
+        strings.settings_menu_change_friend_color,
+        change_friend_color)
     gs.selection_box:add_selection(
         strings.settings_menu_change_language,
         change_language)

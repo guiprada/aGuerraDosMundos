@@ -6,6 +6,9 @@ menu_tilemap_editor = 'map editor'
 menu_exit = 'exit'
 
 settings_menu_title = 'Settings Menu'
+settings_menu_change_player_color = 'choose Player Color'
+settings_menu_change_friend_color = 'choose Friend Color'
+settings_menu_change_difficulty = 'change difficulty'
 settings_menu_change_language = 'change language'
 settings_menu_change_resolution = 'change resolution'
 settings_menu_change_keymap = 'change keymap'
@@ -45,6 +48,12 @@ language_instructions =
  'up  down      select language
 \nenter         change language
 \nesc                   go back'
+
+color_title = 'Choose Color'
+color_instructions = 
+ 'up  down      select color
+\nenter         change color
+\nesc                go back'
 
 gameover = 'You Lost!'
 victory = 'You Win!'
