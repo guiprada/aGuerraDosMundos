@@ -338,19 +338,15 @@ function utils.lerp(p1, p2, distance)
 end
 
 function utils.lerp_rotation(o1, o2, step)
-    -- direction
-    if o1 - o2 > o2 - o1 then
-        if o1+step > o2 then
-            return o2, true
-        else
-            return o1 + step, false
-        end
+    -- shortest_angle=((((end - start) % 360) + 540) % 360) - 180;
+    -- return start + (shortest_angle * amount) % 360;
+    -- from https://stackoverflow.com/questions/2708476/rotation-interpolation
+
+    local shortest_angle = (math.fmod((math.fmod(o2-o1, 2*math.pi) + 3*math.pi), 2*math.pi)) - math.pi
+    if math.abs(shortest_angle) < step then
+        return o2, true
     else
-        if o1-step < o2 then
-            return o2, true
-        else
-            return o1 - step, false
-        end
+        return (o1 + math.fmod(shortest_angle * step, 2*math.pi)), false
     end
 end
 

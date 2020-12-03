@@ -23,12 +23,16 @@ local function check_unobstructed(origin, angle, distance, grid, tilesize)
 end
 
 function Tripod._update__rotation(self)
-    local delta_x = self._next_cell.x - self._curr_cell.x
-    local delta_y = self._next_cell.y - self._curr_cell.y
-
+    -- local delta_x = self._next_cell.x - self._curr_cell.x
+    -- local delta_y = self._next_cell.y - self._curr_cell.y
     --self._rot = math.atan2(delta_y, delta_x)
+
+    local delta_x = self.x - self.last_x
+    local delta_y = self.y - self.last_y
+
+
     local o2 = math.atan2(delta_y, delta_x)
-    self._rot = utils.lerp_rotation(self._rot, o2, self.vision_angle/10)
+    self._rot = utils.lerp_rotation(self._rot, o2, self.vision_angle*4)
 end
 
 function Tripod._get_next_cell(self, targets, tilesize)
@@ -141,6 +145,7 @@ function Tripod.new(start_cell, end_cell, sprite, grid, _size, tilesize, speed, 
     end
 
     o.x, o.y = utils.grid_to_center_point(start_cell.x, start_cell.y, tilesize)
+    o.last_x, o.last_y = o.x, o.y
     o._start_cell = start_cell
     o._end_cell = end_cell
     o._target_cell = {}
@@ -149,7 +154,7 @@ function Tripod.new(start_cell, end_cell, sprite, grid, _size, tilesize, speed, 
     o._curr_cell.x, o._curr_cell.y = o._start_cell.x, o._start_cell.y
     
     o._size = _size or 1
-    o._scale = _size/ sprite:getWidth()
+    o._scale = _size/ sprite:getHeight()
     o._rot = 0
     o._offset = (o._size/2) * (1/o._scale)
       
@@ -203,6 +208,7 @@ end
 function Tripod._move(self, dt, targets, tilesize)    
     local px, py = utils.grid_to_center_point(self._next_cell.x, self._next_cell.y, tilesize)
     local has_reached = false
+    self.last_x, self.last_y = self.x, self.y
     self.x, self.y, has_reached = utils.lerp({x = self.x, y = self.y}, {x = px, y = py}, self.speed * dt)
 
     if has_reached then
