@@ -1,5 +1,5 @@
-todo   
-    - food items
+todo
+    - move utils grid functions to grid
     - decouple lover and target
     - add character to menu    
     - health, hunger and sanity systems
@@ -45,3 +45,4 @@ done
     - lerp Tripod rotation
     - add character color option
     - facil, medio e dificil
+    - food items

@@ -1,5 +1,6 @@
 local selection_box = {}
 
+local utils = require "qpd.utils"
 local love_utils = require "qpd.love_utils"
 local fonts = require "qpd.services.fonts"
 
@@ -56,6 +57,13 @@ function selection_box.get_height(self)
     return total_height
 end
 
+function selection_box.get_n_selections(self)
+    return #self._selections
+end
+
+function selection_box.get_selected(self)
+    return self._selected
+end
 --------------------------------------------------------------------------------
 
 function selection_box.draw(self)
@@ -122,14 +130,15 @@ function selection_box.new(font_name, x, y, width, align, color, color_selected)
     local o = {}
 
     -- methods
-    o.draw = selection_box.draw
-    o.add_selection = selection_box.add_selection
-    o.up = selection_box.up
-    o.down = selection_box.down
-    o.select = selection_box.select    
-    o.reset = selection_box.reset
-    o.resize = selection_box.resize
-    o.get_height = selection_box.get_height
+    utils.assign_methods(o, selection_box)
+    -- o.draw = selection_box.draw
+    -- o.add_selection = selection_box.add_selection
+    -- o.up = selection_box.up
+    -- o.down = selection_box.down
+    -- o.select = selection_box.select    
+    -- o.reset = selection_box.reset
+    -- o.resize = selection_box.resize
+    -- o.get_height = selection_box.get_height
     
     o:reset(font_name, x, y, width, align, color, color_selected)
 

@@ -62,8 +62,8 @@ function gs.load(args)
         color.red)
 
     local colors = utils.table_read_from_conf(files.available_colors)
-    for key, value in pairs(colors) do
-        gs.selection_box:add_selection(key, function() save(target, key) end)
+    for key, value in ipairs(colors) do
+        gs.selection_box:add_selection(value, function() save(target, value) end)
     end
 
     gs.actions = {}

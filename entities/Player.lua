@@ -126,7 +126,7 @@ function Player.draw(self, collision_enabled)
     love.graphics.circle("fill", self.x, self.y, (self._size/2)+0.5)
         
     if not collision_enabled then
-        love.graphics.setColor(1,0,0, 0.6)
+        love.graphics.setColor(0, 0,0, 0.6)
         love.graphics.circle("fill", self.x, self.y, (self._size/2)+0.5)
     end
 
