@@ -64,6 +64,7 @@ function gs.load(map_file_path)
     local n_tripods = game_conf.n_tripods * difficulty_factor
     local disable_collision_duration = game_conf.disable_collision_duration
     local n_apples = game_conf.n_apples / difficulty_factor
+    local apple_reactivation_time = game_conf.apple_reactivation_time
 
     gs.damage_points = game_conf.damage_points
     gs.player_health_max = game_conf.player_health_max
@@ -165,7 +166,16 @@ function gs.load(map_file_path)
         while utils.distance(new_start, new_end) <= tripod_min_path  do
             new_end = grid:get_valid_pos()
         end
-        gs.tripods[i] = Tripod.new(new_start, new_end, spr_tripod, grid, gs.tilemap_view.tilesize, gs.tilemap_view.tilesize, tripod_speed, tripod_speed_boost, tripod_vision_dist_factor*gs.tilemap_view.tilesize, tripod_vision_angle)
+        gs.tripods[i] = Tripod.new(new_start,
+            new_end,
+            spr_tripod,
+            grid,
+            gs.tilemap_view.tilesize,
+            gs.tilemap_view.tilesize,
+            tripod_speed,
+            tripod_speed_boost,
+            tripod_vision_dist_factor*gs.tilemap_view.tilesize,
+            tripod_vision_angle)
     end
 
     -- create targets
@@ -178,7 +188,13 @@ function gs.load(map_file_path)
     -- add apples
     for i=1, n_apples, 1 do
         local new_start = grid:get_valid_pos()
-        local new_apple = Collectable.new(new_start, spr_apple, gs.tilemap_view.tilesize, gs.tilemap_view.tilesize, "health", gs.damage_points)
+        local new_apple = Collectable.new(new_start,
+            spr_apple,
+            gs.tilemap_view.tilesize,
+            gs.tilemap_view.tilesize,
+            "health",
+            gs.damage_points,
+            apple_reactivation_time)
         table.insert(gs.collectables, new_apple)
     end
 
@@ -244,16 +260,22 @@ function gs.update(dt)
     gs.player_collision_timer:update(dt)
     gs.friend_collision_timer:update(dt)
 
+    for _, item in ipairs(gs.collectables) do
+        
+    end
+
+    -- collectables
     if  gs.player.health < gs.player_health_max or gs.friend.health < gs.player_health_max then
         for _, item in ipairs(gs.collectables) do
-            if utils.check_collision_circle(item.x, item.y, item._size/2, gs.player.x, gs.player.y, gs.player._size/2) then
+            item:update(dt)
+            if item:is_enabled() and utils.check_collision_circle(item.x, item.y, item._size/2, gs.player.x, gs.player.y, gs.player._size/2) then
                 gs.player.health = utils.clamp((gs.player.health + gs.damage_points), 0, gs.player_health_max)
                 gs.friend.health = utils.clamp((gs.friend.health + gs.damage_points), 0, gs.player_health_max)
-                item.is_enabled = false
+                item:disable()
             end            
         end
     end
-
+    
     -- check win or loose
     if gs.player.health <=0 or gs.friend.health <= 0 then
         gamestate.switch("gameover")

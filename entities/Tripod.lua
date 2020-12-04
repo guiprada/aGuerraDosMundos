@@ -107,31 +107,33 @@ end
 function Tripod.new(start_cell, end_cell, sprite, grid, _size, tilesize, speed, speed_boost, vision_dist, vision_angle)
     local o = {}
 
-    o._sprite = sprite
-    o.grid = grid
-    o.start_speed = speed
-    o.speed = speed
-    o.speed_boost = speed_boost
-    o.vision_dist = vision_dist or 10*tilesize
-    o.vision_angle = vision_angle or math.pi/5
-
     o.x, o.y = utils.grid_to_center_point(start_cell.x, start_cell.y, tilesize)
-    o.last_x, o.last_y = o.x, o.y
+
+    o._size = _size or 1
+    o._scale = _size/ sprite:getHeight()
+    o._rot = 0
+    o._offset = (o._size/2) * (1/o._scale)
     o._start_cell = start_cell
     o._end_cell = end_cell
     o._target_cell = {}
     o._target_cell.x, o._target_cell.y = end_cell.x, end_cell.y
     o._curr_cell = {}
     o._curr_cell.x, o._curr_cell.y = o._start_cell.x, o._start_cell.y
-    
-    o._size = _size or 1
-    o._scale = _size/ sprite:getHeight()
-    o._rot = 0
-    o._offset = (o._size/2) * (1/o._scale)
-      
-    utils.assign_methods(o, Tripod)
+    o._sprite = sprite
+
+    o.grid = grid
+    o.start_speed = speed
+    o.speed = speed
+    o.speed_boost = speed_boost
+    o.vision_dist = vision_dist or 10*tilesize
+    o.vision_angle = vision_angle or math.pi/5
+    o.last_x, o.last_y = o.x, o.y
+
     o._last_cell = {}
     o._next_cell = {}
+
+    utils.assign_methods(o, Tripod)
+    
     o:_get_next_cell(0, {}, tilesize)
 
     return o

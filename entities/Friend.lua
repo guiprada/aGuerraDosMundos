@@ -27,8 +27,9 @@ function Friend.new(cell_x, cell_y, sprite, grid, size, follow_target, tilesize,
     o._offset = (o._size/2) * (1/o._scale)
     o._cell = {}
     o._cell.x, o._cell.y = cell_x, cell_y
-
     o._sprite = sprite
+    o._target_cell = {}
+    
     o.grid = grid
 
     o.follow_target = follow_target
@@ -36,8 +37,6 @@ function Friend.new(cell_x, cell_y, sprite, grid, size, follow_target, tilesize,
     o.x, o.y = utils.grid_to_center_point(cell_x, cell_y, tilesize)
     o.old_x, o.old_y = o.x, o.y
     o.health = health_max
-
-    o._target_cell = {}
 
     utils.assign_methods(o, Friend)
     return o

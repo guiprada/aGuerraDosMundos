@@ -5,15 +5,10 @@ local utils = require "qpd.utils"
 
 function Player.new(x, y, sprite, grid, size, tilesize, speed, health_max)
     local o = {}
-     
-    o.speed = speed or 1
-    o._sprite = sprite    
-    o.grid = grid
-    o.health = health_max
+    o.x = x
+    o.y = y
 
-    o.x = x or 0
-    o.y = y or 0
-
+    o._sprite = sprite
     o._size = size
     o._scale = size/ sprite:getWidth()
     o._rot = -math.pi/2
@@ -21,6 +16,13 @@ function Player.new(x, y, sprite, grid, size, tilesize, speed, health_max)
  
     o._cell = {}
     o._cell.x, o._cell.y = utils.point_to_grid(o.x, o.y, tilesize)
+    
+     
+    o.speed = speed
+    o.grid = grid
+    o.health = health_max
+
+  
     
     utils.assign_methods(o, Player)
 
