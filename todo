@@ -1,4 +1,5 @@
 todo
+    - fix menu sprites scale
     - move utils grid functions to grid
     - decouple lover and target
     - add character to menu    

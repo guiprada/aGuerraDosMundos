@@ -19,11 +19,26 @@ local function exit()
     gamestate.switch("settings_menu")
 end
 
+local function load_sprite(target)
+    local game_conf = utils.table_read_from_conf(files.game_conf)
+    local color_saved = game_conf[target]
+    gs.selected_sprite = love.graphics.newImage(files["spr_" .. color_saved])
+end
+
+local function sprite_dimension(w,h)
+    gs.selected_sprite_pos = {x = 3*w/4, y = h/2 }
+    gs.selected_sprite_rot = -math.pi/2
+    gs.selected_sprite_scale = utils.min(w,h)/(3*gs.selected_sprite:getWidth())
+    gs.selected_sprite_offset = {}
+    gs.selected_sprite_offset.x = gs.selected_sprite:getWidth()/2
+    gs.selected_sprite_offset.y = gs.selected_sprite:getHeight()/2
+end
+
 local function save(target, value)
     local game_conf = utils.table_read_from_conf(files.game_conf)
     game_conf[target] = value
     utils.table_write_to_file(game_conf, files.game_conf)
-    exit()
+    load_sprite(target)
 end
 
 --------------------------------------------------------------------------------
@@ -33,6 +48,10 @@ function gs.load(args)
     
     local w = love.graphics.getWidth()
     local h = love.graphics.getHeight()
+
+    load_sprite(target)
+    sprite_dimension(w, h)
+
 
     gs.title = text_box.new(
         strings.color_title, 
@@ -56,7 +75,7 @@ function gs.load(args)
         "big",
         0,
         h*1/4,
-        w,
+        w/2,
         "center",
         color.gray,
         color.red)
@@ -77,6 +96,16 @@ function gs.draw()
     gs.title:draw()
     gs.instructions:draw()
     gs.selection_box:draw()
+    love.graphics.draw(
+        gs.selected_sprite,
+        gs.selected_sprite_pos.x,
+        gs.selected_sprite_pos.y,
+        gs.selected_sprite_rot,
+        gs.selected_sprite_scale,
+        gs.selected_sprite_scale,
+        gs.selected_sprite_offset.x,
+        gs.selected_sprite_offset.y 
+    )
 end
 
 function gs.keyreleased(key, scancode)
@@ -90,8 +119,9 @@ end
 function gs.resize(w, h)
     fonts.resize(w, h)
     gs.title:resize(0, 0, w)
-    gs.instructions(0, h*7/8, w)
-    gs.selection_box:resize(0, h*1/4, w)
+    gs.instructions:resize(0, h*7/8, w)
+    gs.selection_box:resize(0, h*1/4, w/2)
+    sprite_dimension(w, h)
 end
 
 function gs.unload()

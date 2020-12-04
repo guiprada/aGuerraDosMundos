@@ -45,7 +45,6 @@ color_array[16] = color.lime
 --------------------------------------------------------------------------------
 
 function gs.load(map_file_path)
-    print(files.game_conf)
     local game_conf = utils.table_read_from_conf(files.game_conf)
     local difficulty_factor = game_conf.difficulty/3
 

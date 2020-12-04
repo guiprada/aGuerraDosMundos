@@ -90,7 +90,7 @@ end
 function gs.resize(w, h)
     fonts.resize(w, h)
     gs.title:resize(0, 0, w)
-    gs.instructions(0, h*7/8, w)
+    gs.instructions:resize(0, h*7/8, w)
     gs.selection_box:resize(0, h*1/4, w)
 end
 
