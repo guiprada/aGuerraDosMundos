@@ -18,7 +18,7 @@ function Friend._move(self, dt, tilesize)
     end
 end
 
-function Friend.new(cell_x, cell_y, sprite, grid, size, follow_target, tilesize, speed)
+function Friend.new(cell_x, cell_y, sprite, grid, size, follow_target, tilesize, speed, health_max)
     local o = {}
     o._is_active = false
     o._size = size
@@ -35,7 +35,7 @@ function Friend.new(cell_x, cell_y, sprite, grid, size, follow_target, tilesize,
     o.speed = speed
     o.x, o.y = utils.grid_to_center_point(cell_x, cell_y, tilesize)
     o.old_x, o.old_y = o.x, o.y
-    o.health = 100
+    o.health = health_max
 
     o._target_cell = {}
 

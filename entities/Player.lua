@@ -3,13 +3,13 @@ local Player = {}
 local keymap = require "qpd.services.keymap"
 local utils = require "qpd.utils"
 
-function Player.new(x, y, sprite, grid, size, tilesize, speed)
+function Player.new(x, y, sprite, grid, size, tilesize, speed, health_max)
     local o = {}
      
     o.speed = speed or 1
     o._sprite = sprite    
     o.grid = grid
-    o.health = 100
+    o.health = health_max
 
     o.x = x or 0
     o.y = y or 0

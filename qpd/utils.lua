@@ -765,7 +765,7 @@ function utils.grid_check_unobstructed(grid, origin, angle, distance, tilesize, 
         if grid:is_colliding_grid(current_cell.x, current_cell.y) then
             return false
         end
-        acc_distance = acc_distance + tilesize
+        acc_distance = acc_distance + math.sqrt(step_x^2 + step_y^2)
         x, y = x + step_x, y + step_y
     end
     return true
