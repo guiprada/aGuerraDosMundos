@@ -4,19 +4,21 @@ local utils = require "qpd.utils"
 
 function Friend._move(self, dt, tilesize)    
     local px, py = utils.grid_to_center_point(self._target_cell.x, self._target_cell.y, tilesize)
-    local has_reached = false
-    self.x, self.y, has_reached = utils.lerp({x = self.x, y = self.y}, {x = px, y = py}, self.speed * dt)
+    local maybe_x, maybe_y, has_reached = utils.lerp({x = self.x, y = self.y}, {x = px, y = py}, self.speed * dt)
     
     self._cell.x, self._cell.y = utils.point_to_grid(self.x, self.y, tilesize)
+    if self.grid:is_colliding(maybe_x, maybe_y, tilesize) then
+        self._is_active = false
+    else
+        self.x, self.y = maybe_x, maybe_y
+    end
 
     if has_reached then
-        self._target_cell.x, self._target_cell.y = self.target._cell.x, self.target._cell.y
-    elseif self.grid:is_colliding(self.x, self.y, tilesize) then
-        self._is_active = false
+        self._target_cell.x, self._target_cell.y = self.follow_target._cell.x, self.follow_target._cell.y    
     end
 end
 
-function Friend.new(cell_x, cell_y, sprite, grid, size, target, tilesize, speed)
+function Friend.new(cell_x, cell_y, sprite, grid, size, follow_target, tilesize, speed)
     local o = {}
     o._is_active = false
     o._size = size
@@ -29,7 +31,7 @@ function Friend.new(cell_x, cell_y, sprite, grid, size, target, tilesize, speed)
     o._sprite = sprite
     o.grid = grid
 
-    o.target = target
+    o.follow_target = follow_target
     o.speed = speed
     o.x, o.y = utils.grid_to_center_point(cell_x, cell_y, tilesize)
     o.old_x, o.old_y = o.x, o.y
@@ -44,7 +46,7 @@ end
 
 function Friend.update(self, dt, tilesize)
     if self._is_active then
-        if utils.distance(self, self.target) > 10* tilesize then
+        if utils.distance(self, self.follow_target) > 10* tilesize then
             self._is_active =  false
         end
         self.old_x, self.old_y = self.x, self.y
@@ -53,9 +55,12 @@ function Friend.update(self, dt, tilesize)
         if delta_x~=0 or delta_y~=0 then
             self._rot = math.atan2(delta_y, delta_x)
         end
-    elseif utils.distance(self, self.target) < 3* tilesize then
-        self._is_active = true
-        self._target_cell.x, self._target_cell.y = self.target._cell.x, self.target._cell.y  
+    elseif  utils.distance(self, self.follow_target) < 3* tilesize then
+        local angle = math.atan2(self.follow_target.y - self.y, self.follow_target.x - self.x)
+        if utils.grid_check_unobstructed(self.grid, self, angle, 3*tilesize, tilesize, self.speed * dt) == true then            
+            self._is_active = true
+            self._target_cell.x, self._target_cell.y = self.follow_target._cell.x, self.follow_target._cell.y  
+        end
     end
 end
 

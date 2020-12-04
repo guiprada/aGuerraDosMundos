@@ -1,27 +1,6 @@
 local Tripod = {}
 local utils = require "qpd.utils"
 
-local function check_unobstructed(origin, angle, distance, grid, tilesize)
-    local current_cell = {}
-    local x, y = origin.x, origin.y
-
-    -- we go tile by tile
-    local step_x = math.cos( angle ) * tilesize
-    local step_y = math.sin( angle ) * tilesize
-
-    local acc_distance = 0
-
-    while acc_distance < distance do
-        current_cell.x, current_cell.y = utils.point_to_grid(x, y, tilesize)
-        if grid:is_colliding_grid(current_cell.x, current_cell.y) then
-            return false
-        end
-        acc_distance = acc_distance + tilesize
-        x, y = x + step_x, y + step_y
-    end
-    return true
-end
-
 function Tripod._update__rotation(self)
     -- local delta_x = self._next_cell.x - self._curr_cell.x
     -- local delta_y = self._next_cell.y - self._curr_cell.y
@@ -35,10 +14,10 @@ function Tripod._update__rotation(self)
     self._rot = utils.lerp_rotation(self._rot, o2, self.vision_angle)
 end
 
-function Tripod._get_next_cell(self, targets, tilesize)
+function Tripod._get_next_cell(self, dt, targets, tilesize)
     local viable_targets = {}
     for _, target in ipairs(targets) do
-        if self:_can_see(target, tilesize) then
+        if self:_can_see(dt, target, tilesize) then
             table.insert(viable_targets, target)
         end 
     end
@@ -103,7 +82,7 @@ function Tripod._get_next_cell(self, targets, tilesize)
     self:_update__rotation()
 end
 
-function Tripod._can_see(self, target, tilesize)
+function Tripod._can_see(self, dt, target, tilesize)
     local p_target = {x = target.x, y = target.y}
     local p_self = {x = self.x, y = self.y}
     local distance = utils.distance(p_target, p_self)
@@ -117,7 +96,7 @@ function Tripod._can_see(self, target, tilesize)
             self._rot + (self.vision_angle/2) > angle then
         -- it is in view
         -- check unobstructed
-            if check_unobstructed(p_self, angle, self.vision_dist, self.grid, tilesize) then
+            if utils.grid_check_unobstructed(self.grid, p_self, angle, self.vision_dist, tilesize, self.speed * dt) then
                 return true
             end
         end
@@ -153,7 +132,7 @@ function Tripod.new(start_cell, end_cell, sprite, grid, _size, tilesize, speed, 
     utils.assign_methods(o, Tripod)
     o._last_cell = {}
     o._next_cell = {}
-    o:_get_next_cell({}, tilesize)
+    o:_get_next_cell(0, {}, tilesize)
 
     return o
 end
@@ -204,7 +183,7 @@ function Tripod._move(self, dt, targets, tilesize)
     self.x, self.y, has_reached = utils.lerp({x = self.x, y = self.y}, {x = px, y = py}, self.speed * dt)
 
     if has_reached then
-        self:_get_next_cell(targets, tilesize)
+        self:_get_next_cell(dt, targets, tilesize)
     end
 end
 

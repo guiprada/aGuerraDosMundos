@@ -750,5 +750,26 @@ function utils.grid_to_center_point(x, y, tilesize)
 	return center_x, center_y
 end
 
+function utils.grid_check_unobstructed(grid, origin, angle, distance, tilesize, maybe_step)
+    -- we go tile by tile
+    local step = maybe_step or tilesize
+    local step_x = math.cos( angle ) * step
+    local step_y = math.sin( angle ) * step
+
+    local acc_distance = 0
+
+    local current_cell = {}
+    local x, y = origin.x, origin.y
+    while acc_distance < distance do
+        current_cell.x, current_cell.y = utils.point_to_grid(x, y, tilesize)
+        if grid:is_colliding_grid(current_cell.x, current_cell.y) then
+            return false
+        end
+        acc_distance = acc_distance + tilesize
+        x, y = x + step_x, y + step_y
+    end
+    return true
+end
+
 utils.run_tests()
 return utils
