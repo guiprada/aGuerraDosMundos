@@ -48,14 +48,10 @@ local function _draw(tilemap, tilesize, matrix_start_x, matrix_start_y, matrix_e
 end
 
 local function _calculate_tilesize(w, h, n_tiles_w, n_tiles_h)
-    local map_ratio = n_tiles_w/n_tiles_h
-    local screen_ratio = w/h
-
-    if map_ratio > screen_ratio then -- wider, limited by height
-        return h/n_tiles_h
-    else -- taller, limited by width
-        return w/n_tiles_w
-    end    
+    -- diagonal based
+    local screen_diag = math.sqrt(w^2 + h^2)
+    local tiles_diag = math.sqrt(n_tiles_h^2 + n_tiles_w^2)
+    return screen_diag/tiles_diag
 end
 
 --------------------------------------------------------------------------------
@@ -73,7 +69,6 @@ function tilemap_view.new(matrix, cell_set, width, height)
     local tilemap_height = o.tilesize * tile_height
 
     o.camera = camera.new(tilemap_width, tilemap_height, 1, 3)
-    o.camera:set_viewport(0, 0, tilemap_width, tilemap_height)
     
     -- create map
     o.tilemap = tilemap.new(0,
@@ -109,6 +104,7 @@ function tilemap_view.draw(self)
     matrix_end_y =utils.clamp(matrix_end_y, 1, self.tilemap.tile_height)
 
     _draw(self.tilemap, self.tilesize, matrix_start_x, matrix_start_y, matrix_end_x, matrix_end_y)
+    --_draw(self.tilemap, self.tilesize)
 end
 
 

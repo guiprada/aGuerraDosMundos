@@ -59,20 +59,11 @@ function camera.get_center(self)
     return  self._drift_x, self._drift_y
 end
 
--- function camera.get_limits(self)
---     local start_x = - self._w/2
---     local start_y = - self._h/2
---     local end_x = self._w/2
---     local end_y = self._h/2
-
---     return start_x, start_y, end_x, end_y
--- end
-
 function camera.get_visible_quad(self)    
-    local start_x = self._drift_x - self._w/2/self._scale
-    local start_y = self._drift_y - self._h/2/self._scale
-    local end_x = self._drift_x + self._w/2/self._scale
-    local end_y = self._drift_y + self._h/2/self._scale
+    local start_x = self._drift_x - self._w/2--/self._scale
+    local start_y = self._drift_y - self._h/2--/self._scale
+    local end_x = self._drift_x + self._w/2--/self._scale
+    local end_y = self._drift_y + self._h/2--/self._scale
 
     return start_x, start_y, end_x, end_y
 end
@@ -89,11 +80,6 @@ function camera.move(self, x, y)
         self._v_h - (self._v_h/2)/self._scale)                              
     
 end
-
--- function camera.p_2_camera(self, x, y)
---     return  x + self._drift_x/self._scale,
---             y + self._drift_y/self._scale        
--- end
 
 --------------------------------------------------------------------------------
 

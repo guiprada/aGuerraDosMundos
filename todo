@@ -1,5 +1,4 @@
-todo
-    - lock aspect ratio in gaming or fixe tilesize calculation
+todo    
     - add how_to_play
     - add credits
     - overhaul widgets resize
@@ -56,3 +55,4 @@ done
     - move utils grid functions to grid
     - add pause
     - fix size of entities on resize
+    - fixed tilesize calculation  and camera get_visible

@@ -233,7 +233,9 @@ function gs.resize(w, h)
     fonts.resize(w, h)
     gs.width = w
     gs.height = h
+    local saved_scale = gs.tilemap_view.camera:get_scale()
     gs.tilemap_view = tilemap_view.new(gs.map_matrix, gs.tilemap_view.tilemap.draw_functions, gs.width, gs.height)
+    gs.tilemap_view.camera:set_scale(saved_scale)
 
     gs.sprite_box = cell_box.new( 0,
                                 gs.height - gs.tilemap_view.tilesize * gs.cell_box_size_factor,
