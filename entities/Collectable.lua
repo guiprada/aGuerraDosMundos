@@ -7,7 +7,7 @@ local grid = require "qpd.grid"
 function Collectable.new(cell, sprite, size, tilesize, bonus_type, bonus_quant, reactivation_time)
     local o = {}
 
-    o.x, o.y = grid.to_center_point(cell.x, cell.y, tilesize)
+    o.x, o.y = grid.cell_to_center_point(cell.x, cell.y, tilesize)
     o.cell = utils.table_clone(cell)
 
     o._size = size
@@ -57,7 +57,7 @@ function Collectable.is_enabled(self)
 end
 
 function Collectable.resize(self, tilesize)
-    self.x, self.y = grid.to_center_point(self.cell.x, self.cell.y, tilesize)
+    self.x, self.y = grid.cell_to_center_point(self.cell.x, self.cell.y, tilesize)
 end
 
 return Collectable

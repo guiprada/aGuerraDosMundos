@@ -4,10 +4,10 @@ local utils = require "qpd.utils"
 local grid = require "qpd.grid"
 
 function Friend._move(self, dt, tilesize)    
-    local px, py = grid.to_center_point(self._target_cell.x, self._target_cell.y, tilesize)
+    local px, py = grid.cell_to_center_point(self._target_cell.x, self._target_cell.y, tilesize)
     local maybe_x, maybe_y, has_reached = utils.lerp({x = self.x, y = self.y}, {x = px, y = py}, self.speed_factor * tilesize * dt)
     
-    self._cell.x, self._cell.y = grid.point_to_grid(self.x, self.y, tilesize)
+    self._cell.x, self._cell.y = grid.point_to_cell(self.x, self.y, tilesize)
     if self.grid:is_colliding_point(maybe_x, maybe_y, tilesize) then
         self._is_active = false
     else
@@ -35,7 +35,7 @@ function Friend.new(cell_x, cell_y, sprite, grid, size, follow_target, tilesize,
 
     o.follow_target = follow_target
     o.speed_factor = speed_factor
-    o.x, o.y = grid.to_center_point(cell_x, cell_y, tilesize)
+    o.x, o.y = grid.cell_to_center_point(cell_x, cell_y, tilesize)
     o.old_x, o.old_y = o.x, o.y
     o.health = health_max
 
@@ -89,7 +89,7 @@ function Friend.take_health(self, h_much)
 end
 
 function Friend.resize(self, tilesize)
-    self.x, self.y = grid.to_center_point(self._cell.x, self._cell.y, tilesize)
+    self.x, self.y = grid.cell_to_center_point(self._cell.x, self._cell.y, tilesize)
 end
 
 return Friend

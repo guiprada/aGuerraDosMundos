@@ -11,7 +11,7 @@ end
 -----------------------------------------------------------------------
 function grid.get_valid_pos(self)
 	local pos = {}
-	pos = self.array_grid_valid_pos[love.math.random(#self.array_grid_valid_pos)]
+	pos = self.array_cell_valid_pos[love.math.random(#self.array_cell_valid_pos)]
 	return pos
 end
 
@@ -25,14 +25,14 @@ function grid.new(matrix, collisions)
 
 	utils.assign_methods(o, grid)
 
-	o.array_grid_valid_pos = {}
+	o.array_cell_valid_pos = {}
 	for i=1, o.width do
 		for j=1, o.height do
 			if ( not o:_is_collision(o.matrix[j][i]) ) then
 				local value = {}
 				value.x = i
 				value.y = j
-				table.insert(o.array_grid_valid_pos, value)
+				table.insert(o.array_cell_valid_pos, value)
 			end
 		end
 	end
@@ -41,14 +41,15 @@ function grid.new(matrix, collisions)
 end
 
 function grid.is_colliding_point(self, x, y, tilesize)
-	local grid_y = math.floor(y/tilesize) + 1
-	local grid_x = math.floor(x/tilesize) + 1
-	return self:is_colliding_cell(grid_x, grid_y)
+	local cell_x, cell_y = grid.point_to_cell(x, y, tilesize)
+	-- local cell_y = math.floor(y/tilesize) + 1
+	-- local cell_x = math.floor(x/tilesize) + 1
+	return self:is_colliding_cell(cell_x, cell_y)
 end
 
-function grid.is_colliding_cell(self, grid_x, grid_y)
-	local grid_value = self.matrix[grid_y][grid_x]
-	return self.collisions[grid_value] or false
+function grid.is_colliding_cell(self, cell_x, cell_y)
+	local cell_value = self.matrix[cell_y][cell_x]
+	return self.collisions[cell_value] or false
 end
 
 function grid.check_unobstructed(self, origin, angle, distance, tilesize, maybe_step)
@@ -62,7 +63,7 @@ function grid.check_unobstructed(self, origin, angle, distance, tilesize, maybe_
     local current_cell = {}
     local x, y = origin.x, origin.y
     while acc_distance < distance do
-        current_cell.x, current_cell.y = grid.point_to_grid(x, y, tilesize)
+        current_cell.x, current_cell.y = grid.point_to_cell(x, y, tilesize)
         if self:is_colliding_cell(current_cell.x, current_cell.y) then
             return false
         end
@@ -73,16 +74,22 @@ function grid.check_unobstructed(self, origin, angle, distance, tilesize, maybe_
 end
 
 
-function grid.point_to_grid(x, y, tilesize)		
-	grid_x = math.floor(x / tilesize) + 1--lua arrays start at 1
-	grid_y = math.floor(y / tilesize) + 1 --lua arrays start at 1
-	return grid_x, grid_y
+function grid.point_to_cell(x, y, tilesize)		
+	cell_x = math.floor(x / tilesize) + 1--lua arrays start at 1
+	cell_y = math.floor(y / tilesize) + 1 --lua arrays start at 1
+	return cell_x, cell_y
 end
 
-function grid.to_center_point(x, y, tilesize)
-	center_x = (x-1)*tilesize + math.ceil(tilesize/2)
-	center_y = (y-1)*tilesize + math.ceil(tilesize/2)
+function grid.cell_to_center_point(cell_x, cell_y, tilesize)
+	center_x = (cell_x-1)*tilesize + math.ceil(tilesize/2)
+	center_y = (cell_y-1)*tilesize + math.ceil(tilesize/2)
 	return center_x, center_y
+end
+
+function grid.center_axis(y, tilesize)
+	cell = math.floor(y / tilesize) + 1
+	center = (cell-1)*tilesize + math.ceil(tilesize/2)
+	return center
 end
 
 return grid

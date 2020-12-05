@@ -111,7 +111,7 @@ end
 function Tripod.new(start_cell, end_cell, sprite, grid, _size, tilesize, speed_factor, speed_factor_boost, vision_dist, vision_angle)
     local o = {}
 
-    o.x, o.y = grid.to_center_point(start_cell.x, start_cell.y, tilesize)
+    o.x, o.y = grid.cell_to_center_point(start_cell.x, start_cell.y, tilesize)
 
     o._size = _size or 1
     o._scale = _size/ sprite:getHeight()
@@ -145,7 +145,7 @@ function Tripod.new(start_cell, end_cell, sprite, grid, _size, tilesize, speed_f
 end
 
 function Tripod.update(self, dt, targets, tilesize)
-    self._cell.x, self._cell.y = grid.point_to_grid(self.x, self.y, tilesize)
+    self._cell.x, self._cell.y = grid.point_to_cell(self.x, self.y, tilesize)
 
     -- has reached the target?
     if  self._cell.x == self._target_cell.x and
@@ -184,7 +184,7 @@ function Tripod._flip_target_cell(self, tilesize)
 end
 
 function Tripod._move(self, dt, targets, tilesize)    
-    local px, py = grid.to_center_point(self._next_cell.x, self._next_cell.y, tilesize)
+    local px, py = grid.cell_to_center_point(self._next_cell.x, self._next_cell.y, tilesize)
     local has_reached = false
     
     self.last_x, self.last_y = self.x, self.y
@@ -205,7 +205,7 @@ function Tripod.set_speed_factor(self, speed_factor)
 end
 
 function Tripod.resize(self, tilesize)
-    self.x, self.y = grid.to_center_point(self._cell.x, self._cell.y, tilesize)
+    self.x, self.y = grid.cell_to_center_point(self._cell.x, self._cell.y, tilesize)
 end
 
 return Tripod

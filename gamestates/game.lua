@@ -116,8 +116,8 @@ function gs.load(map_file_path)
 
     -- create player
     local x, y = gs.tilemap_view.camera:get_center()
-    x, y = grid.point_to_grid(x, y, gs.tilemap_view.tilesize)
-    x, y = grid.to_center_point(x, y, gs.tilemap_view.tilesize)
+    x, y = grid.point_to_cell(x, y, gs.tilemap_view.tilesize)
+    x, y = grid.cell_to_center_point(x, y, gs.tilemap_view.tilesize)
     gs.player = Player.new(x,
         y,
         spr_player,

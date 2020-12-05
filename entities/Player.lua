@@ -16,7 +16,7 @@ function Player.new(x, y, sprite, grid, size, tilesize, speed_factor, health_max
     o._offset = (o._size/2) * (1/o._scale)
  
     o._cell = {}
-    o._cell.x, o._cell.y = grid.point_to_grid(o.x, o.y, tilesize)    
+    o._cell.x, o._cell.y = grid.point_to_cell(o.x, o.y, tilesize)    
      
     o.speed_factor = speed_factor
     o.grid = grid
@@ -28,26 +28,26 @@ function Player.new(x, y, sprite, grid, size, tilesize, speed_factor, health_max
 end
 
 function Player.update(self, dt, tilesize)
-    local diag = 1/math.sqrt(2)
+    local motion = self.speed_factor * tilesize * dt
+    local diag_motion = (1/math.sqrt(2)) * motion
+    
     local new_x, new_y = self.x, self.y
 
-    local motion = self.speed_factor * tilesize * dt
-    local diag_motion = diag * motion
     if love.keyboard.isDown(keymap.keys.up) and (not love.keyboard.isDown(keymap.keys.down)) then        
         if love.keyboard.isDown(keymap.keys.left) and love.keyboard.isDown(keymap.keys.right) then
-            new_y = self.y - motion            
+            new_y = self.y - motion
         elseif love.keyboard.isDown(keymap.keys.left) then
             new_y = self.y - diag_motion
-            new_x = self.x - diag_motion            
+            new_x = self.x - diag_motion
         elseif love.keyboard.isDown(keymap.keys.right) then
             new_y = self.y - diag_motion
-            new_x = self.x + diag_motion            
+            new_x = self.x + diag_motion
         else
-            new_y = self.y - motion            
+            new_y = self.y - motion
         end
     elseif love.keyboard.isDown(keymap.keys.down) and (not love.keyboard.isDown(keymap.keys.up)) then
         if love.keyboard.isDown(keymap.keys.left) and love.keyboard.isDown(keymap.keys.right) then
-            new_y = self.y + motion            
+            new_y = self.y + motion           
         elseif love.keyboard.isDown(keymap.keys.left) then
             new_y = self.y + diag_motion
             new_x = self.x - diag_motion
@@ -75,42 +75,40 @@ function Player.update(self, dt, tilesize)
     end
 
     local offset = self._size/2
-
-    -- local top_left_x, top_left_y = new_x - offset/2, new_y - offset/2
-    -- local top_right_x, top_right_y = new_x + offset/2, new_y - offset/2
-    -- local botton_left_x, botton_left_y = new_x - offset/2, new_y + offset/2
-    -- local botton_right_x, botton_right_y = new_x + offset/2, new_y + offset/2
-    
-    -- local top_left = self.grid:is_colliding_point(top_left_x, top_left_y, tilesize)
-    -- local top_right = self.grid:is_colliding_point(top_right_x, top_right_y, tilesize)
-    -- local botton_left = self.grid:is_colliding_point(botton_left_x, botton_left_y, tilesize)
-    -- local botton_right = self.grid:is_colliding_point(botton_right_x, botton_right_y, tilesize)
-
+      
     if new_x > self.x then -- wants to go right
-        local right_x, right_y = new_x + offset, new_y
+        local right_x, right_y = self.x + offset, self.y
         if not self.grid:is_colliding_point(right_x, right_y, tilesize) then
             self.x = new_x
+        else
+            print("blocked")
         end
-    elseif  new_y < self.x then -- wants to go left
-        local left_x, left_y = new_x - offset, new_y
-        if not self.grid:is_colliding_point(left_x,left_y, tilesize) then
+    elseif new_x < self.x then -- wants to go left
+        local left_x, left_y = self.x - offset, self.y
+        if not self.grid:is_colliding_point(left_x, left_y, tilesize) then
             self.x = new_x
+        else
+            print("blocked")          
         end
     end
     if new_y < self.y then -- wants to go up
-        local top_x, top_y = new_x, new_y - offset
+        local top_x, top_y = self.x, self.y - offset
         if not self.grid:is_colliding_point(top_x, top_y, tilesize) then
             self.y = new_y
+        else
+            print("blocked")
         end
-    elseif new_y > self.y then -- wantos to go down
-        local botton_x, botton_y = new_x, new_y + offset
+    elseif new_y > self.y then -- wants to go down
+        local botton_x, botton_y = self.x, self.y + offset
         if  not self.grid:is_colliding_point(botton_x, botton_y, tilesize) then
             self.y = new_y
+        else
+            print("blocked")
         end
     end
 
     -- update cell
-    self._cell.x, self._cell.y = grid.point_to_grid(self.x, self.y, tilesize)
+    self._cell.x, self._cell.y = grid.point_to_cell(self.x, self.y, tilesize)
 end
 
 function Player.draw(self, collision_enabled)    
@@ -142,7 +140,7 @@ function Player.take_health(self, h_much)
 end
 
 function Player.resize(self, tilesize)
-    self.x, self.y = grid.to_center_point(self._cell.x, self._cell.y, tilesize)
+    self.x, self.y = grid.cell_to_center_point(self._cell.x, self._cell.y, tilesize)
 end
 
 return Player
