@@ -38,8 +38,8 @@ function love.load()
     gamestate.register("love", love)
     gamestate.register("menu", require "gamestates.menu")
     gamestate.register("game", require "gamestates.game")
-    gamestate.register("victory", require "gamestates.victory")
-    gamestate.register("gameover", require "gamestates.gameover")
+    -- gamestate.register("victory", require "gamestates.victory")
+    -- gamestate.register("gameover", require "gamestates.gameover")
     gamestate.register("settings_menu", require "gamestates.settings_menu")
     gamestate.register("save_settings", require "gamestates.save_settings")
     gamestate.register(
@@ -52,6 +52,7 @@ function love.load()
     gamestate.register("tilemap_editor", require "gamestates.tilemap_editor")
     gamestate.register("change_color", require "gamestates.change_color")
     gamestate.register("change_difficulty", require "gamestates.change_difficulty")
+    gamestate.register("message", require "gamestates.message")
 
     -- detect first time run
     local has_run = io.open(files.has_run)

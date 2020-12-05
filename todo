@@ -1,5 +1,4 @@
 todo    
-    - add how_to_play
     - add credits
     - overhaul widgets resize
     - bombs :), should draw atention
@@ -57,3 +56,4 @@ done
     - fixed tilesize calculation  and camera get_visible
     - dead center camera system and camera lerp
     - camera clamp
+    - add how_to_play

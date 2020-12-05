@@ -110,6 +110,12 @@ function gs.load()
             gamestate.switch( "tilemap_editor")
         end)
 
+    gs.menu:add_selection(
+        strings.menu_how_to_play, 
+        function ()
+            gamestate.switch("message", "how_to_play")
+        end)
+
     gs.menu:add_selection(strings.menu_exit, quit)   
 
     gs.actions = {}

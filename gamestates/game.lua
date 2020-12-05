@@ -328,13 +328,13 @@ function gs.update(dt)
         
         -- check win or loose
         if gs.player.health <=0 or gs.friend.health <= 0 then
-            gamestate.switch("gameover")
+            gamestate.switch("message", "gameover")
         elseif gs.friend._is_active and 
             (gs.player._cell.x < 3 or
             gs.player._cell.x > (gs.tilemap_view.tilemap.tile_width -2) or
             gs.player._cell.y < 3 or
             gs.player._cell.y > (gs.tilemap_view.tilemap.tile_height -2) ) then
-            gamestate.switch("victory")
+            gamestate.switch("message", "victory")
         end
     end
 end

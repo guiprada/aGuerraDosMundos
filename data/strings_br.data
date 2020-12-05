@@ -3,6 +3,7 @@ title ='A Guerra dos Mundos'
 menu_start = 'iniciar jogo'
 menu_settings = 'configurações'
 menu_tilemap_editor = 'editor de mapa'
+menu_how_to_play = 'como jogar'
 menu_exit = 'sair'
 
 settings_menu_title = 'Menu de Configurações'
@@ -57,10 +58,20 @@ color_instructions =
 
 difficulty_title = 'Escolha a Dificuldade'
 difficulty_instructions =
-'up  down      selecionar dificuldade
+ 'up  down     selecionar dificuldade
 \nenter             mudar dificuldade
 \nesc                          voltar'
 
-gameover = 'Perdeu!'
-victory = 'Parabens!'
 paused = 'Pausado'
+
+gameover_title = 'Perdeu'
+gameover = 'Perdeu!'
+
+victory_title = 'Vitoria'
+victory = 'Parabens!'
+
+how_to_play_title = 'Como Jogar'
+how_to_play = 'Voce esta em Londres, a cidade foi invadida pelos Tripods e seu objetivo e fugir! Para conseguir voce deve escapar dos invasores e encontrar seu amigo, que ficou com as chaves.'
+message_instructions =
+ 'enter               jogar
+\nesc                voltar'
