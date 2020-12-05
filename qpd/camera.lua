@@ -68,6 +68,14 @@ function camera.get_visible_quad(self)
     return start_x, start_y, end_x, end_y
 end
 
+function camera.get_visible_height(self)
+    return self._h
+end
+
+function camera.get_visible_width(self)
+    return self._w
+end
+
 function camera.move(self, x, y)
     self._drift_x = utils.clamp(
         self._drift_x + x,

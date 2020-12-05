@@ -14,8 +14,7 @@ todo
     - add collide and slide to friend( somehow related to unobstructed)
     - music and sound effects
         - get brass band midi
-        - convert openmpt    
-    - dead center camera system
+        - convert openmpt        
     - fog + smog from factory
     - water waves, fish and bubbles
     - gameplay tunning
@@ -56,3 +55,4 @@ done
     - add pause
     - fix size of entities on resize
     - fixed tilesize calculation  and camera get_visible
+    - dead center camera system and camera lerp
