@@ -1,5 +1,7 @@
 todo
     - add pause
+    - fix player lateral collision
+    - add collide and slide to friend( somehow related to unobstructed)
     - add how_to_play
     - add credits
     - overhaul widgets resize

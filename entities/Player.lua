@@ -4,7 +4,7 @@ local keymap = require "qpd.services.keymap"
 local utils = require "qpd.utils"
 local grid = require "qpd.grid"
 
-function Player.new(x, y, sprite, grid, size, tilesize, speed, health_max)
+function Player.new(x, y, sprite, grid, size, tilesize, speed_factor, health_max)
     local o = {}
     o.x = x
     o.y = y
@@ -18,7 +18,7 @@ function Player.new(x, y, sprite, grid, size, tilesize, speed, health_max)
     o._cell = {}
     o._cell.x, o._cell.y = grid.point_to_grid(o.x, o.y, tilesize)    
      
-    o.speed = speed
+    o.speed_factor = speed_factor
     o.grid = grid
     o.health = health_max  
     
@@ -31,36 +31,37 @@ function Player.update(self, dt, tilesize)
     local diag = 1/math.sqrt(2)
     local new_x, new_y = self.x, self.y
 
+    local speed = self.speed_factor * tilesize
     if love.keyboard.isDown(keymap.keys.up) and (not love.keyboard.isDown(keymap.keys.down)) then        
         if love.keyboard.isDown(keymap.keys.left) and love.keyboard.isDown(keymap.keys.right) then
-            new_y = self.y - self.speed * dt            
+            new_y = self.y - speed * dt            
         elseif love.keyboard.isDown(keymap.keys.left) then
-            new_y = self.y - diag * self.speed * dt
-            new_x = self.x - diag * self.speed * dt            
+            new_y = self.y - diag * speed * dt
+            new_x = self.x - diag * speed * dt            
         elseif love.keyboard.isDown(keymap.keys.right) then
-            new_y = self.y - diag * self.speed * dt
-            new_x = self.x + diag * self.speed * dt            
+            new_y = self.y - diag * speed * dt
+            new_x = self.x + diag * speed * dt            
         else
-            new_y = self.y - self.speed * dt            
+            new_y = self.y - speed * dt            
         end
     elseif love.keyboard.isDown(keymap.keys.down) and (not love.keyboard.isDown(keymap.keys.up)) then
         if love.keyboard.isDown(keymap.keys.left) and love.keyboard.isDown(keymap.keys.right) then
-            new_y = self.y + self.speed * dt            
+            new_y = self.y + speed * dt            
         elseif love.keyboard.isDown(keymap.keys.left) then
-            new_y = self.y + diag * self.speed * dt
-            new_x = self.x - diag * self.speed * dt
+            new_y = self.y + diag * speed * dt
+            new_x = self.x - diag * speed * dt
         elseif love.keyboard.isDown(keymap.keys.right) then
-            new_y = self.y + diag * self.speed * dt
-            new_x = self.x + diag * self.speed * dt
+            new_y = self.y + diag * speed * dt
+            new_x = self.x + diag * speed * dt
         else 
-            new_y = self.y + self.speed * dt
+            new_y = self.y + speed * dt
         end
     else
         if love.keyboard.isDown(keymap.keys.left) then
-            new_x = self.x - self.speed * dt
+            new_x = self.x - speed * dt
         end
         if love.keyboard.isDown(keymap.keys.right) then
-            new_x = self.x + self.speed * dt
+            new_x = self.x + speed * dt
         end
     end
 

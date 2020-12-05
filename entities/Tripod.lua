@@ -36,10 +36,10 @@ function Tripod._get_next_cell(self, dt, targets, tilesize)
         
         self._target_cell.x = closest._cell.x
         self._target_cell.y = closest._cell.y
-        self.curr_speed = self.speed_boost * self.speed
+        self.curr_speed_factor = self.speed_factor_boost * self.speed_factor
         self._is_boosting = true
     else
-        self.curr_speed = self.speed
+        self.curr_speed_factor = self.speed_factor
         self._is_boosting = false
     end
 
@@ -100,7 +100,7 @@ function Tripod._can_see(self, dt, target, tilesize)
             self._rot + (self.vision_angle/2) > angle then
         -- it is in view
         -- check unobstructed
-            if self.grid:check_unobstructed(p_self, angle, self.vision_dist, tilesize, self.curr_speed * dt) then
+            if self.grid:check_unobstructed(p_self, angle, self.vision_dist, tilesize, self.curr_speed_factor * tilesize * dt) then
                 return true
             end
         end
@@ -108,7 +108,7 @@ function Tripod._can_see(self, dt, target, tilesize)
     return false
 end
 
-function Tripod.new(start_cell, end_cell, sprite, grid, _size, tilesize, speed, speed_boost, vision_dist, vision_angle)
+function Tripod.new(start_cell, end_cell, sprite, grid, _size, tilesize, speed_factor, speed_factor_boost, vision_dist, vision_angle)
     local o = {}
 
     o.x, o.y = grid.to_center_point(start_cell.x, start_cell.y, tilesize)
@@ -126,10 +126,10 @@ function Tripod.new(start_cell, end_cell, sprite, grid, _size, tilesize, speed, 
     o._sprite = sprite
 
     o.grid = grid
-    o.speed = speed
-    o.curr_speed = speed
+    o.speed_factor = speed_factor
+    o.curr_speed_factor = speed_factor
     o._is_boosting = false
-    o.speed_boost = speed_boost
+    o.speed_factor_boost = speed_factor_boost
     o.vision_dist = vision_dist or 10*tilesize
     o.vision_angle = vision_angle or math.pi/5
     o.last_x, o.last_y = o.x, o.y
@@ -188,19 +188,19 @@ function Tripod._move(self, dt, targets, tilesize)
     local has_reached = false
     
     self.last_x, self.last_y = self.x, self.y
-    self.x, self.y, has_reached = utils.lerp({x = self.x, y = self.y}, {x = px, y = py}, self.curr_speed * dt)
+    self.x, self.y, has_reached = utils.lerp({x = self.x, y = self.y}, {x = px, y = py}, self.curr_speed_factor * tilesize * dt)
 
     if has_reached then
         self:_get_next_cell(dt, targets, tilesize)
     end    
 end
 
-function Tripod.set_speed(self, speed)
-    self.speed = speed
+function Tripod.set_speed_factor(self, speed_factor)
+    self.speed_factor = speed_factor
     if self._is_boosting then
-        self.curr_speed = speed * self.speed_boost
+        self.curr_speed_factor = speed_factor * self.speed_factor_boost
     else
-        self.curr_speed = speed
+        self.curr_speed_factor = speed_factor
     end
 end
 

@@ -5,7 +5,7 @@ local grid = require "qpd.grid"
 
 function Friend._move(self, dt, tilesize)    
     local px, py = grid.to_center_point(self._target_cell.x, self._target_cell.y, tilesize)
-    local maybe_x, maybe_y, has_reached = utils.lerp({x = self.x, y = self.y}, {x = px, y = py}, self.speed * dt)
+    local maybe_x, maybe_y, has_reached = utils.lerp({x = self.x, y = self.y}, {x = px, y = py}, self.speed_factor * tilesize * dt)
     
     self._cell.x, self._cell.y = grid.point_to_grid(self.x, self.y, tilesize)
     if self.grid:is_colliding(maybe_x, maybe_y, tilesize) then
@@ -19,7 +19,7 @@ function Friend._move(self, dt, tilesize)
     end
 end
 
-function Friend.new(cell_x, cell_y, sprite, grid, size, follow_target, tilesize, speed, health_max)
+function Friend.new(cell_x, cell_y, sprite, grid, size, follow_target, tilesize, speed_factor, health_max)
     local o = {}
     o._is_active = false
     o._size = size
@@ -34,7 +34,7 @@ function Friend.new(cell_x, cell_y, sprite, grid, size, follow_target, tilesize,
     o.grid = grid
 
     o.follow_target = follow_target
-    o.speed = speed
+    o.speed_factor = speed_factor
     o.x, o.y = grid.to_center_point(cell_x, cell_y, tilesize)
     o.old_x, o.old_y = o.x, o.y
     o.health = health_max
@@ -57,7 +57,7 @@ function Friend.update(self, dt, tilesize)
         end
     elseif  utils.distance(self, self.follow_target) < 3* tilesize then
         local angle = math.atan2(self.follow_target.y - self.y, self.follow_target.x - self.x)
-        if self.grid:check_unobstructed(self, angle, 3*tilesize, tilesize, self.speed * dt) == true then            
+        if self.grid:check_unobstructed(self, angle, 3*tilesize, tilesize, self.speed_factor * tilesize * dt) == true then            
             self._is_active = true
             self._target_cell.x, self._target_cell.y = self.follow_target._cell.x, self.follow_target._cell.y  
         end
