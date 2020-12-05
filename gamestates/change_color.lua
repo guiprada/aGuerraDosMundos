@@ -26,12 +26,10 @@ local function load_sprite(target)
 end
 
 local function sprite_dimension(w,h)
-    gs.selected_sprite_pos = {x = 3*w/4, y = h/2 }
+    gs.selected_sprite_pos.x = 3*w/4
+    gs.selected_sprite_pos.y = h/2
     gs.selected_sprite_rot = -math.pi/2
     gs.selected_sprite_scale = utils.min(w,h)/(3*gs.selected_sprite:getWidth())
-    gs.selected_sprite_offset = {}
-    gs.selected_sprite_offset.x = gs.selected_sprite:getWidth()/2
-    gs.selected_sprite_offset.y = gs.selected_sprite:getHeight()/2
 end
 
 local function save(target, value)
@@ -50,8 +48,11 @@ function gs.load(args)
     local h = love.graphics.getHeight()
 
     load_sprite(target)
+    gs.selected_sprite_offset = {}
+    gs.selected_sprite_offset.x = gs.selected_sprite:getWidth()/2
+    gs.selected_sprite_offset.y = gs.selected_sprite:getHeight()/2
+    gs.selected_sprite_pos = {}
     sprite_dimension(w, h)
-
 
     gs.title = text_box.new(
         strings.color_title, 

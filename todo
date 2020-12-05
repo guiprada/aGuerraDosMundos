@@ -1,6 +1,9 @@
 todo
-    - fix menu sprites scale
-    - move utils grid functions to grid
+    - add pause
+    - add how_to_play
+    - add credits
+    - overhaul widgets resize
+    - bombs :), should draw atention
     - decouple lover and target
     - add character to menu    
     - health, hunger and sanity systems
@@ -47,3 +50,6 @@ done
     - add character color option
     - facil, medio e dificil
     - food items
+    - fix menu sprites scale
+    - fix in_game resize
+    - move utils grid functions to grid

@@ -1,12 +1,13 @@
 local Friend = {}
 
 local utils = require "qpd.utils"
+local grid = require "qpd.grid"
 
 function Friend._move(self, dt, tilesize)    
-    local px, py = utils.grid_to_center_point(self._target_cell.x, self._target_cell.y, tilesize)
+    local px, py = grid.to_center_point(self._target_cell.x, self._target_cell.y, tilesize)
     local maybe_x, maybe_y, has_reached = utils.lerp({x = self.x, y = self.y}, {x = px, y = py}, self.speed * dt)
     
-    self._cell.x, self._cell.y = utils.point_to_grid(self.x, self.y, tilesize)
+    self._cell.x, self._cell.y = grid.point_to_grid(self.x, self.y, tilesize)
     if self.grid:is_colliding(maybe_x, maybe_y, tilesize) then
         self._is_active = false
     else
@@ -29,12 +30,12 @@ function Friend.new(cell_x, cell_y, sprite, grid, size, follow_target, tilesize,
     o._cell.x, o._cell.y = cell_x, cell_y
     o._sprite = sprite
     o._target_cell = {}
-    
+        
     o.grid = grid
 
     o.follow_target = follow_target
     o.speed = speed
-    o.x, o.y = utils.grid_to_center_point(cell_x, cell_y, tilesize)
+    o.x, o.y = grid.to_center_point(cell_x, cell_y, tilesize)
     o.old_x, o.old_y = o.x, o.y
     o.health = health_max
 
@@ -56,7 +57,7 @@ function Friend.update(self, dt, tilesize)
         end
     elseif  utils.distance(self, self.follow_target) < 3* tilesize then
         local angle = math.atan2(self.follow_target.y - self.y, self.follow_target.x - self.x)
-        if utils.grid_check_unobstructed(self.grid, self, angle, 3*tilesize, tilesize, self.speed * dt) == true then            
+        if self.grid:check_unobstructed(self, angle, 3*tilesize, tilesize, self.speed * dt) == true then            
             self._is_active = true
             self._target_cell.x, self._target_cell.y = self.follow_target._cell.x, self.follow_target._cell.y  
         end
@@ -85,6 +86,10 @@ end
 
 function Friend.take_health(self, h_much)
     self.health = self.health - h_much
+end
+
+function Friend.resize(self, tilesize)
+    self.x, self.y = grid.to_center_point(self._cell.x, self._cell.y, tilesize)
 end
 
 return Friend

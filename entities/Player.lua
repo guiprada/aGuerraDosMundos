@@ -2,6 +2,7 @@ local Player = {}
 
 local keymap = require "qpd.services.keymap"
 local utils = require "qpd.utils"
+local grid = require "qpd.grid"
 
 function Player.new(x, y, sprite, grid, size, tilesize, speed, health_max)
     local o = {}
@@ -15,14 +16,11 @@ function Player.new(x, y, sprite, grid, size, tilesize, speed, health_max)
     o._offset = (o._size/2) * (1/o._scale)
  
     o._cell = {}
-    o._cell.x, o._cell.y = utils.point_to_grid(o.x, o.y, tilesize)
-    
+    o._cell.x, o._cell.y = grid.point_to_grid(o.x, o.y, tilesize)    
      
     o.speed = speed
     o.grid = grid
-    o.health = health_max
-
-  
+    o.health = health_max  
     
     utils.assign_methods(o, Player)
 
@@ -111,7 +109,7 @@ function Player.update(self, dt, tilesize)
     end
 
     -- update cell
-    self._cell.x, self._cell.y = utils.point_to_grid(self.x, self.y, tilesize)
+    self._cell.x, self._cell.y = grid.point_to_grid(self.x, self.y, tilesize)
 end
 
 function Player.draw(self, collision_enabled)    
@@ -140,6 +138,10 @@ end
 
 function Player.take_health(self, h_much)
     self.health = self.health - h_much
+end
+
+function Player.resize(self, tilesize)
+    self.x, self.y = grid.to_center_point(self._cell.x, self._cell.y, tilesize)
 end
 
 return Player

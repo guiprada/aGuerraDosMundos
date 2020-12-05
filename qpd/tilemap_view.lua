@@ -3,6 +3,7 @@ local tilemap_view = {}
 local utils = require "qpd.utils"
 local tilemap = require "qpd.tilemap"
 local camera = require "qpd.camera"
+local grid = require "qpd.grid"
 
 local files = require "qpd.services.files"
 
@@ -99,8 +100,8 @@ end
 function tilemap_view.draw(self)
     local start_x, start_y, end_x, end_y = self.camera:get_visible_quad()
 
-    matrix_start_x, matrix_start_y = utils.point_to_grid(start_x, start_y, self.tilesize)
-    matrix_end_x, matrix_end_y = utils.point_to_grid(end_x, end_y, self.tilesize)
+    matrix_start_x, matrix_start_y = grid.point_to_grid(start_x, start_y, self.tilesize)
+    matrix_end_x, matrix_end_y = grid.point_to_grid(end_x, end_y, self.tilesize)
     
     matrix_start_x = utils.clamp(matrix_start_x, 1, self.tilemap.tile_width)
     matrix_end_x = utils.clamp(matrix_end_x, 1, self.tilemap.tile_width)

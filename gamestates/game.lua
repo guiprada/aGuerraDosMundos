@@ -42,19 +42,34 @@ color_array[14] = color.beige
 color_array[15] = color.orange
 color_array[16] = color.lime
 
+local function set_speeds()
+    local player_speed = gs.player_speed * utils.max((gs.width/gs.default_width),(gs.height/gs.default_height))
+    gs.player.speed = player_speed
+    for _, item in ipairs(gs.tripods) do
+        item:set_speed(gs.tripod_speed * (gs.width/gs.default_width))
+        print(item.speed)
+    end
+    gs.friend.speed = player_speed * gs.friend_speed_factor
+end
+
 --------------------------------------------------------------------------------
 
 function gs.load(map_file_path)
+    gs.width = love.graphics.getWidth()
+    gs.height = love.graphics.getHeight()
+
     local game_conf = utils.table_read_from_conf(files.game_conf)
     local difficulty_factor = game_conf.difficulty/3
+    
+    gs.default_width = game_conf.default_width
+    gs.default_height = game_conf.default_height
 
-    local default_zoom = game_conf.default_zoom
+    gs.player_speed = game_conf.player_speed
+    gs.tripod_speed = game_conf.tripod_speed
+    gs.friend_speed_factor = game_conf.friend_speed_factor
 
-    local player_speed = game_conf.player_speed
-    local friend_speed_factor = game_conf.friend_speed_factor
     local friend_min_distance = game_conf.friend_min_distance
-    local friend_max_distance = game_conf.friend_max_distance
-    local tripod_speed = game_conf.tripod_speed
+    local friend_max_distance = game_conf.friend_max_distance    
     local tripod_speed_boost = game_conf.tripod_speed_boost
     local tripod_vision_dist_factor = game_conf.tripod_vision_dist_factor
     local tripod_vision_angle = game_conf.tripod_vision_angle
@@ -67,6 +82,7 @@ function gs.load(map_file_path)
 
     gs.damage_points = game_conf.damage_points
     gs.player_health_max = game_conf.player_health_max
+    gs.default_zoom = game_conf.default_zoom
 
     local player_sprite_index = 'spr_' .. game_conf.player_color
     local spr_player = love.graphics.newImage(files[player_sprite_index])
@@ -77,9 +93,6 @@ function gs.load(map_file_path)
     local spr_apple = love.graphics.newImage(files.spr_apple)
 
     gs.fps = fps.new()
-    
-    gs.width = love.graphics.getWidth()
-    gs.height = love.graphics.getHeight()
 
     -- read map file
     local map_file_path = map_file_path or files.map_1
@@ -103,7 +116,7 @@ function gs.load(map_file_path)
     gs.tilemap_view = tilemap_view.new(gs.map_matrix, gs.cell_set, gs.width, gs.height)
     
     -- set camera zoom
-    gs.tilemap_view.camera:set_scale(default_zoom)
+    gs.tilemap_view.camera:set_scale(gs.default_zoom)
 
     -- create grid
     local collisions = {}
@@ -114,15 +127,15 @@ function gs.load(map_file_path)
 
     -- create player
     local x, y = gs.tilemap_view.camera:get_center()
-    x, y = utils.point_to_grid(x, y, gs.tilemap_view.tilesize)
-    x, y = utils.grid_to_center_point(x, y, gs.tilemap_view.tilesize)
+    x, y = grid.point_to_grid(x, y, gs.tilemap_view.tilesize)
+    x, y = grid.to_center_point(x, y, gs.tilemap_view.tilesize)
     gs.player = Player.new(x,
         y,
         spr_player,
         grid,
         gs.tilemap_view.tilesize,
         gs.tilemap_view.tilesize,
-        player_speed,
+        nil,
         gs.player_health_max)
 
     -- create player collision timer
@@ -146,7 +159,7 @@ function gs.load(map_file_path)
         gs.tilemap_view.tilesize,
         gs.player,
         gs.tilemap_view.tilesize,
-        player_speed * friend_speed_factor,
+        nil,
         gs.player_health_max)
     -- create friend collision timer
     gs.friend_collision_enabled = true
@@ -171,7 +184,7 @@ function gs.load(map_file_path)
             grid,
             gs.tilemap_view.tilesize,
             gs.tilemap_view.tilesize,
-            tripod_speed,
+            nil,
             tripod_speed_boost,
             tripod_vision_dist_factor*gs.tilemap_view.tilesize,
             tripod_vision_angle)
@@ -196,6 +209,9 @@ function gs.load(map_file_path)
             apple_reactivation_time)
         table.insert(gs.collectables, new_apple)
     end
+
+    -- update speeds
+    set_speeds()
 
     -- define keyboard actions
     gs.actions_keydown = {}
@@ -300,9 +316,22 @@ end
 
 function gs.resize(w, h)
     fonts.resize(w, h)
+    local old_width = gs.width
+    local old_height = gs.height
     gs.width = w
     gs.height = h
     gs.tilemap_view = tilemap_view.new(gs.map_matrix, gs.tilemap_view.tilemap.draw_functions, gs.width, gs.height)
+    gs.tilemap_view.camera:set_scale(gs.default_zoom)
+    
+    gs.player:resize(gs.tilemap_view.tilesize)
+    gs.friend:resize(gs.tilemap_view.tilesize)
+    for _, item in ipairs(gs.tripods) do
+        item:resize(gs.tilemap_view.tilesize)
+    end
+    for _, item in ipairs(gs.collectables) do
+        item:resize(gs.tilemap_view.tilesize)
+    end
+    set_speeds()
 end
 
 function gs.unload()

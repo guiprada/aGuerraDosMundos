@@ -1,9 +1,11 @@
 local Tripod = {}
+
 local utils = require "qpd.utils"
+local grid = require "qpd.grid"
 
 function Tripod._update__rotation(self)
-    -- local delta_x = self._next_cell.x - self._curr_cell.x
-    -- local delta_y = self._next_cell.y - self._curr_cell.y
+    -- local delta_x = self._next_cell.x - self._cell.x
+    -- local delta_y = self._next_cell.y - self._cell.y
     --self._rot = math.atan2(delta_y, delta_x)
 
     local delta_x = self.x - self.last_x
@@ -34,16 +36,18 @@ function Tripod._get_next_cell(self, dt, targets, tilesize)
         
         self._target_cell.x = closest._cell.x
         self._target_cell.y = closest._cell.y
-        self.speed = self.speed_boost * self.start_speed
+        self.curr_speed = self.speed_boost * self.speed
+        self._is_boosting = true
     else
-        self.speed = self.start_speed
+        self.curr_speed = self.speed
+        self._is_boosting = false
     end
 
     local allowed = {}
     -- get allowed grids to go
     for i = -1, 1, 1 do
         for j = -1, 1, 1 do
-            local grid_x, grid_y = self._curr_cell.x + i, self._curr_cell.y + j
+            local grid_x, grid_y = self._cell.x + i, self._cell.y + j
             if (    grid_x >= 1 and
                     grid_x <= self.grid.width and
                     grid_y >= 1 and
@@ -67,7 +71,7 @@ function Tripod._get_next_cell(self, dt, targets, tilesize)
                 next_grid = allowed[i]
             end
         end
-        self._last_cell.x, self._last_cell.y = self._curr_cell.x, self._curr_cell.y
+        self._last_cell.x, self._last_cell.y = self._cell.x, self._cell.y
         self._next_cell.x, self._next_cell.y = next_grid.x, next_grid.y
         if  self._last_cell.x == self._next_cell.x and
             self._last_cell.y == self._next_cell.y then -- is_stuck
@@ -76,7 +80,7 @@ function Tripod._get_next_cell(self, dt, targets, tilesize)
         end
     else
         print("error: Tripod has nowhere to go!")
-        self._next_cell.x, self._next_cell.y = self._curr_cell.x, self._curr_cell.y        
+        self._next_cell.x, self._next_cell.y = self._cell.x, self._cell.y        
     end
 
     self:_update__rotation()
@@ -96,7 +100,7 @@ function Tripod._can_see(self, dt, target, tilesize)
             self._rot + (self.vision_angle/2) > angle then
         -- it is in view
         -- check unobstructed
-            if utils.grid_check_unobstructed(self.grid, p_self, angle, self.vision_dist, tilesize, self.speed * dt) then
+            if self.grid:check_unobstructed(p_self, angle, self.vision_dist, tilesize, self.curr_speed * dt) then
                 return true
             end
         end
@@ -107,7 +111,7 @@ end
 function Tripod.new(start_cell, end_cell, sprite, grid, _size, tilesize, speed, speed_boost, vision_dist, vision_angle)
     local o = {}
 
-    o.x, o.y = utils.grid_to_center_point(start_cell.x, start_cell.y, tilesize)
+    o.x, o.y = grid.to_center_point(start_cell.x, start_cell.y, tilesize)
 
     o._size = _size or 1
     o._scale = _size/ sprite:getHeight()
@@ -117,13 +121,14 @@ function Tripod.new(start_cell, end_cell, sprite, grid, _size, tilesize, speed, 
     o._end_cell = end_cell
     o._target_cell = {}
     o._target_cell.x, o._target_cell.y = end_cell.x, end_cell.y
-    o._curr_cell = {}
-    o._curr_cell.x, o._curr_cell.y = o._start_cell.x, o._start_cell.y
+    o._cell = {}
+    o._cell.x, o._cell.y = o._start_cell.x, o._start_cell.y
     o._sprite = sprite
 
     o.grid = grid
-    o.start_speed = speed
     o.speed = speed
+    o.curr_speed = speed
+    o._is_boosting = false
     o.speed_boost = speed_boost
     o.vision_dist = vision_dist or 10*tilesize
     o.vision_angle = vision_angle or math.pi/5
@@ -140,11 +145,11 @@ function Tripod.new(start_cell, end_cell, sprite, grid, _size, tilesize, speed, 
 end
 
 function Tripod.update(self, dt, targets, tilesize)
-    self._curr_cell.x, self._curr_cell.y = utils.point_to_grid(self.x, self.y, tilesize)
+    self._cell.x, self._cell.y = grid.point_to_grid(self.x, self.y, tilesize)
 
     -- has reached the target?
-    if  self._curr_cell.x == self._target_cell.x and
-        self._curr_cell.y == self._target_cell.y then
+    if  self._cell.x == self._target_cell.x and
+        self._cell.y == self._target_cell.y then
         self:_flip_target_cell(tilesize)
     end
 
@@ -171,7 +176,7 @@ function Tripod._flip_target_cell(self, tilesize)
         self._target_cell.x, self._target_cell.y = self._end_cell.x, self._end_cell.y
     else
         local furthest = "_end_cell"
-        if utils.distance(self._curr_cell, self._start_cell) > utils.distance(self._curr_cell, self._end_cell) then
+        if utils.distance(self._cell, self._start_cell) > utils.distance(self._cell, self._end_cell) then
             furthest = "_start_cell"
         end
         self._target_cell.x, self._target_cell.y = self[furthest].x, self[furthest].y
@@ -179,14 +184,28 @@ function Tripod._flip_target_cell(self, tilesize)
 end
 
 function Tripod._move(self, dt, targets, tilesize)    
-    local px, py = utils.grid_to_center_point(self._next_cell.x, self._next_cell.y, tilesize)
+    local px, py = grid.to_center_point(self._next_cell.x, self._next_cell.y, tilesize)
     local has_reached = false
+    
     self.last_x, self.last_y = self.x, self.y
-    self.x, self.y, has_reached = utils.lerp({x = self.x, y = self.y}, {x = px, y = py}, self.speed * dt)
+    self.x, self.y, has_reached = utils.lerp({x = self.x, y = self.y}, {x = px, y = py}, self.curr_speed * dt)
 
     if has_reached then
         self:_get_next_cell(dt, targets, tilesize)
+    end    
+end
+
+function Tripod.set_speed(self, speed)
+    self.speed = speed
+    if self._is_boosting then
+        self.curr_speed = speed * self.speed_boost
+    else
+        self.curr_speed = speed
     end
+end
+
+function Tripod.resize(self, tilesize)
+    self.x, self.y = grid.to_center_point(self._cell.x, self._cell.y, tilesize)
 end
 
 return Tripod

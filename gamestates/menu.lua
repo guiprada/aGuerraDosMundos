@@ -23,6 +23,24 @@ local function quit()
     love.event.quit(0)
 end
 
+local function sprites_dimension()
+    gs.sprite_scale = utils.min(gs.width, gs.height)/(5*gs.sprites[1]:getWidth())
+    local spacing = gs.width / (#gs.sprites + 1)
+    local sprite_height = gs.height / 5
+    for key, value in ipairs(gs.sprites) do        
+        gs.positions[key].x = spacing * (key)
+        gs.positions[key].y = sprite_height
+    end
+
+    gs.tripod_start_pos.x = 2*gs.width/10
+    gs.tripod_start_pos.y = 5*gs.height/8
+    
+    gs.tripod_pos.x = gs.tripod_start_pos.x
+
+    gs.tripod_position_step = gs.height/16
+    gs.tripod_speed = 120*(gs.width/1280)
+end
+
 --------------------------------------------------------------------------------
 
 function gs.load()
@@ -35,30 +53,26 @@ function gs.load()
     for _, color in ipairs(colors) do
         table.insert(gs.sprites, love.graphics.newImage(files["spr_" .. color]))
     end
-    
-    local spacing = gs.width / (#gs.sprites + 1)
-    local sprite_height = gs.height / 5
-    local rot_step = 2*math.pi/#gs.sprites
-    gs.positions = {}    
-    gs.offsets = {}
+     
+    gs.offset = {x = gs.sprites[1]:getWidth()/2, y = gs.sprites[1]:getHeight()/2} 
+    gs.positions = {}
     for key, value in ipairs(gs.sprites) do        
-        local new_position = { x = spacing * (key), y = sprite_height}
+        local new_position = {}
         gs.positions[key] = new_position        
-        gs.offsets[key] = {x = gs.sprites[key]:getWidth()/2, y = gs.sprites[key]:getHeight()/2}
     end
-
+    
     gs.spr_tripod = love.graphics.newImage(files.spr_tripod)
-    gs.tripod_start_pos = {x = 2*gs.width/10, y = 5*gs.height/8}
-    gs.tripod_pos = utils.table_clone(gs.tripod_start_pos)
+    gs.tripod_start_pos = {}
+    gs.tripod_pos = {}
     gs.tripod_rot = -math.pi/2
     gs.tripod_offset = {
         x = gs.spr_tripod:getWidth()/2,
         y = gs.spr_tripod:getHeight()/2
     }
-    gs.tripod_position_step = gs.height/16
-    gs.tripod_speed = 120
     
     --gs.sprites[#gs.sprites + 1] = love.graphics.newImage(files.spr_apple)
+
+    sprites_dimension()
 
     gs.title = text_box.new(
         strings.title,
@@ -134,8 +148,8 @@ function gs.draw()
             gs.tripod_pos.x,
             gs.tripod_pos.y,
             gs.tripod_rot,
-            1,
-            1,
+            gs.sprite_scale,
+            gs.sprite_scale,
             gs.tripod_offset.x,
             gs.tripod_offset.y)
 
@@ -151,10 +165,10 @@ function gs.draw()
             gs.positions[key].x,
             gs.positions[key].y,
             this_rot,
-            1,
-            1,
-            gs.offsets[key].x,
-            gs.offsets[key].y)
+            gs.sprite_scale,
+            gs.sprite_scale,
+            gs.offset.x,
+            gs.offset.y)
     end
     
     --title
@@ -182,8 +196,10 @@ function gs.keyreleased(key, scancode)
 end
 
 function gs.resize(w, h)
+    gs.width = w
+    gs.height = h
     fonts.resize(w, h)
-    gs.title:resize(0, h/4, w)
+    gs.title:resize(0, h/2, w)
     gs.menu:resize(0, h*3/4, w)
     for i=1,N_PARTICLES,1 do
         gs.particles[i].spawn_rect = {
@@ -192,7 +208,7 @@ function gs.resize(w, h)
             width = w,
             height = h }
     end
-
+    sprites_dimension()
 end
 
 function gs.unload()
