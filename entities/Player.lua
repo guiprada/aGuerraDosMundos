@@ -77,33 +77,25 @@ function Player.update(self, dt, tilesize)
     local offset = self._size/2
       
     if new_x > self.x then -- wants to go right
-        local right_x, right_y = self.x + offset, self.y
+        local right_x, right_y = new_x + offset, new_y
         if not self.grid:is_colliding_point(right_x, right_y, tilesize) then
-            self.x = new_x
-        else
-            print("blocked")
+            self.x = new_x       
         end
-    elseif new_x < self.x then -- wants to go left
-        local left_x, left_y = self.x - offset, self.y
+    elseif  new_x < self.x then -- wants to go left
+        local left_x, left_y = new_x - offset, new_y
         if not self.grid:is_colliding_point(left_x, left_y, tilesize) then
             self.x = new_x
-        else
-            print("blocked")          
         end
     end
     if new_y < self.y then -- wants to go up
-        local top_x, top_y = self.x, self.y - offset
+        local top_x, top_y = new_x, new_y - offset
         if not self.grid:is_colliding_point(top_x, top_y, tilesize) then
             self.y = new_y
-        else
-            print("blocked")
         end
     elseif new_y > self.y then -- wants to go down
-        local botton_x, botton_y = self.x, self.y + offset
+        local botton_x, botton_y = new_x, new_y + offset
         if  not self.grid:is_colliding_point(botton_x, botton_y, tilesize) then
             self.y = new_y
-        else
-            print("blocked")
         end
     end
 

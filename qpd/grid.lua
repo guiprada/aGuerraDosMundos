@@ -42,8 +42,6 @@ end
 
 function grid.is_colliding_point(self, x, y, tilesize)
 	local cell_x, cell_y = grid.point_to_cell(x, y, tilesize)
-	-- local cell_y = math.floor(y/tilesize) + 1
-	-- local cell_x = math.floor(x/tilesize) + 1
 	return self:is_colliding_cell(cell_x, cell_y)
 end
 
@@ -72,7 +70,6 @@ function grid.check_unobstructed(self, origin, angle, distance, tilesize, maybe_
     end
     return true
 end
-
 
 function grid.point_to_cell(x, y, tilesize)		
 	cell_x = math.floor(x / tilesize) + 1--lua arrays start at 1
