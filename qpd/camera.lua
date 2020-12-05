@@ -68,11 +68,11 @@ function camera.get_visible_quad(self)
     return start_x, start_y, end_x, end_y
 end
 
-function camera.get_visible_height(self)
+function camera.get_height(self)
     return self._h
 end
 
-function camera.get_visible_width(self)
+function camera.get_width(self)
     return self._w
 end
 

@@ -251,25 +251,29 @@ end
 
 function gs.update(dt)
     -- center camera
-    local camera_center_x, camera_center_y = gs.tilemap_view.camera:get_center()
-    local player_center_x, player_center_y = gs.player:get_center()
-    local delta_y, delta_x = player_center_y - camera_center_y, player_center_x - camera_center_x
-    local new_camera_x, new_camera_y = camera_center_x, camera_center_y
-    if math.abs(delta_x) > (gs.width/4)/gs.tilemap_view.camera:get_scale() then        
-        new_camera_x, _ = utils.lerp(
-            {x = camera_center_x, y = 0},
-            {x = player_center_x, y = 0},
-            gs.player.speed_factor  * gs.tilemap_view.tilesize * dt
-        )
-    end
-    if math.abs(delta_y) > (gs.height/4)/gs.tilemap_view.camera:get_scale() then        
-        _, new_camera_y = utils.lerp(
-            {x = 0, y = camera_center_y},
-            {x = 0, y = player_center_y},
-            gs.player.speed_factor  * gs.tilemap_view.tilesize * dt
-        )
-    end
-    gs.tilemap_view.camera:set_center(new_camera_x, new_camera_y)
+    -- local camera_center_x, camera_center_y = gs.tilemap_view.camera:get_center()
+    -- local player_center_x, player_center_y = gs.player:get_center()
+    -- local delta_y, delta_x = player_center_y - camera_center_y, player_center_x - camera_center_x
+    -- local new_camera_x, new_camera_y = camera_center_x, camera_center_y
+    -- if math.abs(delta_x) > (gs.width/4)/gs.tilemap_view.camera:get_scale() then        
+    --     new_camera_x, _ = utils.lerp(
+    --         {x = camera_center_x, y = 0},
+    --         {x = player_center_x, y = 0},
+    --         gs.player.speed_factor  * gs.tilemap_view.tilesize * dt
+    --     )
+    -- end
+    -- if math.abs(delta_y) > (gs.height/4)/gs.tilemap_view.camera:get_scale() then        
+    --     _, new_camera_y = utils.lerp(
+    --         {x = 0, y = camera_center_y},
+    --         {x = 0, y = player_center_y},
+    --         gs.player.speed_factor  * gs.tilemap_view.tilesize * dt
+    --     )
+    -- end
+    -- new_camera_x = utils.clamp(new_camera_x, (gs.width/2)/gs.tilemap_view.camera:get_scale(), gs.tilemap_view.camera:get_width() - (gs.width/2)/gs.tilemap_view.camera:get_scale())
+    -- new_camera_y = utils.clamp(new_camera_y, (gs.height/2)/gs.tilemap_view.camera:get_scale(), gs.tilemap_view.camera:get_height() - (gs.height/2)/gs.tilemap_view.camera:get_scale())
+    -- gs.tilemap_view.camera:set_center(new_camera_x, new_camera_y)
+
+    gs.tilemap_view:follow(dt, gs.player.speed_factor, gs.player:get_center())
 
     if not gs.paused then           
         gs.player:update(dt, gs.tilemap_view.tilesize)

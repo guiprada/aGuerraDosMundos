@@ -59,6 +59,9 @@ end
 function tilemap_view.new(matrix, cell_set, width, height)
     local o = {}
 
+    o.width = width
+    o.height = height
+
     local tile_width = #matrix[1]
     local tile_height = #matrix 
 
@@ -107,6 +110,27 @@ function tilemap_view.draw(self)
     --_draw(self.tilemap, self.tilesize)
 end
 
-
+function tilemap_view.follow(self, dt, speed_factor, follow_x, follow_y)
+    local camera_center_x, camera_center_y = self.camera:get_center()
+    local delta_y, delta_x = follow_y - camera_center_y, follow_x - camera_center_x
+    local new_camera_x, new_camera_y = camera_center_x, camera_center_y
+    if math.abs(delta_x) > (self.width/4)/self.camera:get_scale() then        
+        new_camera_x, _ = utils.lerp(
+            {x = camera_center_x, y = 0},
+            {x = follow_x, y = 0},
+            speed_factor  * self.tilesize * dt
+        )
+    end
+    if math.abs(delta_y) > (self.height/4)/self.camera:get_scale() then        
+        _, new_camera_y = utils.lerp(
+            {x = 0, y = camera_center_y},
+            {x = 0, y = follow_y},
+            speed_factor  * self.tilesize * dt
+        )
+    end
+    new_camera_x = utils.clamp(new_camera_x, (self.width/2)/self.camera:get_scale(), self.camera:get_width() - (self.width/2)/self.camera:get_scale())
+    new_camera_y = utils.clamp(new_camera_y, (self.height/2)/self.camera:get_scale(), self.camera:get_height() - (self.height/2)/self.camera:get_scale())
+    self.camera:set_center(new_camera_x, new_camera_y)
+end
 
 return tilemap_view
