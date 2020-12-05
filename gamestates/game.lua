@@ -7,9 +7,11 @@ local utils = require "qpd.utils"
 local files = require "qpd.services.files"
 local fonts = require "qpd.services.fonts"
 local keymap = require "qpd.services.keymap"
+local strings = require "qpd.services.strings"
 local fps = require "qpd.widgets.fps"
 local tilemap_view = require "qpd.tilemap_view"
 local grid_selector = require "qpd.widgets.grid_selector"
+local text_box = require "qpd.widgets.text_box"
 
 local Player = require "entities.Player"
 local Friend = require "entities.Friend"
@@ -47,6 +49,7 @@ color_array[16] = color.lime
 function gs.load(map_file_path)
     gs.width = love.graphics.getWidth()
     gs.height = love.graphics.getHeight()
+    gs.paused = false
 
     -- load game.conf settings
     local game_conf = utils.table_read_from_conf(files.game_conf)
@@ -71,6 +74,16 @@ function gs.load(map_file_path)
     gs.damage_points = game_conf.damage_points
     gs.player_health_max = game_conf.player_health_max
     gs.default_zoom = game_conf.default_zoom
+
+    -- paused
+    gs.paused_text = text_box.new(
+        strings.paused,
+        "huge",
+        0,
+        2*gs.height/4,
+        gs.width,
+        "center",
+        color.red)
 
     -- load sprites
     local player_sprite_index = 'spr_' .. game_conf.player_color
@@ -206,7 +219,14 @@ function gs.load(map_file_path)
             gamestate.switch("menu")
         end
 
-    print(gs.tilemap_view.tilesize)
+    gs.actions_keydown[keymap.keys.pause] =
+        function ()
+            if gs.paused then
+                gs.paused = false
+            else
+                gs.paused = true
+            end
+        end
 end
 
 function gs.draw()
@@ -223,71 +243,77 @@ function gs.draw()
             end
         end)
     gs.fps:draw()
+    if gs.paused then
+        gs.paused_text:draw()
+
+    end
 end
 
-function gs.update(dt)    
-    -- center camera
-    gs.tilemap_view.camera:set_center(gs.player:get_center())
-        
-    gs.player:update(dt, gs.tilemap_view.tilesize)
-    gs.friend:update(dt, gs.tilemap_view.tilesize)
-        
-    -- open door and activate friend chase
-    if gs.friend._is_active then
-        gs.targets[2] = gs.friend
-        gs.cell_set[gs.door_index] = gs.cell_set[gs.open_door_index]
-    else
-        gs.targets[2] = nil
-        gs.cell_set[gs.door_index] = gs.cell_set[gs.brick_index]
-    end
+function gs.update(dt)
+    if not gs.paused then
+        -- center camera
+        gs.tilemap_view.camera:set_center(gs.player:get_center())
+            
+        gs.player:update(dt, gs.tilemap_view.tilesize)
+        gs.friend:update(dt, gs.tilemap_view.tilesize)
+            
+        -- open door and activate friend chase
+        if gs.friend._is_active then
+            gs.targets[2] = gs.friend
+            gs.cell_set[gs.door_index] = gs.cell_set[gs.open_door_index]
+        else
+            gs.targets[2] = nil
+            gs.cell_set[gs.door_index] = gs.cell_set[gs.brick_index]
+        end
 
-    --  enemy update and check collision with player
-    for _, item in ipairs(gs.tripods) do
-        item:update(dt, gs.targets, gs.tilemap_view.tilesize)
-        
-        if gs.player_collision_enabled then
-            if utils.check_collision_circle(item.x, item.y, item._size/2, gs.player.x, gs.player.y, gs.player._size/2) then
-                gs.player:take_health(gs.damage_points)
-                gs.player_collision_enabled = false
-                gs.player_collision_timer:reset()
+        --  enemy update and check collision with player
+        for _, item in ipairs(gs.tripods) do
+            item:update(dt, gs.targets, gs.tilemap_view.tilesize)
+            
+            if gs.player_collision_enabled then
+                if utils.check_collision_circle(item.x, item.y, item._size/2, gs.player.x, gs.player.y, gs.player._size/2) then
+                    gs.player:take_health(gs.damage_points)
+                    gs.player_collision_enabled = false
+                    gs.player_collision_timer:reset()
+                end
+            end
+            if gs.friend_collision_enabled and gs.friend._is_active then
+                if utils.check_collision_circle(item.x, item.y, item._size/2, gs.friend.x, gs.friend.y, gs.friend._size/2) then
+                    gs.friend:take_health(gs.damage_points)
+                    gs.friend_collision_enabled = false
+                    gs.friend_collision_timer:reset()
+                end
             end
         end
-        if gs.friend_collision_enabled and gs.friend._is_active then
-            if utils.check_collision_circle(item.x, item.y, item._size/2, gs.friend.x, gs.friend.y, gs.friend._size/2) then
-                gs.friend:take_health(gs.damage_points)
-                gs.friend_collision_enabled = false
-                gs.friend_collision_timer:reset()
-            end
-        end
-    end
-    gs.player_collision_timer:update(dt)
-    gs.friend_collision_timer:update(dt)
+        gs.player_collision_timer:update(dt)
+        gs.friend_collision_timer:update(dt)
 
-    for _, item in ipairs(gs.collectables) do
-        
-    end
-
-    -- collectables
-    if  gs.player.health < gs.player_health_max or gs.friend.health < gs.player_health_max then
         for _, item in ipairs(gs.collectables) do
-            item:update(dt)
-            if item:is_enabled() and utils.check_collision_circle(item.x, item.y, item._size/2, gs.player.x, gs.player.y, gs.player._size/2) then
-                gs.player.health = utils.clamp((gs.player.health + gs.damage_points), 0, gs.player_health_max)
-                gs.friend.health = utils.clamp((gs.friend.health + gs.damage_points), 0, gs.player_health_max)
-                item:disable()
-            end            
+            
         end
-    end
-    
-    -- check win or loose
-    if gs.player.health <=0 or gs.friend.health <= 0 then
-        gamestate.switch("gameover")
-    elseif gs.friend._is_active and 
-        (gs.player._cell.x < 3 or
-        gs.player._cell.x > (gs.tilemap_view.tilemap.tile_width -2) or
-        gs.player._cell.y < 3 or
-        gs.player._cell.y > (gs.tilemap_view.tilemap.tile_height -2) ) then
-        gamestate.switch("victory")
+
+        -- collectables
+        if  gs.player.health < gs.player_health_max or gs.friend.health < gs.player_health_max then
+            for _, item in ipairs(gs.collectables) do
+                item:update(dt)
+                if item:is_enabled() and utils.check_collision_circle(item.x, item.y, item._size/2, gs.player.x, gs.player.y, gs.player._size/2) then
+                    gs.player.health = utils.clamp((gs.player.health + gs.damage_points), 0, gs.player_health_max)
+                    gs.friend.health = utils.clamp((gs.friend.health + gs.damage_points), 0, gs.player_health_max)
+                    item:disable()
+                end            
+            end
+        end
+        
+        -- check win or loose
+        if gs.player.health <=0 or gs.friend.health <= 0 then
+            gamestate.switch("gameover")
+        elseif gs.friend._is_active and 
+            (gs.player._cell.x < 3 or
+            gs.player._cell.x > (gs.tilemap_view.tilemap.tile_width -2) or
+            gs.player._cell.y < 3 or
+            gs.player._cell.y > (gs.tilemap_view.tilemap.tile_height -2) ) then
+            gamestate.switch("victory")
+        end
     end
 end
 
@@ -308,6 +334,7 @@ function gs.resize(w, h)
     local old_height = gs.height
     gs.width = w
     gs.height = h
+    gs.paused_text:resize(0, h/2, w)
     gs.tilemap_view = tilemap_view.new(gs.map_matrix, gs.tilemap_view.tilemap.draw_functions, gs.width, gs.height)
     gs.tilemap_view.camera:set_scale(gs.default_zoom)
     

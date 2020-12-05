@@ -64,3 +64,4 @@ difficulty_instructions =
 
 gameover = 'You Lost!'
 victory = 'You Win!'
+paused = 'Paused'

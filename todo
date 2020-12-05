@@ -1,7 +1,5 @@
 todo
-    - add pause
-    - fix player lateral collision
-    - add collide and slide to friend( somehow related to unobstructed)
+    - fix size of entities on resize 
     - add how_to_play
     - add credits
     - overhaul widgets resize
@@ -13,7 +11,8 @@ todo
         - win
     - Tripods destroy blocks on collision
         - grass should be no collision
-
+    - fix player lateral collision
+    - add collide and slide to friend( somehow related to unobstructed)
     - music and sound effects
         - get brass band midi
         - convert openmpt    
@@ -55,3 +54,4 @@ done
     - fix menu sprites scale
     - fix in_game resize
     - move utils grid functions to grid
+    - add pause
