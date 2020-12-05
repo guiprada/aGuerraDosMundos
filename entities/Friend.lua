@@ -8,7 +8,7 @@ function Friend._move(self, dt, tilesize)
     local maybe_x, maybe_y, has_reached = utils.lerp({x = self.x, y = self.y}, {x = px, y = py}, self.speed_factor * tilesize * dt)
     
     self._cell.x, self._cell.y = grid.point_to_grid(self.x, self.y, tilesize)
-    if self.grid:is_colliding(maybe_x, maybe_y, tilesize) then
+    if self.grid:is_colliding_point(maybe_x, maybe_y, tilesize) then
         self._is_active = false
     else
         self.x, self.y = maybe_x, maybe_y

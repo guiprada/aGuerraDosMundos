@@ -31,37 +31,38 @@ function Player.update(self, dt, tilesize)
     local diag = 1/math.sqrt(2)
     local new_x, new_y = self.x, self.y
 
-    local speed = self.speed_factor * tilesize
+    local motion = self.speed_factor * tilesize * dt
+    local diag_motion = diag * motion
     if love.keyboard.isDown(keymap.keys.up) and (not love.keyboard.isDown(keymap.keys.down)) then        
         if love.keyboard.isDown(keymap.keys.left) and love.keyboard.isDown(keymap.keys.right) then
-            new_y = self.y - speed * dt            
+            new_y = self.y - motion            
         elseif love.keyboard.isDown(keymap.keys.left) then
-            new_y = self.y - diag * speed * dt
-            new_x = self.x - diag * speed * dt            
+            new_y = self.y - diag_motion
+            new_x = self.x - diag_motion            
         elseif love.keyboard.isDown(keymap.keys.right) then
-            new_y = self.y - diag * speed * dt
-            new_x = self.x + diag * speed * dt            
+            new_y = self.y - diag_motion
+            new_x = self.x + diag_motion            
         else
-            new_y = self.y - speed * dt            
+            new_y = self.y - motion            
         end
     elseif love.keyboard.isDown(keymap.keys.down) and (not love.keyboard.isDown(keymap.keys.up)) then
         if love.keyboard.isDown(keymap.keys.left) and love.keyboard.isDown(keymap.keys.right) then
-            new_y = self.y + speed * dt            
+            new_y = self.y + motion            
         elseif love.keyboard.isDown(keymap.keys.left) then
-            new_y = self.y + diag * speed * dt
-            new_x = self.x - diag * speed * dt
+            new_y = self.y + diag_motion
+            new_x = self.x - diag_motion
         elseif love.keyboard.isDown(keymap.keys.right) then
-            new_y = self.y + diag * speed * dt
-            new_x = self.x + diag * speed * dt
+            new_y = self.y + diag_motion
+            new_x = self.x + diag_motion
         else 
-            new_y = self.y + speed * dt
+            new_y = self.y + motion
         end
     else
         if love.keyboard.isDown(keymap.keys.left) then
-            new_x = self.x - speed * dt
+            new_x = self.x - motion
         end
         if love.keyboard.isDown(keymap.keys.right) then
-            new_x = self.x + speed * dt
+            new_x = self.x + motion
         end
     end
 
@@ -73,40 +74,39 @@ function Player.update(self, dt, tilesize)
         self._rot = math.atan2(delta_y, delta_x)
     end
 
-    --
-    local size = self._size/2
-    top_x, top_y = new_x, new_y - size
-    botton_x, botton_y = new_x, new_y + size
-    left_x, left_y = new_x - size, new_y
-    right_x, right_y = new_x + size, new_y
+    local offset = self._size/2
 
-    --check collision
-    if  not self.grid:is_colliding(top_x, top_y, tilesize) and
-        not self.grid:is_colliding(botton_x, botton_y, tilesize) then
-
-        self.y = new_y
-    elseif  not self.grid:is_colliding(top_x, top_y, tilesize) and
-            new_y < self.y then
-
-        self.y = new_y
-    elseif not self.grid:is_colliding(botton_x, botton_y, tilesize) and
-            new_y > self.y then
-            
-        self.y = new_y
-    end
-    if  not self.grid:is_colliding(left_x, left_y, tilesize) and
-        not self.grid:is_colliding(right_x, right_y, tilesize) then
-
-        self.x = new_x
-
-    elseif  not self.grid:is_colliding(left_x, left_y, tilesize) and
-            new_x < self.x then
-
-        self.x = new_x
-    elseif  not self.grid:is_colliding(right_x, right_y, tilesize) and
-            new_x > self.x then
+    -- local top_left_x, top_left_y = new_x - offset/2, new_y - offset/2
+    -- local top_right_x, top_right_y = new_x + offset/2, new_y - offset/2
+    -- local botton_left_x, botton_left_y = new_x - offset/2, new_y + offset/2
+    -- local botton_right_x, botton_right_y = new_x + offset/2, new_y + offset/2
     
-        self.x = new_x
+    -- local top_left = self.grid:is_colliding_point(top_left_x, top_left_y, tilesize)
+    -- local top_right = self.grid:is_colliding_point(top_right_x, top_right_y, tilesize)
+    -- local botton_left = self.grid:is_colliding_point(botton_left_x, botton_left_y, tilesize)
+    -- local botton_right = self.grid:is_colliding_point(botton_right_x, botton_right_y, tilesize)
+
+    if new_x > self.x then -- wants to go right
+        local right_x, right_y = new_x + offset, new_y
+        if not self.grid:is_colliding_point(right_x, right_y, tilesize) then
+            self.x = new_x
+        end
+    elseif  new_y < self.x then -- wants to go left
+        local left_x, left_y = new_x - offset, new_y
+        if not self.grid:is_colliding_point(left_x,left_y, tilesize) then
+            self.x = new_x
+        end
+    end
+    if new_y < self.y then -- wants to go up
+        local top_x, top_y = new_x, new_y - offset
+        if not self.grid:is_colliding_point(top_x, top_y, tilesize) then
+            self.y = new_y
+        end
+    elseif new_y > self.y then -- wantos to go down
+        local botton_x, botton_y = new_x, new_y + offset
+        if  not self.grid:is_colliding_point(botton_x, botton_y, tilesize) then
+            self.y = new_y
+        end
     end
 
     -- update cell

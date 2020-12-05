@@ -40,13 +40,13 @@ function grid.new(matrix, collisions)
 	return o
 end
 
-function grid.is_colliding(self, x, y, tilesize)
+function grid.is_colliding_point(self, x, y, tilesize)
 	local grid_y = math.floor(y/tilesize) + 1
 	local grid_x = math.floor(x/tilesize) + 1
-	return self:is_colliding_grid(grid_x, grid_y)
+	return self:is_colliding_cell(grid_x, grid_y)
 end
 
-function grid.is_colliding_grid(self, grid_x, grid_y)
+function grid.is_colliding_cell(self, grid_x, grid_y)
 	local grid_value = self.matrix[grid_y][grid_x]
 	return self.collisions[grid_value] or false
 end
@@ -63,7 +63,7 @@ function grid.check_unobstructed(self, origin, angle, distance, tilesize, maybe_
     local x, y = origin.x, origin.y
     while acc_distance < distance do
         current_cell.x, current_cell.y = grid.point_to_grid(x, y, tilesize)
-        if self:is_colliding_grid(current_cell.x, current_cell.y) then
+        if self:is_colliding_cell(current_cell.x, current_cell.y) then
             return false
         end
         acc_distance = acc_distance + math.sqrt(step_x^2 + step_y^2)
