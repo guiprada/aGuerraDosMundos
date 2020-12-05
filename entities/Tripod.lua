@@ -108,13 +108,15 @@ function Tripod._can_see(self, dt, target, tilesize)
     return false
 end
 
-function Tripod.new(start_cell, end_cell, sprite, grid, _size, tilesize, speed_factor, speed_factor_boost, vision_dist, vision_angle)
+function Tripod.new(start_cell, end_cell, sprite, grid, size_factor, tilesize, speed_factor, speed_factor_boost, vision_dist, vision_angle)
     local o = {}
 
     o.x, o.y = grid.cell_to_center_point(start_cell.x, start_cell.y, tilesize)
 
-    o._size = _size or 1
-    o._scale = _size/ sprite:getHeight()
+    o._sprite = sprite
+    o._size_factor = size_factor
+    o._size = o._size_factor * tilesize
+    o._scale = o._size/ o._sprite:getHeight()
     o._rot = 0
     o._offset = (o._size/2) * (1/o._scale)
     o._start_cell = start_cell
@@ -122,8 +124,7 @@ function Tripod.new(start_cell, end_cell, sprite, grid, _size, tilesize, speed_f
     o._target_cell = {}
     o._target_cell.x, o._target_cell.y = end_cell.x, end_cell.y
     o._cell = {}
-    o._cell.x, o._cell.y = o._start_cell.x, o._start_cell.y
-    o._sprite = sprite
+    o._cell.x, o._cell.y = o._start_cell.x, o._start_cell.y    
 
     o.grid = grid
     o.speed_factor = speed_factor
@@ -206,6 +207,9 @@ end
 
 function Tripod.resize(self, tilesize)
     self.x, self.y = grid.cell_to_center_point(self._cell.x, self._cell.y, tilesize)
+    self._size = self._size_factor * tilesize
+    self._scale = self._size/ self._sprite:getHeight()    
+    self._offset = (self._size/2) * (1/self._scale)
 end
 
 return Tripod

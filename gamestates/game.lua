@@ -135,7 +135,7 @@ function gs.load(map_file_path)
         y,
         spr_player,
         grid,
-        gs.tilemap_view.tilesize,
+        1,
         gs.tilemap_view.tilesize,
         player_speed_factor,
         gs.player_health_max)
@@ -158,7 +158,7 @@ function gs.load(map_file_path)
         friend_start_cell.y,
         spr_friend,
         grid,
-        gs.tilemap_view.tilesize,
+        1,
         gs.player,
         gs.tilemap_view.tilesize,
         friend_speed_factor,
@@ -184,7 +184,7 @@ function gs.load(map_file_path)
             new_end,
             spr_tripod,
             grid,
-            gs.tilemap_view.tilesize,
+            1,
             gs.tilemap_view.tilesize,
             tripod_speed_factor,
             tripod_speed_boost,
@@ -204,7 +204,7 @@ function gs.load(map_file_path)
         local new_start = grid:get_valid_pos()
         local new_apple = Collectable.new(new_start,
             spr_apple,
-            gs.tilemap_view.tilesize,
+            1,
             gs.tilemap_view.tilesize,
             "health",
             gs.damage_points,
@@ -250,10 +250,10 @@ function gs.draw()
 end
 
 function gs.update(dt)
-    if not gs.paused then
-        -- center camera
-        gs.tilemap_view.camera:set_center(gs.player:get_center())
-            
+    -- center camera
+    gs.tilemap_view.camera:set_center(gs.player:get_center())
+
+    if not gs.paused then           
         gs.player:update(dt, gs.tilemap_view.tilesize)
         gs.friend:update(dt, gs.tilemap_view.tilesize)
             

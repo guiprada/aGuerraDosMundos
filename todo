@@ -1,5 +1,5 @@
 todo
-    - fix size of entities on resize 
+    - lock aspect ratio in gaming or fixe tilesize calculation
     - add how_to_play
     - add credits
     - overhaul widgets resize
@@ -55,3 +55,4 @@ done
     - fix in_game resize
     - move utils grid functions to grid
     - add pause
+    - fix size of entities on resize

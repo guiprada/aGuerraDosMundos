@@ -19,16 +19,17 @@ function Friend._move(self, dt, tilesize)
     end
 end
 
-function Friend.new(cell_x, cell_y, sprite, grid, size, follow_target, tilesize, speed_factor, health_max)
+function Friend.new(cell_x, cell_y, sprite, grid, size_factor, follow_target, tilesize, speed_factor, health_max)
     local o = {}
     o._is_active = false
-    o._size = size
-    o._scale = size/ sprite:getWidth()
+    o._sprite = sprite
+    o._size_factor = size_factor
+    o._size = o._size_factor * tilesize
+    o._scale = o._size/ o._sprite:getWidth()
     o._rot = -math.pi/2
     o._offset = (o._size/2) * (1/o._scale)
     o._cell = {}
-    o._cell.x, o._cell.y = cell_x, cell_y
-    o._sprite = sprite
+    o._cell.x, o._cell.y = cell_x, cell_y    
     o._target_cell = {}
         
     o.grid = grid
@@ -90,6 +91,9 @@ end
 
 function Friend.resize(self, tilesize)
     self.x, self.y = grid.cell_to_center_point(self._cell.x, self._cell.y, tilesize)
+    self._size = self._size_factor * tilesize
+    self._scale = self._size/ self._sprite:getWidth()
+    self._offset = (self._size/2) * (1/self._scale)
 end
 
 return Friend

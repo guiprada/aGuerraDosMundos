@@ -4,14 +4,15 @@ local keymap = require "qpd.services.keymap"
 local utils = require "qpd.utils"
 local grid = require "qpd.grid"
 
-function Player.new(x, y, sprite, grid, size, tilesize, speed_factor, health_max)
+function Player.new(x, y, sprite, grid, size_factor, tilesize, speed_factor, health_max)
     local o = {}
     o.x = x
     o.y = y
 
     o._sprite = sprite
-    o._size = size
-    o._scale = size/ sprite:getWidth()
+    o._size_factor = size_factor
+    o._size = o._size_factor * tilesize
+    o._scale = o._size/ o._sprite:getWidth()
     o._rot = -math.pi/2
     o._offset = (o._size/2) * (1/o._scale)
  
@@ -133,6 +134,9 @@ end
 
 function Player.resize(self, tilesize)
     self.x, self.y = grid.cell_to_center_point(self._cell.x, self._cell.y, tilesize)
+    self._size = self._size_factor * tilesize
+    self._scale = self._size/ self._sprite:getWidth()    
+    self._offset = (self._size/2) * (1/self._scale)
 end
 
 return Player
