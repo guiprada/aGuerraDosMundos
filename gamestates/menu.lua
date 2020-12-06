@@ -24,7 +24,7 @@ local function quit()
 end
 
 local function sprites_dimension()
-    gs.sprite_scale = utils.min(gs.width, gs.height)/(5*gs.sprites[1]:getWidth())
+    gs.sprite_scale = utils.min(gs.width, gs.height)/((#gs.sprites + 1)*gs.sprites[1]:getWidth())
     local spacing = gs.width / (#gs.sprites + 1)
     local sprite_height = gs.height / 5
     for key, value in ipairs(gs.sprites) do        
