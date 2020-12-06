@@ -60,10 +60,10 @@ function camera.get_center(self)
 end
 
 function camera.get_visible_quad(self)    
-    local start_x = self._drift_x - self._w/2--/self._scale
-    local start_y = self._drift_y - self._h/2--/self._scale
-    local end_x = self._drift_x + self._w/2--/self._scale
-    local end_y = self._drift_y + self._h/2--/self._scale
+    local start_x = self._drift_x - (self._v_w/2)/self._scale
+    local start_y = self._drift_y - (self._v_h/2)/self._scale
+    local end_x = self._drift_x + (self._v_w/2)/self._scale
+    local end_y = self._drift_y + (self._v_h/2)/self._scale
 
     return start_x, start_y, end_x, end_y
 end
@@ -78,15 +78,14 @@ end
 
 function camera.move(self, x, y)
     self._drift_x = utils.clamp(
-        self._drift_x + x,
-        self._v_x + (self._v_w/2)/self._scale,
-        self._v_w - (self._v_w/2)/self._scale)                              
+        self._drift_x + x,        
+        (self._v_x + (self._v_w/2)/self._scale),
+        (self._v_x + self._w - (self._v_w/2)/self._scale))                            
                                 
     self._drift_y = utils.clamp(
         self._drift_y + y,
-        self._v_y + (self._v_h/2)/self._scale,
-        self._v_h - (self._v_h/2)/self._scale)                              
-    
+        (self._v_y + (self._v_h/2)/self._scale),
+        (self._v_y + self._h - (self._v_h/2)/self._scale))        
 end
 
 --------------------------------------------------------------------------------

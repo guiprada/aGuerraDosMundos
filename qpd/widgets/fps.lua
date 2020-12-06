@@ -17,7 +17,7 @@ function fps.new(x, y, color)
     local o = {}
     o.x = x or 0
     o.y = y or 0
-    o.color = color or {1, 0, 0}
+    o.color = color or {0, 1, 1}
 
     -- methods
     utils.assign_methods(o, fps)

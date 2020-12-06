@@ -10,43 +10,6 @@ local files = require "qpd.services.files"
 --------------------------------------------------------------------------------
 -- helper functions
 
-local function _draw(tilemap, tilesize, matrix_start_x, matrix_start_y, matrix_end_x, matrix_end_y)
-    if matrix_start_x and matrix_start_y and matrix_end_x and matrix_end_y then
-         for n_column = matrix_start_y, matrix_end_y, 1 do
-            local this_column = tilemap.matrix[n_column]
-            for n_line = matrix_start_x, matrix_end_x, 1 do
-                local value = this_column[n_line]
-                local func = tilemap.draw_functions[value]
-                if func then
-                    local this_x = (n_line - 1) * tilesize + tilemap.x
-                    local this_y = (n_column - 1)* tilesize + tilemap.y
-                    func(   this_x,
-                            this_y,
-                            tilesize)
-                elseif value ~= nil and value~=0 then
-                    print("draw function for: " .. value .. " not found!")
-                end
-            end
-        end
-    else
-        for n_line, line in ipairs(tilemap.matrix) do
-            for n_column, value in ipairs(line) do
-                local func = tilemap.draw_functions[value]
-                if func then
-                    func(
-                        (n_column - 1) * tilesize + tilemap.x,
-                        (n_line - 1)* tilesize + tilemap.y,
-                        tilesize)
-                else
-                    if value ~= 0 then
-                        print("draw function for: " .. value .. " not found!")
-                    end
-                end
-            end
-        end
-    end
-end
-
 local function _calculate_tilesize(w, h, n_tiles_w, n_tiles_h)
     -- diagonal based
     local screen_diag = math.sqrt(w^2 + h^2)
@@ -106,8 +69,9 @@ function tilemap_view.draw(self)
     matrix_start_y = utils.clamp(matrix_start_y, 1, self.tilemap.tile_height)
     matrix_end_y =utils.clamp(matrix_end_y, 1, self.tilemap.tile_height)
 
-    _draw(self.tilemap, self.tilesize, matrix_start_x, matrix_start_y, matrix_end_x, matrix_end_y)
-    --_draw(self.tilemap, self.tilesize)
+    --print((self.width/self.camera:get_scale())/self.tilesize, (self.height/self.camera:get_scale())/self.tilesize)
+    self.tilemap:draw(self.tilesize, matrix_start_x, matrix_start_y, matrix_end_x, matrix_end_y)
+    --self.tilemap:draw(self.tilesize)
 end
 
 function tilemap_view.follow(self, dt, speed_factor, follow_x, follow_y)
@@ -128,9 +92,11 @@ function tilemap_view.follow(self, dt, speed_factor, follow_x, follow_y)
             speed_factor  * self.tilesize * dt
         )
     end
-    new_camera_x = utils.clamp(new_camera_x, (self.width/2)/self.camera:get_scale(), self.camera:get_width() - (self.width/2)/self.camera:get_scale())
-    new_camera_y = utils.clamp(new_camera_y, (self.height/2)/self.camera:get_scale(), self.camera:get_height() - (self.height/2)/self.camera:get_scale())
-    self.camera:set_center(new_camera_x, new_camera_y)
+    --new_camera_x = utils.clamp(new_camera_x, (self.width/2)/self.camera:get_scale(), self.camera:get_width() - (self.width/2)/self.camera:get_scale())
+    --new_camera_y = utils.clamp(new_camera_y, (self.height/2)/self.camera:get_scale(), self.camera:get_height() - (self.height/2)/self.camera:get_scale())
+    --self.camera:set_center(new_camera_x, new_camera_y)    
+    
+    self.camera:move(new_camera_x - camera_center_x, new_camera_y - camera_center_y)
 end
 
 return tilemap_view
