@@ -1,8 +1,6 @@
 todo
     - change tilesize on calls
-    - menu resize sprites
-    - add credits
-    - overhaul widgets resize
+    - add credits    
     - bombs :), should draw atention
     - decouple lover and target
     - add character to menu    
@@ -61,10 +59,8 @@ done
     - add how_to_play
     - menu resize sprites
 
-
 qpd overhaul 
-    - function should not create tables
-    - callbacks shoud avoid creating tables
+    - overhaul widgets resize
     - more robust serialization functions
     - create a default gamestate with entities and widgets stacks
     - camerra should be default
@@ -87,3 +83,7 @@ qpd overhaul
     - the stacks should be on the scene-entites not on gamestate
     - check colision and check collision gris familiea
         with one to one, and one to many and perhaps many to many
+
+qpd overhaul done
+    - function should not create tables
+    - callbacks shoud avoid creating tables
