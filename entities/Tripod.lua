@@ -47,15 +47,10 @@ function Tripod._get_next_cell(self, dt, targets, tilesize)
     -- get allowed grids to go
     for i = -1, 1, 1 do
         for j = -1, 1, 1 do
-            local grid_x, grid_y = self._cell.x + i, self._cell.y + j
-            if (    grid_x >= 1 and
-                    grid_x <= self.grid.width and
-                    grid_y >= 1 and
-                    grid_y <= self.grid.height ) then
-                if not self.grid:is_colliding_cell(grid_x, grid_y, tilesize) then
-                    local new_value = {x = grid_x, y = grid_y}
-                    table.insert(allowed, new_value)
-                end
+            local cell_x, cell_y = self._cell.x + i, self._cell.y + j
+            if self.grid:is_cell_valid(cell_x, cell_y) then
+                local new_value = {x = cell_x, y = cell_y}
+                table.insert(allowed, new_value)
             end
         end
     end

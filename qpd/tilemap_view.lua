@@ -34,7 +34,7 @@ function tilemap_view.new(matrix, cell_set, width, height)
     local tilemap_width = o.tilesize * tile_width
     local tilemap_height = o.tilesize * tile_height
 
-    o.camera = camera.new(tilemap_width, tilemap_height, 1, 3)
+    o.camera = camera.new(tilemap_width, tilemap_height, 1, 1, 3)
     
     -- create map
     o.tilemap = tilemap.new(0,

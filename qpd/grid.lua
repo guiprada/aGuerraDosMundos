@@ -50,6 +50,15 @@ function grid.is_colliding_cell(self, cell_x, cell_y)
 	return self.collisions[cell_value] or false
 end
 
+function grid.is_cell_valid(self, cell_x, cell_y)
+	if 	cell_x >= 1 and cell_x <= self.width and
+		cell_y >= 1 and	cell_y <= self.height and
+		not self:is_colliding_cell(cell_x, cell_y) then
+		return true
+	end
+	return false
+end
+
 function grid.check_unobstructed(self, origin, angle, distance, tilesize, maybe_step)
     -- we go tile by tile
     local step = maybe_step or tilesize
