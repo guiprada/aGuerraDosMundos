@@ -9,11 +9,6 @@ function grid._is_collision(self, n)
 end
 
 -----------------------------------------------------------------------
-function grid.get_valid_pos(self)
-	local pos = {}
-	pos = self.array_cell_valid_pos[love.math.random(#self.array_cell_valid_pos)]
-	return pos
-end
 
 function grid.new(matrix, collisions)
 	local o = {}
@@ -38,6 +33,12 @@ function grid.new(matrix, collisions)
 	end
 
 	return o
+end
+
+function grid.get_valid_pos(self)
+	local pos = {}
+	pos = self.array_cell_valid_pos[love.math.random(#self.array_cell_valid_pos)]
+	return pos
 end
 
 function grid.is_colliding_point(self, x, y, tilesize)

@@ -329,19 +329,17 @@ function gs.keyreleased(key, scancode)
 end
 
 function gs.resize(w, h)
-    fonts.resize(w, h)
     local old_width = gs.width
     local old_height = gs.height
     gs.width = w
     gs.height = h
-    gs.paused_text:resize(0, h/2, w)
-    local old_tilesize = gs.tilemap_view.tilesize
-    local old_camera_center_x, old_camera_center_y = gs.tilemap_view.camera:get_center()
-    gs.tilemap_view = tilemap_view.new(gs.map_matrix, gs.tilemap_view.tilemap.draw_functions, gs.width, gs.height)
-    gs.tilemap_view.camera:set_scale(gs.default_zoom)
-    local new_camera_ratio = gs.tilemap_view.tilesize/old_tilesize
-    gs.tilemap_view.camera:set_center(old_camera_center_x*new_camera_ratio, old_camera_center_y*new_camera_ratio)
+
+    fonts.resize(gs.width, gs.height)
     
+    gs.paused_text:resize(0, gs.height/2, gs.width)
+       
+    gs.tilemap_view:resize(gs.width, gs.height)
+   
     gs.player:resize(gs.tilemap_view.tilesize)
     gs.friend:resize(gs.tilemap_view.tilesize)
     for _, item in ipairs(gs.tripods) do

@@ -99,4 +99,24 @@ function tilemap_view.follow(self, dt, speed_factor, follow_x, follow_y)
     self.camera:move(new_camera_x - camera_center_x, new_camera_y - camera_center_y)
 end
 
+function tilemap_view.resize(self, width, height)
+    self.width = width
+    self.height = height
+        
+    local tile_width = #self.tilemap.matrix[1]
+    local tile_height = #self.tilemap.matrix 
+
+    local old_tilesize = self.tilesize
+    self.tilesize = _calculate_tilesize(width, height, tile_width, tile_height)
+
+    local tilemap_width = self.tilesize * tile_width
+    local tilemap_height = self.tilesize * tile_height
+
+    self.camera:reset(tilemap_width, tilemap_height)    
+    local old_camera_center_x, old_camera_center_y = self.camera:get_center()
+    local old_camera_cell_x, old_camera_cell_y = grid.point_to_cell(old_camera_center_x, old_camera_center_y, old_tilesize)
+    local new_camera_center_x, new_camera_center_y = grid.cell_to_center_point(old_camera_cell_x, old_camera_cell_y, self.tilesize)
+    self.camera:set_center(new_camera_center_x, new_camera_center_y)
+end
+
 return tilemap_view

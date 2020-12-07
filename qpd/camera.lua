@@ -93,6 +93,9 @@ end
 function camera.new(w, h, scale, min_scale, max_scale)
     local o = {}
 
+    o._drift_x = w/2
+    o._drift_y = h/2
+
     utils.assign_methods(o, camera)
 
     o:reset(w, h, scale, min_scale, max_scale)
@@ -100,12 +103,7 @@ function camera.new(w, h, scale, min_scale, max_scale)
     return o
 end
 
-function camera.reset(self, w, h, scale, min_scale, max_scale)
-
-    self._drift_x = w/2
-    self._drift_y = h/2
-    self._offset_x = 0
-    self._offset_y = 0
+function camera.reset(self, w, h, scale, min_scale, max_scale)    
     self._w = w
     self._h = h
     self._scale = scale or self._scale or 1
