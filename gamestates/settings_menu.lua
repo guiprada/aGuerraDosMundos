@@ -131,12 +131,12 @@ function gs.load()
     gs.selection_box:add_selection(
         table.concat({
             strings.settings_menu_vsync,
-            tostring(utils.number_2_bool( window.settings.vsync))}),
+            tostring(utils.number_to_bool( window.settings.vsync))}),
         change_vsync)
     -- gs.selection_box:add_selection(
     --     table.concat({
     --         strings.settings_menu_msaa,
-    --         tostring(utils.number_2_bool(window.settings.msaa))}),
+    --         tostring(utils.number_to_bool(window.settings.msaa))}),
     --     change_msaa)
     gs.selection_box:add_selection( strings.settings_menu_reset, reset_settings)
 

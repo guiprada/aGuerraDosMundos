@@ -80,15 +80,15 @@ function tilemap_view.follow(self, dt, speed_factor, follow_x, follow_y)
     local new_camera_x, new_camera_y = camera_center_x, camera_center_y
     if math.abs(delta_x) > (self.width/4)/self.camera:get_scale() then        
         new_camera_x, _ = utils.lerp(
-            {x = camera_center_x, y = 0},
-            {x = follow_x, y = 0},
+            camera_center_x, 0,
+            follow_x, 0,
             speed_factor  * self.tilesize * dt
         )
     end
     if math.abs(delta_y) > (self.height/4)/self.camera:get_scale() then        
         _, new_camera_y = utils.lerp(
-            {x = 0, y = camera_center_y},
-            {x = 0, y = follow_y},
+            0, camera_center_y,
+            0, follow_y,
             speed_factor  * self.tilesize * dt
         )
     end

@@ -25,9 +25,9 @@ function Tripod._get_next_cell(self, dt, targets, tilesize)
     end
     if #viable_targets >= 1 then
         local closest = viable_targets[1]
-        local min_distance = utils.distance(self, closest)
+        local min_distance = utils.distance2(self, closest)
         for i = 2, #viable_targets, 1 do
-            local this_distance = utils.distance(self, viable_targets[i])
+            local this_distance = utils.distance2(self, viable_targets[i])
             if this_distance < min_distance then
                 closest = viable_targets[i]
                 min_distance = this_distance
@@ -62,10 +62,10 @@ function Tripod._get_next_cell(self, dt, targets, tilesize)
     
     -- see which one gets it closer to target
     if #allowed >= 2 then
-        local min_dist = utils.distance(allowed[1], self._target_cell)
+        local min_dist = utils.distance2(allowed[1], self._target_cell)
         local next_grid = allowed[1]
         for i=2, #allowed, 1 do
-            local dist = utils.distance(allowed[i], self._target_cell)
+            local dist = utils.distance2(allowed[i], self._target_cell)
             if dist < min_dist then
                 min_dist = dist
                 next_grid = allowed[i]
@@ -89,7 +89,7 @@ end
 function Tripod._can_see(self, dt, target, tilesize)
     local p_target = {x = target.x, y = target.y}
     local p_self = {x = self.x, y = self.y}
-    local distance = utils.distance(p_target, p_self)
+    local distance = utils.distance2(p_target, p_self)
     if distance < self.vision_dist then
         -- check within angle
         local delta_y = p_target.y - p_self.y
@@ -177,7 +177,7 @@ function Tripod._flip_target_cell(self, tilesize)
         self._target_cell.x, self._target_cell.y = self._end_cell.x, self._end_cell.y
     else
         local furthest = "_end_cell"
-        if utils.distance(self._cell, self._start_cell) > utils.distance(self._cell, self._end_cell) then
+        if utils.distance2(self._cell, self._start_cell) > utils.distance2(self._cell, self._end_cell) then
             furthest = "_start_cell"
         end
         self._target_cell.x, self._target_cell.y = self[furthest].x, self[furthest].y
@@ -189,7 +189,8 @@ function Tripod._move(self, dt, targets, tilesize)
     local has_reached = false
     
     self.last_x, self.last_y = self.x, self.y
-    self.x, self.y, has_reached = utils.lerp({x = self.x, y = self.y}, {x = px, y = py}, self.curr_speed_factor * tilesize * dt)
+    -- self.x, self.y, has_reached = utils.lerp2({x = self.x, y = self.y}, {x = px, y = py}, self.curr_speed_factor * tilesize * dt)
+    self.x, self.y, has_reached = utils.lerp(self.x, self.y, px, py, self.curr_speed_factor * tilesize * dt)
 
     if has_reached then
         self:_get_next_cell(dt, targets, tilesize)

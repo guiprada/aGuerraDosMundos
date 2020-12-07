@@ -148,11 +148,11 @@ function gs.load(map_file_path)
 
     -- create friend
     local friend_start_cell = grid:get_valid_pos()
-    local friend_player_distance = utils.distance(gs.player._cell, friend_start_cell)
+    local friend_player_distance = utils.distance2(gs.player._cell, friend_start_cell)
     while   friend_player_distance < friend_min_distance or
             friend_player_distance > friend_max_distance do
         friend_start_cell = grid:get_valid_pos()
-        friend_player_distance = utils.distance(gs.player._cell, friend_start_cell)
+        friend_player_distance = utils.distance2(gs.player._cell, friend_start_cell)
     end
     gs.friend = Friend.new(friend_start_cell.x,
         friend_start_cell.y,
@@ -173,11 +173,11 @@ function gs.load(map_file_path)
     gs.tripods = {}
     for i=1, n_tripods, 1 do
         local new_start = grid:get_valid_pos()
-        while utils.distance(gs.player._cell, new_start) < tripod_min_distance do
+        while utils.distance2(gs.player._cell, new_start) < tripod_min_distance do
             new_start = grid:get_valid_pos()
         end
         local new_end = grid:get_valid_pos()
-        while utils.distance(new_start, new_end) <= tripod_min_path  do
+        while utils.distance2(new_start, new_end) <= tripod_min_path  do
             new_end = grid:get_valid_pos()
         end
         gs.tripods[i] = Tripod.new(new_start,

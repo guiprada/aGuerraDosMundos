@@ -5,7 +5,7 @@ local grid = require "qpd.grid"
 
 function Friend._move(self, dt, tilesize)    
     local px, py = grid.cell_to_center_point(self._target_cell.x, self._target_cell.y, tilesize)
-    local maybe_x, maybe_y, has_reached = utils.lerp({x = self.x, y = self.y}, {x = px, y = py}, self.speed_factor * tilesize * dt)
+    local maybe_x, maybe_y, has_reached = utils.lerp(self.x, self.y, px, py, self.speed_factor * tilesize * dt)
     
     self._cell.x, self._cell.y = grid.point_to_cell(self.x, self.y, tilesize)
     if self.grid:is_colliding_point(maybe_x, maybe_y, tilesize) then
@@ -47,7 +47,7 @@ end
 
 function Friend.update(self, dt, tilesize)
     if self._is_active then
-        if utils.distance(self, self.follow_target) > 10* tilesize then
+        if utils.distance2(self, self.follow_target) > 10* tilesize then
             self._is_active =  false
         end
         self.old_x, self.old_y = self.x, self.y
@@ -56,7 +56,7 @@ function Friend.update(self, dt, tilesize)
         if delta_x~=0 or delta_y~=0 then
             self._rot = math.atan2(delta_y, delta_x)
         end
-    elseif  utils.distance(self, self.follow_target) < 3* tilesize then
+    elseif  utils.distance2(self, self.follow_target) < 3* tilesize then
         local angle = math.atan2(self.follow_target.y - self.y, self.follow_target.x - self.x)
         if self.grid:check_unobstructed(self, angle, 3*tilesize, tilesize, self.speed_factor * tilesize * dt) == true then            
             self._is_active = true

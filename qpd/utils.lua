@@ -1,183 +1,6 @@
 local utils = {}
 
-function utils.run_tests()
-    print("Starting qpd.utils.run_tests()") 
-
-    -- test clamp
-    assert(
-        utils.clamp(5, 1, 10) == 5,
-        "error on utils.clamp, test 1")        
-    assert(
-        utils.clamp(0, 1, 10) == 1,
-        "error on utils.clamp, test 2")    
-    assert(
-        utils.clamp(11, 1, 10) == 10,
-        "error on utils.clamp, test 3")
-
-    -- test normalize
-    local x, y = utils.normalize(1, 1)
-    assert(
-        x == 1/(2^(1/2)) and y == 1/(2^(1/2)),
-        "error on utils.normalize, test 1")
-
-    local x, y = utils.normalize(-1, 2)
-    assert(
-        x == -1/(5^(1/2)) and y == 2/(5^(1/2)),
-        "error on utils.normalize, test 2")
-
-    local x, y = utils.normalize(100, -1)
-    assert(
-        x == 100/(10001^(1/2)) and y == -1/(10001^(1/2)),
-        "error on utils.normalize, test 3")
-
-    local x, y = utils.normalize(-10, -10)
-    assert(
-        x == -10/(200^(1/2)) and y == -10/(200^(1/2)),
-        "error on utils.normalize, test 4")
-
-    local x, y = utils.normalize(0, 0)
-    assert(
-        x == 0 and y == 0,
-        "error on utils.normalize, test 5")
- 
-    local x, y = utils.normalize(0, 1)
-    assert(
-        x == 0 and y == 1,
-        "error on utils.normalize, test 6")
-
-    -- test max
-    assert(
-        utils.max(5, 1) == 5,
-        "error on utils.max, test 1")
-    assert(
-        utils.max(1, 5) == 5,
-        "error on utils.max, test 2")
-    assert(
-        utils.max(-5, 1) == 1,
-        "error on utils.max, test 3")
-    assert(
-        utils.max(1, -5) == 1,
-        "error on utils.max, test 4")
-    assert(
-        utils.max(-5, -1) == -1,
-        "error on utils.max, test 5")
-    assert(
-        utils.max(-1, -5) == -1,
-        "error on utils.max, test 6")
-    
-    -- test min
-    assert(
-        utils.min(5, 1) == 1,
-        "error on utils.min, test 1")
-    assert(
-        utils.min(1, 5) == 1,
-        "error on utils.min, test 2")
-    assert(
-        utils.min(-5, 1) == -5,
-        "error on utils.min, test 3")
-    assert(
-        utils.min(1, -5) == -5,
-        "error on utils.min, test 4")
-    assert(
-        utils.min(-5, -1) == -5,
-        "error on utils.min, test 5")
-    assert(
-        utils.min(-1, -5) == -5,
-        "error on utils.min, test 6")
-
-    -- test round_2_dec
-    assert(
-        utils.round_2_dec(5) == 5,
-        "error on utils.round_2_dec, test 1")
-    assert(
-        utils.round_2_dec(5.12345) == 5.12,
-        "error on utils.round_2_dec, test 2")
-    assert(
-        utils.round_2_dec(5.125) == 5.13,
-        "error on utils.round_2_dec, test 3")    
-    
-    assert(
-        utils.round_2_dec(-5) == -5,
-        "error on utils.round_2_dec, test 4")
-    assert(
-        utils.round_2_dec(-5.12345) == -5.12,
-        "error on utils.round_2_dec, test 5")
-    assert(
-        utils.round_2_dec(-5.125) == -5.13,
-        "error on utils.round_2_dec, test 6")
-        
-    assert(
-        utils.round_2_dec(5.124999999999999) == 5.12,
-        "error on utils.round_2_dec, test 7")       
-    assert(
-        utils.round_2_dec(5.125000000000000000000000000000000000000) == 5.13,
-        "error on utils.round_2_dec, test 8")
-
-    -- test number_2_bool
-    assert(
-        utils.number_2_bool(0) == false,
-        "error on utils.number_2_bool, test 1")
-    assert(
-        utils.number_2_bool(1) == true,
-        "error on utils.number_2_bool, test 2")
-    assert(
-        utils.number_2_bool(5) == nil,
-        "error on utils.number_2_bool, test 3")     
-
-    -- test string_2_bool
-    assert(
-        utils.string_2_bool("false") == false,
-        "error on utils.string_2_bool, test 1")
-    assert(
-        utils.string_2_bool("true") == true,
-        "error on utils.string_2_bool, test 2")
-    assert(
-        utils.string_2_bool(5) == nil,
-        "error on utils.string_2_bool, test 3")   
-    assert(
-        utils.string_2_bool(true) == nil,
-        "error on utils.string_2_bool, test 4")
-    assert(
-        utils.string_2_bool("Zaratrusta") == nil,
-        "error on utils.string_2_bool, test 5")   
-
-    -- test string_maybe_bool
-    assert(
-        utils.string_maybe_bool("false") == false,
-        "error on utils.string_maybe_bool, test 1")
-    assert(
-        utils.string_maybe_bool("true") == true,
-        "error on utils.string_maybe_bool, test 2")
-    assert(
-        utils.string_maybe_bool(5) == 5,
-        "error on utils.string_maybe_bool, test 3")   
-    assert(
-        utils.string_maybe_bool(true) == true,
-        "error on utils.string_maybe_bool, test 4")
-    assert(
-        utils.string_maybe_bool("Zaratrusta") == "Zaratrusta",
-        "error on utils.string_maybe_bool, test 5")
-
-    -- test utils.check_collision
-    -- check_collision_quad() is just a wrapper for check_collision()
-    local A = {x = 0, y = 0, w = 1, h = 1}
-    local B = {x = 0.5, y = 0.5, w = 1, h = 1}
-    local C = {x = -0.5, y = -0.5, w = 1, h = 1}
-    local D = {x = 1, y = 1, w = 1, h = 1}
-    assert(
-        utils.check_collision_quad(A, B) == true,
-        "error on utils.check_collision, test 1")
-    assert(
-        utils.check_collision_quad(B, C) == true,
-        "error on utils.check_collision, test 2")
-    assert(
-        utils.check_collision_quad(C, D) == false,
-        "error on utils.check_collision, test 3")
-
-    -- if we got here maybe things are ok
-    print("qpd.utils.run_tests() says ok!")
-end
-
+math.randomseed( os.time() )
 --------------------------------------------------------------------- prototypes
 
 function utils.assign_methods(self, class)
@@ -222,7 +45,7 @@ function utils.round(x)
     end
 end
 
-function utils.round_2_dec(value)
+function utils.round_to_dec(value)
     -- Rounds floating point number to 2 decimal places.
     if ( value >= 0 ) then
         local rounded = math.floor(value*100)/100        
@@ -243,7 +66,7 @@ function utils.round_2_dec(value)
 	end
 end
 
-function utils.number_2_bool(value)
+function utils.number_to_bool(value)
     -- Converts a "C" style boolean number to a Boolean type.
     -- O is converted to false, 1 is converted to true, else it returns nil.
     if value == 0 then
@@ -255,7 +78,7 @@ function utils.number_2_bool(value)
     return nil
 end
 
-function utils.string_2_bool(value)
+function utils.string_to_bool(value)
     -- Converts a boolean string to a Boolean type.
     -- "false" is converted to false, "true" is converted to true,
     -- returns nil for any other value.
@@ -299,22 +122,30 @@ function utils.check_collision_center(x1, y1, s1, x2, y2, s2)
 end
 
 function utils.check_collision_circle(x1, y1, r1, x2, y2, r2)
-    local distance = utils.distance({x = x1, y = y1},{x = x2, y = y2})
+    local distance = utils.distance(x1, y1, x2, y2)
     return (r1+r2) > distance
 end
 ------------------------------------------------------------------------- points
 
-function utils.distance(p1, p2)
+function utils.distance(p1_x, p1_y, p2_x, p2_y)
     -- Calculates the distance between points p1 and p2.
-    return ( (p1.x - p2.x)^2 + (p1.y - p2.y)^2 )^0.5
+    return ((p1_x - p2_x)^2 + (p1_y - p2_y)^2 )^0.5
 end
 
-function utils.middle_point(p1, p2)
+function utils.distance2(p1, p2)
+    return utils.distance(p1.x, p1.y, p2.x, p2.y)
+end
+
+function utils.middle_point(p1_x, p1_y, p2_x, p2_y)
     -- Calculates the middle point between p1 and p2.
-	local middle = {}
-	middle.x = (p1.x + p2.x)/2
-	middle.y = (p1.y +p2.y)/2
-	return middle
+    local middle_x = (p1_x + p2_x)/2
+    local middle_y = (p1_y + p2_y)/2
+
+    return middle_x, middle_y
+end
+
+function utils.middle_point2(p1, p2)
+    return utils.middle_point(p1.x, p1.y, p2.x, p2.y)
 end
 
 function utils.normalize( x, y)
@@ -326,15 +157,23 @@ function utils.normalize( x, y)
     end
 end
 
-function utils.lerp(p1, p2, distance)
-    local p = {x = p2.x - p1.x, y = p2.y - p1.y}
-    p.x, p.y = utils.normalize(p.x, p.y)
-    p.x, p.y = p.x * distance, p.y * distance
-    if utils.distance(p1, p2) <= distance then
-        return p2.x, p2.y, true
+function utils.normalize2(p)
+    return utils.normalize(p.x, p.y)
+end
+
+function utils.lerp(p1_x, p1_y, p2_x, p2_y, distance)
+    local p_x, p_y = p2_x - p1_x, p2_y - p1_y
+    p_x, p_y = utils.normalize(p_x, p_y)
+    p_x, p_y = p_x * distance, p_y * distance
+    if utils.distance(p1_x, p1_y, p2_x, p2_y) <= distance then
+        return p2_x, p2_y, true
     else
-        return p1.x + p.x, p1.y + p.y, false
+        return p1_x + p_x, p1_y + p_y, false
     end
+end
+
+function utils.lerp2(p1, p2, distance)    
+    return utils.lerp(p1.x, p1.y, p2.x, p2.y)
 end
 
 function utils.lerp_rotation(o1, o2, step)
@@ -599,8 +438,8 @@ end
 
 function utils.array_shuffler(array)
     -- shuffles an array
-
-    math.randomseed( os.time() )
+    -- utils seeds the rng on load
+    
 	for i=1,#array, 1 do
 		local j = math.random(1, #array)
 		array[i], array[j] = array[j], array[i]
@@ -737,5 +576,4 @@ function utils.matrix_print(matrix, separator)
     utils.matrix_write_to_file(matrix, nil, separator)
 end
 
-utils.run_tests()
 return utils

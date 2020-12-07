@@ -1,4 +1,5 @@
 todo
+    - change tilesize on calls
     - menu resize sprites
     - add credits
     - overhaul widgets resize
@@ -64,6 +65,7 @@ done
 qpd overhaul 
     - function should not create tables
     - callbacks shoud avoid creating tables
+    - more robust serialization functions
     - create a default gamestate with entities and widgets stacks
     - camerra should be default
     - widgets should resize with w,h
