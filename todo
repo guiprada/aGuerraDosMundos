@@ -59,3 +59,29 @@ done
     - camera clamp
     - add how_to_play
     - menu resize sprites
+
+
+qpd overhaul 
+    - function should not create tables
+    - callbacks shoud avoid creating tables
+    - create a default gamestate with entities and widgets stacks
+    - camerra should be default
+    - widgets should resize with w,h
+    - entities should resize with factor
+    - unify widgets and entities
+    - class system with properties
+    - camera should have rotation
+    - collision system with callbacks
+    - camera should register its draw functions
+    - behavior library for mixins
+    - check what amulet does write
+    - isolate love in classea
+    - investigate quads and in tilemaps
+    - implement vector2 class
+    - use transgorm?
+    - 
+    - gamestate ->scene -> entities
+    - scene has the stacks but entities can have their own stacks
+    - the stacks should be on the scene-entites not on gamestate
+    - check colision and check collision gris familiea
+        with one to one, and one to many and perhaps many to many
