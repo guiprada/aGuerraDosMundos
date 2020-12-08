@@ -1,5 +1,7 @@
 todo
     - change tilesize on calls
+        tilemap_view should own grid?
+        
     - add credits    
     - bombs :), should draw atention
     - decouple lover and target
