@@ -62,8 +62,6 @@ difficulty_instructions =
 \nenter        change difficulty
 \nesc                    go back'
 
-paused = 'Paused'
-
 gameover_title = 'Game Over'
 gameover = 'You Lost!'
 
@@ -72,6 +70,9 @@ victory = 'You Win!'
 
 how_to_play_title = 'How To Play'
 how_to_play = 'You are in London, the city has been invaded by Tripods and your goa is to escape. To do so you must run from the invaders and find your friend, who has the keys.'
+
 message_instructions =
  'enter            play
 \nesc           go back'
+
+paused = 'Paused'

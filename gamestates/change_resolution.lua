@@ -33,6 +33,9 @@ function gs.load()
     local w = love.graphics.getWidth()
     local h = love.graphics.getHeight()
 
+    gs.snd_selection = love.audio.newSource(files.snd_selection, "static")
+    gs.snd_selected = love.audio.newSource(files.snd_selected, "static")
+    
     gs.title = text_box.new(
         strings.resolution_title,
         "huge",
@@ -79,7 +82,9 @@ function gs.load()
         w,
         "center",
         color.gray,
-        color.red)
+        color.red,
+        gs.snd_selection,
+        gs.snd_selected)
 
     gs.selection_box:add_selection( 
         strings.resolution_save_current,

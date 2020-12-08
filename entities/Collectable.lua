@@ -4,7 +4,7 @@ local utils = require "qpd.utils"
 local timer = require "qpd.timer"
 local grid = require "qpd.grid"
 
-function Collectable.new(cell, sprite, size_factor, tilesize, bonus_type, bonus_quant, reactivation_time)
+function Collectable.new(cell, sprite, size_factor, tilesize, bonus_type, bonus_quant, reactivation_time, collected_sound)
     local o = {}
 
     o.x, o.y = grid.cell_to_center_point(cell.x, cell.y, tilesize)
@@ -20,6 +20,7 @@ function Collectable.new(cell, sprite, size_factor, tilesize, bonus_type, bonus_
     o._is_enabled = true
         
     o._reactivate = false
+    o.collected_sound = collected_sound
 
     if reactivation_time ~= nil then
         o._reactivate = true    
@@ -48,6 +49,7 @@ end
 
 function Collectable.disable(self)
     self._is_enabled = false
+    love.audio.play(self.collected_sound)
     if self._reactivate then
         self._timer:reset()
     end

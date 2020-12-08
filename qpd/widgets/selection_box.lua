@@ -14,6 +14,9 @@ function selection_box.down(self)
             self._selected = 1
         end
     end
+    if self.selection_sound then
+        love.audio.play(self.selection_sound)
+    end
 end
 
 function selection_box.up(self)
@@ -24,9 +27,15 @@ function selection_box.up(self)
             self._selected = #self._selections
         end
     end
+    if self.selection_sound then
+        love.audio.play(self.selection_sound)
+    end
 end
 
 function selection_box.select(self)
+    if self.selected_sound then    
+        love.audio.play(self.selected_sound)
+    end
     if self._selected then
         self._selections[self._selected].callback()
     end
@@ -101,7 +110,9 @@ function selection_box.reset(
     width,
     align,
     color,
-    color_selected)
+    color_selected,
+    selection_sound,
+    selected_sound)
     
     -- public
     self.font_name = font_name
@@ -111,6 +122,8 @@ function selection_box.reset(
     self.align = align or self.align or "center"
     self.color = color or self.color or {1,1,1}
     self.color_selected = color_selected or self.color_selected or {1,0,0}
+    self.selection_sound = selection_sound or self.selection_sound
+    self.selected_sound = selected_sound or self.selected_sound
 
     -- private
 
@@ -126,21 +139,13 @@ end
 
 --------------------------------------------------------------------------------
 
-function selection_box.new(font_name, x, y, width, align, color, color_selected)
+function selection_box.new(font_name, x, y, width, align, color, color_selected, selection_sound, selected_sound)
     local o = {}
 
     -- methods
     utils.assign_methods(o, selection_box)
-    -- o.draw = selection_box.draw
-    -- o.add_selection = selection_box.add_selection
-    -- o.up = selection_box.up
-    -- o.down = selection_box.down
-    -- o.select = selection_box.select    
-    -- o.reset = selection_box.reset
-    -- o.resize = selection_box.resize
-    -- o.get_height = selection_box.get_height
     
-    o:reset(font_name, x, y, width, align, color, color_selected)
+    o:reset(font_name, x, y, width, align, color, color_selected, selection_sound, selected_sound)
 
     return o
 end

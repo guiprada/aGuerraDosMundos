@@ -75,6 +75,19 @@ function gs.load(map_file_path)
     gs.player_health_max = game_conf.player_health_max
     gs.default_zoom = game_conf.default_zoom
 
+
+    -- load sounds
+    gs.snd_found = love.audio.newSource(files.snd_found, "static")
+    gs.snd_hurt = love.audio.newSource(files.snd_hurt, "static")
+    gs.snd_collectable = love.audio.newSource(files.snd_collectable, "static")
+    gs.snd_enemy_found = love.audio.newSource(files.snd_enemy_found, "static")
+    gs.snd_enemy_found:setVolume(0.3)
+    gs.snd_music = love.audio.newSource(files.snd_music, "stream")
+    gs.snd_music:setLooping(true)
+
+    -- start music
+    love.audio.play(gs.snd_music)
+
     -- paused
     gs.paused_text = text_box.new(
         strings.paused,
@@ -162,7 +175,8 @@ function gs.load(map_file_path)
         gs.player,
         gs.tilemap_view.tilesize,
         friend_speed_factor,
-        gs.player_health_max)
+        gs.player_health_max,
+        gs.snd_found)
     -- create friend collision timer
     gs.friend_collision_enabled = true
     local enable_friend_collision = function() gs.friend_collision_enabled = true end
@@ -189,7 +203,8 @@ function gs.load(map_file_path)
             tripod_speed_factor,
             tripod_speed_boost,
             tripod_vision_dist_factor*gs.tilemap_view.tilesize,
-            tripod_vision_angle)
+            tripod_vision_angle,
+            gs.snd_enemy_found)
     end
 
     -- create targets
@@ -208,7 +223,8 @@ function gs.load(map_file_path)
             gs.tilemap_view.tilesize,
             "health",
             gs.damage_points,
-            apple_reactivation_time)
+            apple_reactivation_time,
+            gs.snd_collectable)
         table.insert(gs.collectables, new_apple)
     end
 
@@ -275,6 +291,7 @@ function gs.update(dt)
                     gs.player:take_health(gs.damage_points)
                     gs.player_collision_enabled = false
                     gs.player_collision_timer:reset()
+                    love.audio.play(gs.snd_hurt)
                 end
             end
             if gs.friend_collision_enabled and gs.friend._is_active then
@@ -282,6 +299,7 @@ function gs.update(dt)
                     gs.friend:take_health(gs.damage_points)
                     gs.friend_collision_enabled = false
                     gs.friend_collision_timer:reset()
+                    love.audio.play(gs.snd_hurt)
                 end
             end
         end
@@ -352,7 +370,8 @@ end
 
 function gs.unload()
     -- the callbacks are saved by the gamestate
-    gs = {}    
+    love.audio.stop(gs.snd_music)
+    gs = {}
 end
 
 return gs

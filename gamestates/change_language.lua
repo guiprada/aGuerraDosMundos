@@ -54,6 +54,9 @@ function gs.load(args)
     local w = love.graphics.getWidth()
     local h = love.graphics.getHeight()
 
+    gs.snd_selection = love.audio.newSource(files.snd_selection, "static")
+    gs.snd_selected = love.audio.newSource(files.snd_selected, "static")
+    
     gs.title = text_box.new(
         strings.language_title, 
         "huge",
@@ -79,7 +82,9 @@ function gs.load(args)
         w,
         "center",
         color.gray,
-        color.red)
+        color.red,
+        gs.snd_selection,
+        gs.snd_selected)
 
     local languages = utils.table_read_from_conf(files.available_languages)
     for key, value in pairs(languages) do

@@ -47,8 +47,11 @@ function gs.load()
     gs.width = love.graphics.getWidth()
     gs.height = love.graphics.getHeight()
 
+    gs.snd_selection = love.audio.newSource(files.snd_selection, "static")
+    gs.snd_selected = love.audio.newSource(files.snd_selected, "static")
+    
     gs.sprites = {}
-
+    
     local colors = utils.table_read_from_conf(files.available_colors)
     for _, color in ipairs(colors) do
         table.insert(gs.sprites, love.graphics.newImage(files["spr_" .. color]))
@@ -90,7 +93,9 @@ function gs.load()
         gs.width,
         "center",
         color.yellow,
-        color.red)
+        color.red,
+        gs.snd_selection,
+        gs.snd_selected)
 
     gs.menu:add_selection(
         strings.menu_start,

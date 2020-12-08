@@ -62,8 +62,6 @@ difficulty_instructions =
 \nenter             mudar dificuldade
 \nesc                          voltar'
 
-paused = 'Pausado'
-
 gameover_title = 'Perdeu'
 gameover = 'Perdeu!'
 
@@ -72,6 +70,9 @@ victory = 'Parabens!'
 
 how_to_play_title = 'Como Jogar'
 how_to_play = 'Voce esta em Londres, a cidade foi invadida pelos Tripods e seu objetivo e fugir! Para conseguir voce deve escapar dos invasores e encontrar seu amigo, que ficou com as chaves.'
+
 message_instructions =
  'enter               jogar
 \nesc                voltar'
+
+paused = 'Pausado'

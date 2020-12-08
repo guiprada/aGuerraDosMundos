@@ -35,6 +35,10 @@ function gs.load()
     local w = love.graphics.getWidth()
     local h = love.graphics.getHeight()
     --fonts.resize(w, h)
+
+    gs.snd_selection = love.audio.newSource(files.snd_selection, "static")
+    gs.snd_selected = love.audio.newSource(files.snd_selected, "static")
+    
     gs.waiting_for_key = false
 
     -- local copy of keymap
@@ -83,7 +87,9 @@ function gs.load()
         w,
         "center",
         color.gray,
-        color.red)
+        color.red,
+        gs.snd_selection,
+        gs.snd_selected)
 
     gs.selection = {}
     local order = { 

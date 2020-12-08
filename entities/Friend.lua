@@ -19,7 +19,7 @@ function Friend._move(self, dt, tilesize)
     end
 end
 
-function Friend.new(cell_x, cell_y, sprite, grid, size_factor, follow_target, tilesize, speed_factor, health_max)
+function Friend.new(cell_x, cell_y, sprite, grid, size_factor, follow_target, tilesize, speed_factor, health_max, found_sound)
     local o = {}
     o._is_active = false
     o._sprite = sprite
@@ -39,6 +39,7 @@ function Friend.new(cell_x, cell_y, sprite, grid, size_factor, follow_target, ti
     o.x, o.y = grid.cell_to_center_point(cell_x, cell_y, tilesize)
     o.old_x, o.old_y = o.x, o.y
     o.health = health_max
+    o.found_sound = found_sound
 
     utils.assign_methods(o, Friend)
     return o
@@ -60,6 +61,7 @@ function Friend.update(self, dt, tilesize)
         local angle = math.atan2(self.follow_target.y - self.y, self.follow_target.x - self.x)
         if self.grid:check_unobstructed(self, angle, 3*tilesize, tilesize, self.speed_factor * tilesize * dt) == true then            
             self._is_active = true
+            love.audio.play(self.found_sound)
             self._target_cell.x, self._target_cell.y = self.follow_target._cell.x, self.follow_target._cell.y  
         end
     end

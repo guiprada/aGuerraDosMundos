@@ -37,6 +37,9 @@ function Tripod._get_next_cell(self, dt, targets, tilesize)
         self._target_cell.x = closest._cell.x
         self._target_cell.y = closest._cell.y
         self.curr_speed_factor = self.speed_factor_boost * self.speed_factor
+        if self._is_boosting == false and self.found_player_sound and love.audio.getSourceCount() < 3 then
+            love.audio.play(self.found_player_sound)
+        end
         self._is_boosting = true
     else
         self.curr_speed_factor = self.speed_factor
@@ -95,7 +98,7 @@ function Tripod._can_see(self, dt, target, tilesize)
             self._rot + (self.vision_angle/2) > angle then
         -- it is in view
         -- check unobstructed
-            if self.grid:check_unobstructed(p_self, angle, self.vision_dist, tilesize, self.curr_speed_factor * tilesize * dt) then
+            if self.grid:check_unobstructed(p_self, angle, self.vision_dist, tilesize, self.curr_speed_factor * tilesize * dt) then                
                 return true
             end
         end
@@ -103,7 +106,7 @@ function Tripod._can_see(self, dt, target, tilesize)
     return false
 end
 
-function Tripod.new(start_cell, end_cell, sprite, grid, size_factor, tilesize, speed_factor, speed_factor_boost, vision_dist, vision_angle)
+function Tripod.new(start_cell, end_cell, sprite, grid, size_factor, tilesize, speed_factor, speed_factor_boost, vision_dist, vision_angle, found_player_sound)
     local o = {}
 
     o.x, o.y = grid.cell_to_center_point(start_cell.x, start_cell.y, tilesize)
@@ -129,6 +132,8 @@ function Tripod.new(start_cell, end_cell, sprite, grid, size_factor, tilesize, s
     o.vision_dist = vision_dist or 10*tilesize
     o.vision_angle = vision_angle or math.pi/5
     o.last_x, o.last_y = o.x, o.y
+
+    o.found_player_sound = found_player_sound
 
     o._last_cell = {}
     o._next_cell = {}
