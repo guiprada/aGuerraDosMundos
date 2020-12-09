@@ -37,7 +37,7 @@ function Tripod._get_next_cell(self, dt, targets, tilesize)
         self._target_cell.x = closest._cell.x
         self._target_cell.y = closest._cell.y
         self.curr_speed_factor = self.speed_factor_boost * self.speed_factor
-        if self._is_boosting == false and self.found_player_sound and love.audio.getSourceCount() < 3 then
+        if self._is_boosting == false and self.found_player_sound and love.audio.getActiveSourceCount() < 3 then
             love.audio.play(self.found_player_sound)
         end
         self._is_boosting = true
