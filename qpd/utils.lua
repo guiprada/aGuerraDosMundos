@@ -1,6 +1,185 @@
 local utils = {}
 
-math.randomseed( os.time() )
+math.randomseed(os.time())
+
+function utils.run_tests()
+    print("Starting qpd.utils.run_tests()") 
+
+    -- test clamp
+    assert(
+        utils.clamp(5, 1, 10) == 5,
+        "error on utils.clamp, test 1")        
+    assert(
+        utils.clamp(0, 1, 10) == 1,
+        "error on utils.clamp, test 2")    
+    assert(
+        utils.clamp(11, 1, 10) == 10,
+        "error on utils.clamp, test 3")
+
+    -- test normalize
+    local x, y = utils.normalize(1, 1)
+    assert(
+        x == 1/(2^(1/2)) and y == 1/(2^(1/2)),
+        "error on utils.normalize, test 1")
+
+    local x, y = utils.normalize(-1, 2)
+    assert(
+        x == -1/(5^(1/2)) and y == 2/(5^(1/2)),
+        "error on utils.normalize, test 2")
+
+    local x, y = utils.normalize(100, -1)
+    assert(
+        x == 100/(10001^(1/2)) and y == -1/(10001^(1/2)),
+        "error on utils.normalize, test 3")
+
+    local x, y = utils.normalize(-10, -10)
+    assert(
+        x == -10/(200^(1/2)) and y == -10/(200^(1/2)),
+        "error on utils.normalize, test 4")
+
+    local x, y = utils.normalize(0, 0)
+    assert(
+        x == 0 and y == 0,
+        "error on utils.normalize, test 5")
+ 
+    local x, y = utils.normalize(0, 1)
+    assert(
+        x == 0 and y == 1,
+        "error on utils.normalize, test 6")
+
+    -- test max
+    assert(
+        utils.max(5, 1) == 5,
+        "error on utils.max, test 1")
+    assert(
+        utils.max(1, 5) == 5,
+        "error on utils.max, test 2")
+    assert(
+        utils.max(-5, 1) == 1,
+        "error on utils.max, test 3")
+    assert(
+        utils.max(1, -5) == 1,
+        "error on utils.max, test 4")
+    assert(
+        utils.max(-5, -1) == -1,
+        "error on utils.max, test 5")
+    assert(
+        utils.max(-1, -5) == -1,
+        "error on utils.max, test 6")
+    
+    -- test min
+    assert(
+        utils.min(5, 1) == 1,
+        "error on utils.min, test 1")
+    assert(
+        utils.min(1, 5) == 1,
+        "error on utils.min, test 2")
+    assert(
+        utils.min(-5, 1) == -5,
+        "error on utils.min, test 3")
+    assert(
+        utils.min(1, -5) == -5,
+        "error on utils.min, test 4")
+    assert(
+        utils.min(-5, -1) == -5,
+        "error on utils.min, test 5")
+    assert(
+        utils.min(-1, -5) == -5,
+        "error on utils.min, test 6")
+
+    -- test round_to_dec
+    assert(
+        utils.round_to_dec(5) == 5,
+        "error on utils.round_to_dec, test 1")
+    assert(
+        utils.round_to_dec(5.12345) == 5.12,
+        "error on utils.round_to_dec, test 2")
+    assert(
+        utils.round_to_dec(5.125) == 5.13,
+        "error on utils.round_to_dec, test 3")    
+    
+    assert(
+        utils.round_to_dec(-5) == -5,
+        "error on utils.round_to_dec, test 4")
+    assert(
+        utils.round_to_dec(-5.12345) == -5.12,
+        "error on utils.round_to_dec, test 5")
+    assert(
+        utils.round_to_dec(-5.125) == -5.13,
+        "error on utils.round_to_dec, test 6")
+        
+    assert(
+        utils.round_to_dec(5.124999999999999) == 5.12,
+        "error on utils.round_to_dec, test 7")       
+    assert(
+        utils.round_to_dec(5.125000000000000000000000000000000000000) == 5.13,
+        "error on utils.round_to_dec, test 8")
+
+    -- test number_to_bool
+    assert(
+        utils.number_to_bool(0) == false,
+        "error on utils.number_to_bool, test 1")
+    assert(
+        utils.number_to_bool(1) == true,
+        "error on utils.number_to_bool, test 2")
+    assert(
+        utils.number_to_bool(5) == nil,
+        "error on utils.number_to_bool, test 3")     
+
+    -- test string_to_bool
+    assert(
+        utils.string_to_bool("false") == false,
+        "error on utils.string_to_bool, test 1")
+    assert(
+        utils.string_to_bool("true") == true,
+        "error on utils.string_to_bool, test 2")
+    assert(
+        utils.string_to_bool(5) == nil,
+        "error on utils.string_to_bool, test 3")   
+    assert(
+        utils.string_to_bool(true) == nil,
+        "error on utils.string_to_bool, test 4")
+    assert(
+        utils.string_to_bool("Zaratrusta") == nil,
+        "error on utils.string_to_bool, test 5")   
+
+    -- test string_maybe_bool
+    assert(
+        utils.string_maybe_bool("false") == false,
+        "error on utils.string_maybe_bool, test 1")
+    assert(
+        utils.string_maybe_bool("true") == true,
+        "error on utils.string_maybe_bool, test 2")
+    assert(
+        utils.string_maybe_bool(5) == 5,
+        "error on utils.string_maybe_bool, test 3")   
+    assert(
+        utils.string_maybe_bool(true) == true,
+        "error on utils.string_maybe_bool, test 4")
+    assert(
+        utils.string_maybe_bool("Zaratrusta") == "Zaratrusta",
+        "error on utils.string_maybe_bool, test 5")
+
+    -- test utils.check_collision
+    -- check_collision_quad() is just a wrapper for check_collision()
+    local A = {x = 0, y = 0, w = 1, h = 1}
+    local B = {x = 0.5, y = 0.5, w = 1, h = 1}
+    local C = {x = -0.5, y = -0.5, w = 1, h = 1}
+    local D = {x = 1, y = 1, w = 1, h = 1}
+    assert(
+        utils.check_collision_quad(A, B) == true,
+        "error on utils.check_collision, test 1")
+    assert(
+        utils.check_collision_quad(B, C) == true,
+        "error on utils.check_collision, test 2")
+    assert(
+        utils.check_collision_quad(C, D) == false,
+        "error on utils.check_collision, test 3")
+
+    -- if we got here maybe things are ok
+    print("qpd.utils.run_tests() says ok!")
+end
+
 --------------------------------------------------------------------- prototypes
 
 function utils.assign_methods(self, class)

@@ -54,6 +54,8 @@ function love.load()
     gamestate.register("change_difficulty", require "gamestates.change_difficulty")
     gamestate.register("message", require "gamestates.message")
 
+    utils.run_tests()
+
     -- detect first time run
     local has_run = io.open(files.has_run)
     if has_run then
