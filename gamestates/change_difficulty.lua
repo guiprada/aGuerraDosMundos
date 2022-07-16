@@ -15,88 +15,88 @@ local strings = require "qpd.services.strings"
 
 --------------------------------------------------------------------------------
 
-local function exit()    
-    gamestate.switch("settings_menu")
+local function exit()
+	gamestate.switch("settings_menu")
 end
 
 local function save(value)
-    local game_conf = utils.table_read_from_conf(files.game_conf)
-    game_conf.difficulty = value
-    print(value)
-    utils.table_write_to_file(game_conf, files.game_conf)
-    exit()
+	local game_conf = utils.table_read_from_conf(files.game_conf)
+	game_conf.difficulty = value
+	print(value)
+	utils.table_write_to_file(game_conf, files.game_conf)
+	exit()
 end
 
 --------------------------------------------------------------------------------
 
 function gs.load(args)
-    
-    local w = love.graphics.getWidth()
-    local h = love.graphics.getHeight()
 
-    gs.title = text_box.new(
-        strings.difficulty_title, 
-        "huge",
-        0,
-        0,
-        w,
-        "center",
-        color.yellow)
+	local w = love.graphics.getWidth()
+	local h = love.graphics.getHeight()
 
-    gs.instructions = text_box.new( 
-        strings.difficulty_instructions,
-        "regular",
-        0,
-        h*7/8,
-        w,
-        "center",
-        color.offwhite) 
+	gs.title = text_box.new(
+		strings.difficulty_title,
+		"huge",
+		0,
+		0,
+		w,
+		"center",
+		color.yellow)
 
-    gs.selection_box = selection_box.new(   
-        "big",
-        0,
-        h*1/4,
-        w,
-        "center",
-        color.gray,
-        color.red)
+	gs.instructions = text_box.new(
+		strings.difficulty_instructions,
+		"regular",
+		0,
+		h*7/8,
+		w,
+		"center",
+		color.offwhite)
 
-    local difficulties = utils.table_read_from_conf(files.available_difficulty)
-    for key, value in ipairs(difficulties) do
-        gs.selection_box:add_selection(value, function() save(key) end)
-    end
+	gs.selection_box = selection_box.new(
+		"big",
+		0,
+		h*1/4,
+		w,
+		"center",
+		color.gray,
+		color.red)
 
-    gs.actions = {}
-    gs.actions[keymap.keys.exit] = exit
-    gs.actions[keymap.keys.up] = function () gs.selection_box:up() end
-    gs.actions[keymap.keys.down] = function () gs.selection_box:down() end
-    gs.actions[keymap.keys.select] =  function () gs.selection_box:select() end
+	local difficulties = utils.table_read_from_conf(files.available_difficulty)
+	for key, value in ipairs(difficulties) do
+		gs.selection_box:add_selection(value, function() save(key) end)
+	end
+
+	gs.actions = {}
+	gs.actions[keymap.keys.exit] = exit
+	gs.actions[keymap.keys.up] = function () gs.selection_box:up() end
+	gs.actions[keymap.keys.down] = function () gs.selection_box:down() end
+	gs.actions[keymap.keys.select] =  function () gs.selection_box:select() end
 end
 
 function gs.draw()
-    gs.title:draw()
-    gs.instructions:draw()
-    gs.selection_box:draw()
+	gs.title:draw()
+	gs.instructions:draw()
+	gs.selection_box:draw()
 end
 
 function gs.keyreleased(key, scancode)
-    local func = gs.actions[key]
+	local func = gs.actions[key]
 
-    if func then
-        func()
-    end
+	if func then
+		func()
+	end
 end
 
 function gs.resize(w, h)
-    fonts.resize(w, h)
-    gs.title:resize(0, 0, w)
-    gs.instructions:resize(0, h*7/8, w)
-    gs.selection_box:resize(0, h*1/4, w)
+	fonts.resize(w, h)
+	gs.title:resize(0, 0, w)
+	gs.instructions:resize(0, h*7/8, w)
+	gs.selection_box:resize(0, h*1/4, w)
 end
 
 function gs.unload()
-    -- the callbacks are saved by the gamestate
-    gs = {}
+	-- the callbacks are saved by the gamestate
+	gs = {}
 end
 
 return gs

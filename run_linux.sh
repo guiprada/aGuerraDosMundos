@@ -1,2 +1,2 @@
 #!/bin/sh
-./love-11.3-x86_64.AppImage ./
+./love/love-11.4-x86_64.AppImage ./

@@ -26,4 +26,8 @@ color.black = {0.0, 0.0, 0.0}
 color.white = {1.0, 1.0, 1.0}
 color.offwhite = {0.96, 0.96, 0.96}
 
+function color.unpack(color)
+	return color[1], color[2], color[3], color[4]
+end
+
 return color

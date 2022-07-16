@@ -33,9 +33,9 @@ color2.offwhite   = { 245, 245, 245}
 local color = {}
 
 for key, value in pairs(color2)do
-    color[key] = "{" .. tostring(value[1]/255) .. ", " ..
-                        tostring(value[2]/255) .. ", " ..
-                        tostring(value[3]/255) .. "}"
+	color[key] = "{" .. tostring(value[1]/255) .. ", " ..
+						tostring(value[2]/255) .. ", " ..
+						tostring(value[3]/255) .. "}"
 end
 
 utils.table_write_to_file(color, "converted_colors", "=")

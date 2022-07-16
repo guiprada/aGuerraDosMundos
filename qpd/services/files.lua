@@ -1,15 +1,15 @@
 local files = {}
-local utils = require "qpd.utils" 
+local utils = require "qpd.utils"
 
 function files.load(path)
-    local file_paths = utils.table_read_from_conf(path, "=")
-    assert(
-        file_paths,
-        "files.load() could not read its configuration file: " .. path)
+	local file_paths = utils.table_read_from_conf(path, "=")
+	assert(
+		file_paths,
+		"files.load() could not read its configuration file: " .. path)
 
-    for key, value in pairs(file_paths) do
-        files[key] = value
-    end
+	for key, value in pairs(file_paths) do
+		files[key] = value
+	end
 end
 
 -- local this_path = ...
