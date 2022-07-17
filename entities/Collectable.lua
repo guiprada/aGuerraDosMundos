@@ -1,14 +1,12 @@
 local Collectable = {}
 
-local utils = require "qpd.utils"
-local timer = require "qpd.timer"
-local grid = require "qpd.grid"
+local qpd = require "qpd.qpd"
 
 function Collectable.new(cell, sprite, size_factor, tilesize, bonus_type, bonus_quant, reactivation_time)
 	local o = {}
 
-	o.x, o.y = grid.cell_to_center_point(cell.x, cell.y, tilesize)
-	o.cell = utils.table_clone(cell)
+	o.x, o.y = qpd.grid.cell_to_center_point(cell.x, cell.y, tilesize)
+	o.cell = qpd.table.clone(cell)
 
 	o._sprite = sprite
 	o._size_factor = size_factor
@@ -26,10 +24,10 @@ function Collectable.new(cell, sprite, size_factor, tilesize, bonus_type, bonus_
 		local function reactivate()
 			o._is_enabled = true
 		end
-		o._timer = timer.new(reactivation_time, reactivate)
+		o._timer = qpd.timer.new(reactivation_time, reactivate)
 	end
 
-	utils.assign_methods(o, Collectable)
+	qpd.table.assign_methods(o, Collectable)
 
 	return o
 end
@@ -58,7 +56,7 @@ function Collectable.is_enabled(self)
 end
 
 function Collectable.resize(self, tilesize)
-	self.x, self.y = grid.cell_to_center_point(self.cell.x, self.cell.y, tilesize)
+	self.x, self.y = qpd.grid.cell_to_center_point(self.cell.x, self.cell.y, tilesize)
 	self._size = self._size_factor*tilesize
 	self._scale = self._size/ self._sprite:getWidth()
 	self._offset = (self._size/2) * (1/self._scale)

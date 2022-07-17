@@ -1,8 +1,6 @@
 local Player = {}
 
-local keymap = require "qpd.services.keymap"
-local utils = require "qpd.utils"
-local grid = require "qpd.grid"
+local qpd = require "qpd.qpd"
 
 function Player.new(x, y, sprite, grid, size_factor, tilesize, speed_factor, health_max)
 	local o = {}
@@ -23,7 +21,7 @@ function Player.new(x, y, sprite, grid, size_factor, tilesize, speed_factor, hea
 	o.grid = grid
 	o.health = health_max
 
-	utils.assign_methods(o, Player)
+	qpd.table.assign_methods(o, Player)
 
 	return o
 end
@@ -34,35 +32,35 @@ function Player.update(self, dt, tilesize)
 
 	local new_x, new_y = self.x, self.y
 
-	if love.keyboard.isDown(keymap.keys.up) and (not love.keyboard.isDown(keymap.keys.down)) then
-		if love.keyboard.isDown(keymap.keys.left) and love.keyboard.isDown(keymap.keys.right) then
+	if love.keyboard.isDown(qpd.keymap.keys.up) and (not love.keyboard.isDown(qpd.keymap.keys.down)) then
+		if love.keyboard.isDown(qpd.keymap.keys.left) and love.keyboard.isDown(qpd.keymap.keys.right) then
 			new_y = self.y - motion
-		elseif love.keyboard.isDown(keymap.keys.left) then
+		elseif love.keyboard.isDown(qpd.keymap.keys.left) then
 			new_y = self.y - diag_motion
 			new_x = self.x - diag_motion
-		elseif love.keyboard.isDown(keymap.keys.right) then
+		elseif love.keyboard.isDown(qpd.keymap.keys.right) then
 			new_y = self.y - diag_motion
 			new_x = self.x + diag_motion
 		else
 			new_y = self.y - motion
 		end
-	elseif love.keyboard.isDown(keymap.keys.down) and (not love.keyboard.isDown(keymap.keys.up)) then
-		if love.keyboard.isDown(keymap.keys.left) and love.keyboard.isDown(keymap.keys.right) then
+	elseif love.keyboard.isDown(qpd.keymap.keys.down) and (not love.keyboard.isDown(qpd.keymap.keys.up)) then
+		if love.keyboard.isDown(qpd.keymap.keys.left) and love.keyboard.isDown(qpd.keymap.keys.right) then
 			new_y = self.y + motion
-		elseif love.keyboard.isDown(keymap.keys.left) then
+		elseif love.keyboard.isDown(qpd.keymap.keys.left) then
 			new_y = self.y + diag_motion
 			new_x = self.x - diag_motion
-		elseif love.keyboard.isDown(keymap.keys.right) then
+		elseif love.keyboard.isDown(qpd.keymap.keys.right) then
 			new_y = self.y + diag_motion
 			new_x = self.x + diag_motion
 		else
 			new_y = self.y + motion
 		end
 	else
-		if love.keyboard.isDown(keymap.keys.left) then
+		if love.keyboard.isDown(qpd.keymap.keys.left) then
 			new_x = self.x - motion
 		end
-		if love.keyboard.isDown(keymap.keys.right) then
+		if love.keyboard.isDown(qpd.keymap.keys.right) then
 			new_x = self.x + motion
 		end
 	end
@@ -101,7 +99,7 @@ function Player.update(self, dt, tilesize)
 	end
 
 	-- update cell
-	self._cell.x, self._cell.y = grid.point_to_cell(self.x, self.y, tilesize)
+	self._cell.x, self._cell.y = qpd.grid.point_to_cell(self.x, self.y, tilesize)
 end
 
 function Player.draw(self, collision_enabled)
@@ -133,7 +131,7 @@ function Player.take_health(self, h_much)
 end
 
 function Player.resize(self, tilesize)
-	self.x, self.y = grid.cell_to_center_point(self._cell.x, self._cell.y, tilesize)
+	self.x, self.y = qpd.grid.cell_to_center_point(self._cell.x, self._cell.y, tilesize)
 	self._size = self._size_factor * tilesize
 	self._scale = self._size/ self._sprite:getWidth()
 	self._offset = (self._size/2) * (1/self._scale)

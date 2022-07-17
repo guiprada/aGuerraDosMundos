@@ -1,26 +1,13 @@
 local gs = {}
 
-local gamestate = require "qpd.gamestate"
-local utils = require "qpd.utils"
-
-local text_box = require "qpd.widgets.text_box"
-local selection_box = require "qpd.widgets.selection_box"
-
-local color = require "qpd.color"
-
-local files = require "qpd.services.files"
-local keymap = require "qpd.services.keymap"
-local fonts = require "qpd.services.fonts"
-local strings = require "qpd.services.strings"
-local window = require "qpd.services.window"
+local qpd = require "qpd.qpd"
 
 --------------------------------------------------------------------------------
-
 local function save(w, h)
-	local new_settings = window.get_settings()
+	local new_settings = qpd.window.get_settings()
 	new_settings.width = w
 	new_settings.height = h
-	gamestate.switch("save_settings", new_settings)
+	qpd.gamestate.switch("save_settings", new_settings)
 end
 
 local function save_current()
@@ -28,65 +15,64 @@ local function save_current()
 end
 
 --------------------------------------------------------------------------------
-
 function gs.load()
 	local w = love.graphics.getWidth()
 	local h = love.graphics.getHeight()
 
-	gs.title = text_box.new(
-		strings.resolution_title,
+	gs.title = qpd.text_box.new(
+		qpd.strings.resolution_title,
 		"huge",
 		0,
 		0,
 		w,
 		"center",
-		color.yellow)
+		qpd.color.yellow)
 
-	gs.current = text_box.new(
-		table.concat({strings.resolution_current, w, " x ", h}),
+	gs.current = qpd.text_box.new(
+		table.concat({qpd.strings.resolution_current, w, " x ", h}),
 		"regular",
 		0,
 		h*1/6,
 		w,
 		"center",
-		color.magenta)
+		qpd.color.magenta)
 
-	gs.saved = text_box.new(
-		strings.resolution_saved ..
-		window.settings.width .. " x " ..
-		window.settings.height,
+	gs.saved = qpd.text_box.new(
+		qpd.strings.resolution_saved ..
+		qpd.window.settings.width .. " x " ..
+		qpd.window.settings.height,
 		"regular",
 		0,
 		h*1/6 +
 		gs.current:get_height(),
 		w,
 		"center",
-		color.magenta)
+		qpd.color.magenta)
 
-	gs.instructions = text_box.new(
-		strings.resolution_instructions,
+	gs.instructions = qpd.text_box.new(
+		qpd.strings.resolution_instructions,
 		"regular",
 		0,
 		h*7/8,
 		w,
 		"center",
-		color.offwhite)
+		qpd.color.offwhite)
 
-	gs.selection_box = selection_box.new(
+	gs.selection_box = qpd.selection_box.new(
 		"big",
 		0,
 		h*1/4,
 		w,
 		"center",
-		color.gray,
-		color.red)
+		qpd.color.gray,
+		qpd.color.red)
 
 	gs.selection_box:add_selection(
-		strings.resolution_save_current,
+		qpd.strings.resolution_save_current,
 		save_current)
 
 	gs.resolutions =
-				utils.table_read_from_conf(files.available_resolutions, "x")
+				qpd.table.read_from_conf(qpd.files.available_resolutions, "x")
 	-- lets sort it
 	local sorted = {}
 	local index = 0
@@ -111,14 +97,14 @@ function gs.load()
 	end
 
 	gs.actions = {}
-	gs.actions[keymap.keys.exit] =
+	gs.actions[qpd.keymap.keys.exit] =
 		function ()
-			gamestate.switch("settings_menu")
+			qpd.gamestate.switch("settings_menu")
 		end
 
-	gs.actions[keymap.keys.up] = function () gs.selection_box:up() end
-	gs.actions[keymap.keys.down] = function () gs.selection_box:down() end
-	gs.actions[keymap.keys.select] =  function () gs.selection_box:select() end
+	gs.actions[qpd.keymap.keys.up] = function () gs.selection_box:up() end
+	gs.actions[qpd.keymap.keys.down] = function () gs.selection_box:down() end
+	gs.actions[qpd.keymap.keys.select] =  function () gs.selection_box:select() end
 end
 
 function gs.draw()
@@ -138,9 +124,9 @@ function gs.keyreleased(key, scancode)
 end
 
 function gs.resize(w, h)
-	fonts.resize(w, h)
+	qpd.fonts.resize(w, h)
 	gs.title:resize(0, 0, w)
-	gs.current.text = table.concat({strings.resolution_current, w, " x ", h})
+	gs.current.text = table.concat({qpd.strings.resolution_current, w, " x ", h})
 	gs.current:resize(0, h*1/6, w)
 	gs.saved:resize(0, h*1/6 + gs.current:get_height(), w)
 	gs.selection_box:resize(0, h*1/4, w)

@@ -1,29 +1,17 @@
 local gs = {}
 
-local gamestate = require "qpd.gamestate"
-local utils = require "qpd.utils"
-
-local text_box = require "qpd.widgets.text_box"
-local selection_box = require "qpd.widgets.selection_box"
-
-local color = require "qpd.color"
-
-local files = require "qpd.services.files"
-local keymap = require "qpd.services.keymap"
-local fonts = require "qpd.services.fonts"
-local strings = require "qpd.services.strings"
+local qpd = require "qpd.qpd"
 
 --------------------------------------------------------------------------------
-
 local function exit()
-	gamestate.switch("settings_menu")
+	qpd.gamestate.switch("settings_menu")
 end
 
 local function load_sprite(target)
-	local game_conf = utils.table_read_from_conf(files.game_conf)
+	local game_conf = qpd.table.read_from_conf(qpd.files.game_conf)
 	if game_conf then
 		local color_saved = game_conf[target]
-		gs.selected_sprite = love.graphics.newImage(files["spr_" .. color_saved])
+		gs.selected_sprite = love.graphics.newImage(qpd.files["spr_" .. color_saved])
 	else
 		print("Failed to read game.conf")
 	end
@@ -33,18 +21,17 @@ local function sprite_dimension(w,h)
 	gs.selected_sprite_pos.x = 3*w/4
 	gs.selected_sprite_pos.y = h/2
 	gs.selected_sprite_rot = -math.pi/2
-	gs.selected_sprite_scale = utils.min(w,h)/(3*gs.selected_sprite:getWidth())
+	gs.selected_sprite_scale = qpd.value.min(w,h)/(3*gs.selected_sprite:getWidth())
 end
 
 local function save(target, value)
-	local game_conf = utils.table_read_from_conf(files.game_conf)
+	local game_conf = qpd.table.read_from_conf(qpd.files.game_conf)
 	game_conf[target] = value
-	utils.table_write_to_file(game_conf, files.game_conf)
+	qpd.table.write_to_file(game_conf, qpd.files.game_conf)
 	load_sprite(target)
 end
 
 --------------------------------------------------------------------------------
-
 function gs.load(args)
 	local target = args
 
@@ -58,43 +45,43 @@ function gs.load(args)
 	gs.selected_sprite_pos = {}
 	sprite_dimension(w, h)
 
-	gs.title = text_box.new(
-		strings.color_title,
+	gs.title = qpd.text_box.new(
+		qpd.strings.color_title,
 		"huge",
 		0,
 		0,
 		w,
 		"center",
-		color.yellow)
+		qpd.color.yellow)
 
-	gs.instructions = text_box.new(
-		strings.color_instructions,
+	gs.instructions = qpd.text_box.new(
+		qpd.strings.color_instructions,
 		"regular",
 		0,
 		h*7/8,
 		w,
 		"center",
-		color.offwhite)
+		qpd.color.offwhite)
 
-	gs.selection_box = selection_box.new(
+	gs.selection_box = qpd.selection_box.new(
 		"big",
 		0,
 		h*1/4,
 		w/2,
 		"center",
-		color.gray,
-		color.red)
+		qpd.color.gray,
+		qpd.color.red)
 
-	local colors = utils.table_read_from_conf(files.available_colors)
+	local colors = qpd.table.read_from_conf(qpd.files.available_colors)
 	for key, value in ipairs(colors) do
 		gs.selection_box:add_selection(value, function() save(target, value) end)
 	end
 
 	gs.actions = {}
-	gs.actions[keymap.keys.exit] = exit
-	gs.actions[keymap.keys.up] = function () gs.selection_box:up() end
-	gs.actions[keymap.keys.down] = function () gs.selection_box:down() end
-	gs.actions[keymap.keys.select] =  function () gs.selection_box:select() end
+	gs.actions[qpd.keymap.keys.exit] = exit
+	gs.actions[qpd.keymap.keys.up] = function () gs.selection_box:up() end
+	gs.actions[qpd.keymap.keys.down] = function () gs.selection_box:down() end
+	gs.actions[qpd.keymap.keys.select] =  function () gs.selection_box:select() end
 end
 
 function gs.draw()
@@ -122,7 +109,7 @@ function gs.keyreleased(key, scancode)
 end
 
 function gs.resize(w, h)
-	fonts.resize(w, h)
+	qpd.fonts.resize(w, h)
 	gs.title:resize(0, 0, w)
 	gs.instructions:resize(0, h*7/8, w)
 	gs.selection_box:resize(0, h*1/4, w/2)

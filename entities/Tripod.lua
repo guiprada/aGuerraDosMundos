@@ -1,7 +1,6 @@
 local Tripod = {}
 
-local utils = require "qpd.utils"
-local grid = require "qpd.grid"
+local qpd = require "qpd.qpd"
 
 function Tripod._update__rotation(self)
 	-- local delta_x = self._next_cell.x - self._cell.x
@@ -13,7 +12,7 @@ function Tripod._update__rotation(self)
 
 
 	local o2 = math.atan2(delta_y, delta_x)
-	self._rot = utils.lerp_rotation(self._rot, o2, self.vision_angle)
+	self._rot = qpd.point.lerp_rotation(self._rot, o2, self.vision_angle)
 end
 
 function Tripod._get_next_cell(self, dt, targets, tilesize)
@@ -25,9 +24,9 @@ function Tripod._get_next_cell(self, dt, targets, tilesize)
 	end
 	if #viable_targets >= 1 then
 		local closest = viable_targets[1]
-		local min_distance = utils.distance2(self, closest)
+		local min_distance = qpd.point.distance2(self, closest)
 		for i = 2, #viable_targets, 1 do
-			local this_distance = utils.distance2(self, viable_targets[i])
+			local this_distance = qpd.point.distance2(self, viable_targets[i])
 			if this_distance < min_distance then
 				closest = viable_targets[i]
 				min_distance = this_distance
@@ -57,10 +56,10 @@ function Tripod._get_next_cell(self, dt, targets, tilesize)
 
 	-- see which one gets it closer to target
 	if #allowed >= 2 then
-		local min_dist = utils.distance2(allowed[1], self._target_cell)
+		local min_dist = qpd.point.distance2(allowed[1], self._target_cell)
 		local next_grid = allowed[1]
 		for i=2, #allowed, 1 do
-			local dist = utils.distance2(allowed[i], self._target_cell)
+			local dist = qpd.point.distance2(allowed[i], self._target_cell)
 			if dist < min_dist then
 				min_dist = dist
 				next_grid = allowed[i]
@@ -84,7 +83,7 @@ end
 function Tripod._can_see(self, dt, target, tilesize)
 	local p_target = {x = target.x, y = target.y}
 	local p_self = {x = self.x, y = self.y}
-	local distance = utils.distance2(p_target, p_self)
+	local distance = qpd.point.distance2(p_target, p_self)
 	if distance < self.vision_dist then
 		-- check within angle
 		local delta_y = p_target.y - p_self.y
@@ -133,7 +132,7 @@ function Tripod.new(start_cell, end_cell, sprite, grid, size_factor, tilesize, s
 	o._last_cell = {}
 	o._next_cell = {}
 
-	utils.assign_methods(o, Tripod)
+	qpd.table.assign_methods(o, Tripod)
 
 	o:_get_next_cell(0, {}, tilesize)
 
@@ -141,7 +140,7 @@ function Tripod.new(start_cell, end_cell, sprite, grid, size_factor, tilesize, s
 end
 
 function Tripod.update(self, dt, targets, tilesize)
-	self._cell.x, self._cell.y = grid.point_to_cell(self.x, self.y, tilesize)
+	self._cell.x, self._cell.y = qpd.grid.point_to_cell(self.x, self.y, tilesize)
 
 	-- has reached the target?
 	if  self._cell.x == self._target_cell.x and
@@ -172,7 +171,7 @@ function Tripod._flip_target_cell(self, tilesize)
 		self._target_cell.x, self._target_cell.y = self._end_cell.x, self._end_cell.y
 	else
 		local furthest = "_end_cell"
-		if utils.distance2(self._cell, self._start_cell) > utils.distance2(self._cell, self._end_cell) then
+		if qpd.point.distance2(self._cell, self._start_cell) > qpd.point.distance2(self._cell, self._end_cell) then
 			furthest = "_start_cell"
 		end
 		self._target_cell.x, self._target_cell.y = self[furthest].x, self[furthest].y
@@ -180,12 +179,12 @@ function Tripod._flip_target_cell(self, tilesize)
 end
 
 function Tripod._move(self, dt, targets, tilesize)
-	local px, py = grid.cell_to_center_point(self._next_cell.x, self._next_cell.y, tilesize)
+	local px, py = qpd.grid.cell_to_center_point(self._next_cell.x, self._next_cell.y, tilesize)
 	local has_reached = false
 
 	self.last_x, self.last_y = self.x, self.y
 	-- self.x, self.y, has_reached = utils.lerp2({x = self.x, y = self.y}, {x = px, y = py}, self.curr_speed_factor * tilesize * dt)
-	self.x, self.y, has_reached = utils.lerp(self.x, self.y, px, py, self.curr_speed_factor * tilesize * dt)
+	self.x, self.y, has_reached = qpd.point.lerp(self.x, self.y, px, py, self.curr_speed_factor * tilesize * dt)
 
 	if has_reached then
 		self:_get_next_cell(dt, targets, tilesize)
@@ -202,7 +201,7 @@ function Tripod.set_speed_factor(self, speed_factor)
 end
 
 function Tripod.resize(self, tilesize)
-	self.x, self.y = grid.cell_to_center_point(self._cell.x, self._cell.y, tilesize)
+	self.x, self.y = qpd.grid.cell_to_center_point(self._cell.x, self._cell.y, tilesize)
 	self._size = self._size_factor * tilesize
 	self._scale = self._size/ self._sprite:getHeight()
 	self._offset = (self._size/2) * (1/self._scale)

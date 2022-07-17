@@ -1,7 +1,8 @@
 local grid_selector = {}
 
-local utils = require "qpd.utils"
-local color = require "qpd.color"
+local qpd_table = require "qpd.table"
+local qpd_value = require "qpd.value"
+local qpd_color = require "qpd.color"
 
 function grid_selector.new(
 	offset_x,
@@ -30,7 +31,7 @@ function grid_selector.new(
 	o.tilesize = tilesize
 	o.color = color or {1, 0, 0}
 
-	utils.assign_methods(o, grid_selector)
+	qpd_table.assign_methods(o, grid_selector)
 
 	return o
 end
@@ -39,7 +40,7 @@ end
 
 function grid_selector.draw(self)
 	local r, g, b, a = love.graphics.getColor()
-	love.graphics.setColor(color.unpack(self.color))
+	love.graphics.setColor(qpd_color.unpack(self.color))
 
 	love.graphics.rectangle(
 		"line",
@@ -52,25 +53,25 @@ function grid_selector.draw(self)
 end
 
 function grid_selector.up(self)
-	self.grid_y = utils.clamp(
+	self.grid_y = qpd_value.clamp(
 		self.grid_y - 1,
 		self.min_grid_y, self.max_grid_y)
 end
 
 function grid_selector.down(self)
-	self.grid_y = utils.clamp(
+	self.grid_y = qpd_value.clamp(
 		self.grid_y + 1,
 		self.min_grid_y, self.max_grid_y)
 end
 
 function grid_selector.right(self)
-	self.grid_x = utils.clamp(
+	self.grid_x = qpd_value.clamp(
 		self.grid_x + 1,
 		self.min_grid_x, self.max_grid_x)
 end
 
 function grid_selector.left(self)
-	self.grid_x = utils.clamp(
+	self.grid_x = qpd_value.clamp(
 		self.grid_x - 1,
 		self.min_grid_x, self.max_grid_x)
 end

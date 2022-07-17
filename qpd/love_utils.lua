@@ -1,12 +1,12 @@
 local love_utils = {}
 
-local utils = require "qpd.utils"
+local qpd_table = require "qpd.table"
 
 function love_utils.set_mode(settings)
 	-- love.window.setMode errors out if width or height are present
 	-- so we clone the original settings and remove them
 
-	local new_settings = utils.table_clone(settings)
+	local new_settings = qpd_table.clone(settings)
 	local width = new_settings.width
 	new_settings.width = nil
 	local height = new_settings.height

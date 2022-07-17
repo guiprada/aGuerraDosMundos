@@ -1,6 +1,8 @@
 local tilemap = {}
 
-local utils = require "qpd.utils"
+local qpd_table = require "qpd.table"
+local qpd_matrix = require "qpd.matrix"
+local qpd_value = require "qpd.value"
 
 --------------------------------------------------------------------------------
 
@@ -14,7 +16,7 @@ function tilemap.new(x, y, matrix, draw_functions)
 	o.tile_width = #matrix[1]
 	o.tile_height = #matrix
 
-	utils.assign_methods(o, tilemap)
+	qpd_table.assign_methods(o, tilemap)
 	return o
 end
 
@@ -59,11 +61,11 @@ function tilemap.draw(self, tilesize, matrix_start_x, matrix_start_y, matrix_end
 end
 
 function tilemap.change_matrix(self, new_val, x, y)
-	self.matrix[y][x] = utils.clamp(new_val, 0, #self.draw_functions)
+	self.matrix[y][x] = qpd_value.clamp(new_val, 0, #self.draw_functions)
 end
 
 function tilemap.save(self, filepath)
-	utils.matrix_write_to_file(self.matrix, filepath, ',')
+	qpd_matrix.write_to_file(self.matrix, filepath, ',')
 end
 
 function tilemap.add_top(self)

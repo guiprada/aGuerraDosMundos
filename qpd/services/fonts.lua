@@ -1,5 +1,6 @@
 local fonts = {}
-local utils = require "qpd.utils"
+
+local qpd_table = require "qpd.table"
 
 function fonts.resize(w, h)
 	local width = w or love.graphics.getWidth()
@@ -34,7 +35,7 @@ function fonts.load(path, w, h)
 		path,
 		"fonts.load() received a nil path: " .. path)
 
-	local font_settings = utils.table_read_from_conf(path, "=")
+	local font_settings = qpd_table.read_from_conf(path, "=")
 	assert(
 		font_settings,
 		"fonts.resize() could not read its configuration file: " .. path)

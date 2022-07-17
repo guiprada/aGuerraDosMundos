@@ -56,7 +56,7 @@ function gamestate.register(name, callbacks)
 	gamestate.states[name] = new_entry
 end
 
-function gamestate.switch(name, args)
+function gamestate.switch(name, ...)
 	if gamestate.current and gamestate.current.unload then
 		gamestate.current.unload()
 	end
@@ -64,7 +64,7 @@ function gamestate.switch(name, args)
 	gamestate.current_name = name
 	gamestate.current = gamestate.states[name]
 	assign(love, gamestate.current)
-	gamestate.current.load(args)
+	gamestate.current.load(...)
 end
 
 return gamestate

@@ -1,10 +1,11 @@
 local fps = {}
-local utils = require "qpd.utils"
-local color = require "qpd.color"
+
+local qpd_table = require "qpd.table"
+local qpd_color = require "qpd.color"
 
 function fps.draw(self)
 	local r, g, b, a = love.graphics.getColor()
-	love.graphics.setColor(color.unpack(self.color))
+	love.graphics.setColor(qpd_color.unpack(self.color))
 	love.graphics.print(
 		love.timer.getFPS(),
 		self.x,
@@ -21,7 +22,7 @@ function fps.new(x, y, color)
 	o.color = color or {0, 1, 1}
 
 	-- methods
-	utils.assign_methods(o, fps)
+	qpd_table.assign_methods(o, fps)
 
 	return o
 end

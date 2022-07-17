@@ -1,8 +1,9 @@
 local files = {}
-local utils = require "qpd.utils"
+
+local qpd_table = require "qpd.table"
 
 function files.load(path)
-	local file_paths = utils.table_read_from_conf(path, "=")
+	local file_paths = qpd_table.read_from_conf(path, "=")
 	assert(
 		file_paths,
 		"files.load() could not read its configuration file: " .. path)
@@ -11,10 +12,5 @@ function files.load(path)
 		files[key] = value
 	end
 end
-
--- local this_path = ...
--- local this_folder = this_path:match("(.-)[^%.]+$")
--- this_folder = string.gsub(this_folder, "%.", "/")
--- files.load(this_folder .. "files.conf")
 
 return files

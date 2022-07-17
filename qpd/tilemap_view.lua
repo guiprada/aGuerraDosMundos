@@ -1,9 +1,11 @@
 local tilemap_view = {}
 
-local utils = require "qpd.utils"
-local tilemap = require "qpd.tilemap"
-local camera = require "qpd.camera"
-local grid = require "qpd.grid"
+local qpd_table = require "qpd.table"
+local qpd_value = require "qpd.value"
+local qpd_point = require "qpd.point"
+local qpd_tilemap = require "qpd.tilemap"
+local qpd_camera = require "qpd.camera"
+local qpd_grid = require "qpd.grid"
 
 --------------------------------------------------------------------------------
 -- helper functions
@@ -32,15 +34,15 @@ function tilemap_view.new(matrix, cell_set, width, height)
 	local tilemap_width = o.tilesize * tile_width
 	local tilemap_height = o.tilesize * tile_height
 
-	o.camera = camera.new(tilemap_width, tilemap_height, 1, 1, 3)
+	o.camera = qpd_camera.new(tilemap_width, tilemap_height, 1, 1, 3)
 
 	-- create map
-	o.tilemap = tilemap.new(0,
+	o.tilemap = qpd_tilemap.new(0,
 							0,
 							matrix,
 							cell_set)
 
-	utils.assign_methods(o, tilemap_view)
+	qpd_table.assign_methods(o, tilemap_view)
 	return o
 end
 
@@ -59,13 +61,13 @@ end
 function tilemap_view.draw(self)
 	local start_x, start_y, end_x, end_y = self.camera:get_visible_quad()
 
-	local matrix_start_x, matrix_start_y = grid.point_to_cell(start_x, start_y, self.tilesize)
-	local matrix_end_x, matrix_end_y = grid.point_to_cell(end_x, end_y, self.tilesize)
+	local matrix_start_x, matrix_start_y = qpd_grid.point_to_cell(start_x, start_y, self.tilesize)
+	local matrix_end_x, matrix_end_y = qpd_grid.point_to_cell(end_x, end_y, self.tilesize)
 
-	matrix_start_x = utils.clamp(matrix_start_x, 1, self.tilemap.tile_width)
-	matrix_end_x = utils.clamp(matrix_end_x, 1, self.tilemap.tile_width)
-	matrix_start_y = utils.clamp(matrix_start_y, 1, self.tilemap.tile_height)
-	matrix_end_y =utils.clamp(matrix_end_y, 1, self.tilemap.tile_height)
+	matrix_start_x = qpd_value.clamp(matrix_start_x, 1, self.tilemap.tile_width)
+	matrix_end_x = qpd_value.clamp(matrix_end_x, 1, self.tilemap.tile_width)
+	matrix_start_y = qpd_value.clamp(matrix_start_y, 1, self.tilemap.tile_height)
+	matrix_end_y =qpd_value.clamp(matrix_end_y, 1, self.tilemap.tile_height)
 
 	--print((self.width/self.camera:get_scale())/self.tilesize, (self.height/self.camera:get_scale())/self.tilesize)
 	self.tilemap:draw(self.tilesize, matrix_start_x, matrix_start_y, matrix_end_x, matrix_end_y)
@@ -77,14 +79,14 @@ function tilemap_view.follow(self, dt, speed_factor, follow_x, follow_y)
 	local delta_y, delta_x = follow_y - camera_center_y, follow_x - camera_center_x
 	local new_camera_x, new_camera_y = camera_center_x, camera_center_y
 	if math.abs(delta_x) > (self.width/4)/self.camera:get_scale() then
-		new_camera_x, _ = utils.lerp(
+		new_camera_x, _ = qpd_point.lerp(
 			camera_center_x, 0,
 			follow_x, 0,
 			speed_factor  * self.tilesize * dt
 		)
 	end
 	if math.abs(delta_y) > (self.height/4)/self.camera:get_scale() then
-		_, new_camera_y = utils.lerp(
+		_, new_camera_y = qpd_point.lerp(
 			0, camera_center_y,
 			0, follow_y,
 			speed_factor  * self.tilesize * dt
@@ -109,8 +111,8 @@ function tilemap_view.resize(self, width, height)
 
 	self.camera:reset(tilemap_width, tilemap_height)
 	local old_camera_center_x, old_camera_center_y = self.camera:get_center()
-	local old_camera_cell_x, old_camera_cell_y = grid.point_to_cell(old_camera_center_x, old_camera_center_y, old_tilesize)
-	local new_camera_center_x, new_camera_center_y = grid.cell_to_center_point(old_camera_cell_x, old_camera_cell_y, self.tilesize)
+	local old_camera_cell_x, old_camera_cell_y = qpd_grid.point_to_cell(old_camera_center_x, old_camera_center_y, old_tilesize)
+	local new_camera_center_x, new_camera_center_y = qpd_grid.cell_to_center_point(old_camera_cell_x, old_camera_cell_y, self.tilesize)
 	self.camera:set_center(new_camera_center_x, new_camera_center_y)
 end
 

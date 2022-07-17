@@ -1,5 +1,5 @@
 -- qpd services
-local window = require "qpd.services.window"
+local window = require "qpd.window"
 
 --------------------------------------------------------------------------------
 

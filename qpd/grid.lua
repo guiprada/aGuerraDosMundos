@@ -1,15 +1,13 @@
 -- Guilherme Cunha Prada 2020
 local grid = {}
 
-local utils = require "qpd.utils"
-
+local qpd_table = require "qpd.table"
 -----------------------------------------------------------------------
 function grid._is_collision(self, n)
 	return self.collisions[n] or false
 end
 
 -----------------------------------------------------------------------
-
 function grid.new(matrix, collisions)
 	local o = {}
 	o.matrix = matrix
@@ -18,7 +16,7 @@ function grid.new(matrix, collisions)
 	o.width = #o.matrix[1]
 	o.height = #o.matrix
 
-	utils.assign_methods(o, grid)
+	qpd_table.assign_methods(o, grid)
 
 	o.array_cell_valid_pos = {}
 	for i=1, o.width do
@@ -91,12 +89,6 @@ function grid.cell_to_center_point(cell_x, cell_y, tilesize)
 	local center_x = (cell_x-1)*tilesize + math.ceil(tilesize/2)
 	local center_y = (cell_y-1)*tilesize + math.ceil(tilesize/2)
 	return center_x, center_y
-end
-
-function grid.center_axis(y, tilesize)
-	local cell = math.floor(y / tilesize) + 1
-	local center = (cell-1)*tilesize + math.ceil(tilesize/2)
-	return center
 end
 
 return grid

@@ -1,6 +1,6 @@
-local utils = require "game.qpd.utils"
-
 local color2 = {}
+
+local qpd_table = require "qpd.table"
 
 -- those colors are from raylib
 color2.lightgray  = { 200, 200, 200}
@@ -38,4 +38,4 @@ for key, value in pairs(color2)do
 						tostring(value[3]/255) .. "}"
 end
 
-utils.table_write_to_file(color, "converted_colors", "=")
+qpd_table.write_to_file(color, "converted_colors", "=")

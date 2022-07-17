@@ -1,8 +1,9 @@
 local strings = {}
-local utils = require "qpd.utils"
+
+local qpd_table = require "qpd.table"
 
 function strings.load(path)
-	local read_strings = utils.table_read_from_data(path)
+	local read_strings = qpd_table.read_from_data(path)
 	assert(
 		read_strings,
 		"strings.load() could not read its configuration file: " .. path)

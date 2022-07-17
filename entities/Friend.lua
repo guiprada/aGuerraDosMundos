@@ -1,13 +1,12 @@
 local Friend = {}
 
-local utils = require "qpd.utils"
-local grid = require "qpd.grid"
+local qpd = require "qpd.qpd"
 
 function Friend._move(self, dt, tilesize)
-	local px, py = grid.cell_to_center_point(self._target_cell.x, self._target_cell.y, tilesize)
-	local maybe_x, maybe_y, has_reached = utils.lerp(self.x, self.y, px, py, self.speed_factor * tilesize * dt)
+	local px, py = qpd.grid.cell_to_center_point(self._target_cell.x, self._target_cell.y, tilesize)
+	local maybe_x, maybe_y, has_reached = qpd.point.lerp(self.x, self.y, px, py, self.speed_factor * tilesize * dt)
 
-	self._cell.x, self._cell.y = grid.point_to_cell(self.x, self.y, tilesize)
+	self._cell.x, self._cell.y = qpd.grid.point_to_cell(self.x, self.y, tilesize)
 	if self.grid:is_colliding_point(maybe_x, maybe_y, tilesize) then
 		self._is_active = false
 	else
@@ -40,14 +39,14 @@ function Friend.new(cell_x, cell_y, sprite, grid, size_factor, follow_target, ti
 	o.old_x, o.old_y = o.x, o.y
 	o.health = health_max
 
-	utils.assign_methods(o, Friend)
+	qpd.table.assign_methods(o, Friend)
 	return o
 	-- body
 end
 
 function Friend.update(self, dt, tilesize)
 	if self._is_active then
-		if utils.distance2(self, self.follow_target) > 10* tilesize then
+		if qpd.point.distance2(self, self.follow_target) > 10* tilesize then
 			self._is_active =  false
 		end
 		self.old_x, self.old_y = self.x, self.y
@@ -56,7 +55,7 @@ function Friend.update(self, dt, tilesize)
 		if (delta_x ~= 0) or (delta_y ~= 0) then
 			self._rot = math.atan2(delta_y, delta_x)
 		end
-	elseif  utils.distance2(self, self.follow_target) < 3* tilesize then
+	elseif qpd.point.distance2(self, self.follow_target) < 3* tilesize then
 		local angle = math.atan2(self.follow_target.y - self.y, self.follow_target.x - self.x)
 		if self.grid:check_unobstructed(self, angle, 3*tilesize, tilesize, self.speed_factor * tilesize * dt) == true then
 			self._is_active = true
@@ -90,7 +89,7 @@ function Friend.take_health(self, h_much)
 end
 
 function Friend.resize(self, tilesize)
-	self.x, self.y = grid.cell_to_center_point(self._cell.x, self._cell.y, tilesize)
+	self.x, self.y = qpd.grid.cell_to_center_point(self._cell.x, self._cell.y, tilesize)
 	self._size = self._size_factor * tilesize
 	self._scale = self._size/ self._sprite:getWidth()
 	self._offset = (self._size/2) * (1/self._scale)

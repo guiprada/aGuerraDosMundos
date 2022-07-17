@@ -1,5 +1,6 @@
 local window = {}
-local utils = require "qpd.utils"
+
+local qpd_table = require "qpd.table"
 local love_utils = require "qpd.love_utils"
 
 local defaults = {
@@ -15,7 +16,7 @@ local defaults = {
 
 function window.load(path)
 	-- check if there is a window.conf
-	local win_settings = utils.table_read_from_conf(path, "=")
+	local win_settings = qpd_table.read_from_conf(path, "=")
 
 	-- if not, create one
 	if win_settings == nil then -- create a window.conf
@@ -49,7 +50,7 @@ function window.load(path)
 end
 
 function window.save(settings, path)
-	utils.table_write_to_file(settings, path, "=")
+	qpd_table.write_to_file(settings, path, "=")
 	-- and assign
 	window.settings = settings
 end

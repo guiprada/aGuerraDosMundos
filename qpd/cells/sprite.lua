@@ -1,9 +1,10 @@
 local sprite_cell = {}
-local utils = require "qpd.utils"
+
+local qpd_value = require "qpd.value"
 
 function sprite_cell.make_func(sprite)
 	local width, height = sprite:getDimensions()
-	local size = utils.max(width, height)
+	local size = qpd_value.max(width, height)
 	return
 		function (x, y, tilesize)
 			local scale = tilesize/size

@@ -1,6 +1,7 @@
-title = 'The War of the Worlds'
+title = 'QPD'
 
-menu_start = 'start game'
+menu_extinction = 'start Extinction'
+menu_war_of_the_worlds = 'start The War of the Worlds'
 menu_settings = 'settings'
 menu_tilemap_editor = 'map editor'
 menu_how_to_play = 'how to play'
@@ -51,7 +52,7 @@ language_instructions =
 \nesc                   go back'
 
 color_title = 'Choose Color'
-color_instructions = 
+color_instructions =
  'up  down      select color
 \nenter         change color
 \nesc                go back'

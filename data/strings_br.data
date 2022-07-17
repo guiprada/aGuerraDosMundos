@@ -1,6 +1,7 @@
-title ='A Guerra dos Mundos'
+title ='QPD'
 
-menu_start = 'iniciar jogo'
+menu_extinction = 'iniciar Extincao'
+menu_war_of_the_worlds = 'iniciar A Guerra dos Mundos'
 menu_settings = 'configurações'
 menu_tilemap_editor = 'editor de mapa'
 menu_how_to_play = 'como jogar'
@@ -51,7 +52,7 @@ language_instructions =
 \nesc                      voltar'
 
 color_title = 'Escolha a Cor'
-color_instructions = 
+color_instructions =
  'up  down      selecionar cor
 \nenter              mudar cor
 \nesc                   voltar'

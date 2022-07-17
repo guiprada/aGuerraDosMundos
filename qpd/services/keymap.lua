@@ -1,8 +1,9 @@
 local keymap = {}
-local utils = require "qpd.utils"
+
+local qpd_table = require "qpd.table"
 
 function keymap.load(path)
-	local map = utils.table_read_from_conf(path, "=")
+	local map = qpd_table.read_from_conf(path, "=")
 	assert(
 		map ~= nil,
 		"keymap.load() could not read its configuration file: " .. path)
@@ -14,7 +15,7 @@ function keymap.load(path)
 end
 
 function keymap.save(keymap, path)
-	utils.table_write_to_file(keymap, path, "=")
+	qpd_table.write_to_file(keymap, path, "=")
 end
 
 return keymap

@@ -1,6 +1,6 @@
 local particle = {}
 
-local utils = require "qpd.utils"
+local qpd_table = require "qpd.table"
 
 function particle.reset(self)
 	self.timer = love.math.random(self.min_duration, self.max_duration)
@@ -57,7 +57,7 @@ function particle.new(settings)
 	o.max_duration = settings.max_duration
 
 	-- methods
-	utils.assign_methods(o, particle)
+	qpd_table.assign_methods(o, particle)
 
 	o:reset()
 	return o

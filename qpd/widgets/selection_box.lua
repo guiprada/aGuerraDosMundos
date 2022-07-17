@@ -1,9 +1,9 @@
 local selection_box = {}
 
-local utils = require "qpd.utils"
+local qpd_table = require "qpd.table"
 local love_utils = require "qpd.love_utils"
-local fonts = require "qpd.services.fonts"
-local color = require "qpd.color"
+local qpd_fonts = require "qpd.services.fonts"
+local qpd_color = require "qpd.color"
 
 --------------------------------------------------------------------------------
 
@@ -50,7 +50,7 @@ function selection_box.get_height(self)
 	for i = 1, #self._selections, 1 do
 		local this_height = love_utils.calculate_text_height(
 			self._selections[i].text,
-			fonts[self.font_name],
+			qpd_fonts[self.font_name],
 			self.width)
 		total_height = total_height + this_height
 	end
@@ -72,13 +72,13 @@ function selection_box.draw(self)
 	local last_height = self.y
 	for i = 1, #self._selections, 1 do
 		if( i == self._selected ) then
-			love.graphics.setColor(color.unpack(self.color_selected))
+			love.graphics.setColor(qpd_color.unpack(self.color_selected))
 		else
-			love.graphics.setColor(color.unpack(self.color))
+			love.graphics.setColor(qpd_color.unpack(self.color))
 		end
 		love.graphics.printf(
 			self._selections[i].text,
-				fonts[self.font_name],
+				qpd_fonts[self.font_name],
 				self.x,
 				last_height,
 				self.width,
@@ -86,7 +86,7 @@ function selection_box.draw(self)
 
 		local this_height = love_utils.calculate_text_height(
 			self._selections[i].text,
-			fonts[self.font_name],
+			qpd_fonts[self.font_name],
 			self.width)
 
 		last_height = last_height + this_height
@@ -131,7 +131,7 @@ function selection_box.new(font_name, x, y, width, align, color, color_selected)
 	local o = {}
 
 	-- methods
-	utils.assign_methods(o, selection_box)
+	qpd_table.assign_methods(o, selection_box)
 
 	o:reset(font_name, x, y, width, align, color, color_selected)
 

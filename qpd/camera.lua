@@ -1,5 +1,7 @@
 local camera = {}
-local utils = require "qpd.utils"
+
+local qpd_value = require "qpd.value"
+local qpd_table = require "qpd.table"
 
 --------------------------------------------------------------------------------
 local function apply(self)
@@ -40,7 +42,7 @@ function camera.get_viewport(self)
 end
 
 function camera.set_scale(self, new_scale)
-	self._scale = utils.clamp(new_scale, self._min_scale, self._max_scale)
+	self._scale = qpd_value.clamp(new_scale, self._min_scale, self._max_scale)
 end
 
 function camera.get_scale(self)
@@ -74,12 +76,12 @@ function camera.get_width(self)
 end
 
 function camera.move(self, x, y)
-	self._drift_x = utils.clamp(
+	self._drift_x = qpd_value.clamp(
 		self._drift_x + x,
 		(self._v_x + (self._v_w/2)/self._scale),
 		(self._v_x + self._w - (self._v_w/2)/self._scale))
 
-	self._drift_y = utils.clamp(
+	self._drift_y = qpd_value.clamp(
 		self._drift_y + y,
 		(self._v_y + (self._v_h/2)/self._scale),
 		(self._v_y + self._h - (self._v_h/2)/self._scale))
@@ -93,7 +95,7 @@ function camera.new(w, h, scale, min_scale, max_scale)
 	o._drift_x = w/2
 	o._drift_y = h/2
 
-	utils.assign_methods(o, camera)
+	qpd_table.assign_methods(o, camera)
 
 	o:reset(w, h, scale, min_scale, max_scale)
 

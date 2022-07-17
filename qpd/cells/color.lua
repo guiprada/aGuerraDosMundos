@@ -1,12 +1,12 @@
 local color_cell = {}
 
-local color = require "qpd.color"
+local qpd_color = require "qpd.color"
 
-function color_cell.make_func(pColor)
+function color_cell.make_func(color)
 	return
 		function (x, y, tilesize)
 			local r, g, b, a = love.graphics.getColor()
-			love.graphics.setColor(color.unpack(pColor))
+			love.graphics.setColor(qpd_color.unpack(color))
 			love.graphics.rectangle(
 				"fill",
 				x,
@@ -17,8 +17,8 @@ function color_cell.make_func(pColor)
 		end
 end
 
-function color_cell.new(pColor)
-	return color_cell.make_func(pColor)
+function color_cell.new(color)
+	return color_cell.make_func(color)
 end
 
 return color_cell

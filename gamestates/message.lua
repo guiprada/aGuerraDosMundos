@@ -1,57 +1,51 @@
 local gs = {}
 
-local gamestate = require "qpd.gamestate"
+local qpd = require "qpd.qpd"
 
-local text_box = require "qpd.widgets.text_box"
-
-local fonts = require "qpd.services.fonts"
-local keymap = require "qpd.services.keymap"
-local strings = require "qpd.services.strings"
-local color = require "qpd.color"
 --------------------------------------------------------------------------------
 
-function gs.load(target)
+function gs.load(message, go_again_gamestate)
 	local w = love.graphics.getWidth()
 	local h = love.graphics.getHeight()
 
 	gs.player = {}
 
-	gs.title = text_box.new(
-		strings[target .. "_title"],
+	gs.title = qpd.text_box.new(
+		qpd.strings[message .. "_title"],
 		"huge",
 		0,
 		0,
 		w,
 		"center",
-		color.yellow)
+		qpd.color.yellow)
 
-	gs.text = text_box.new(
-		strings[target],
+	gs.text = qpd.text_box.new(
+		qpd.strings[message],
 		"huge",
 		0,
 		h/8,
 		w,
 		"center",
-		color.red)
+		qpd.color.red)
 
-	gs.instructions = text_box.new(
-		strings.message_instructions,
+	gs.instructions = qpd.text_box.new(
+		qpd.strings.message_instructions,
 		"regular",
 		0,
 		h*7/8,
 		w,
 		"center",
-		color.raywhite)
+		qpd.color.raywhite)
 
 	gs.actions = {}
 	-- action to key functions
-	gs.actions[keymap.keys.exit] =
+	gs.actions[qpd.keymap.keys.exit] =
 		function ()
-			gamestate.switch("menu")
+			qpd.gamestate.switch("menu")
 		end
-	gs.actions[keymap.keys.select] =
+	gs.actions[qpd.keymap.keys.select] =
 		function ()
-			gamestate.switch("game")
+			qpd.gamestate.switch(go_again_gamestate)
 		end
 
 end
@@ -74,7 +68,7 @@ function gs.keyreleased(key, scancode)
 end
 
 function gs.resize(w, h)
-	fonts.resize(w, h)
+	qpd.fonts.resize(w, h)
 	gs.title:resize(0, 0, w)
 	gs.text:resize(0, h/8, w)
 	gs.instructions:resize( 0, h*7/8, w)

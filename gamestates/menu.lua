@@ -1,33 +1,19 @@
 local gs = {}
 
-local gamestate = require "qpd.gamestate"
-
-local text_box = require "qpd.widgets.text_box"
-local selection_box = require "qpd.widgets.selection_box"
-local particle = require "qpd.widgets.particle"
-
-local color = require "qpd.color"
-
-local fonts = require "qpd.services.fonts"
-local keymap = require "qpd.services.keymap"
-local files = require "qpd.services.files"
-local strings = require "qpd.services.strings"
-
-local utils = require "qpd.utils"
+local qpd = require "qpd.qpd"
 
 local N_PARTICLES = 250
 
 --------------------------------------------------------------------------------
-
 local function quit()
 	love.event.quit(0)
 end
 
 local function sprites_dimension()
-	gs.sprite_scale = utils.min(gs.width, gs.height)/((#gs.sprites + 1)*gs.sprites[1]:getWidth())
+	gs.sprite_scale = qpd.value.min(gs.width, gs.height)/((#gs.sprites + 1)*gs.sprites[1]:getWidth())
 	local spacing = gs.width / (#gs.sprites + 1)
 	local sprite_height = gs.height / 5
-	for key, value in ipairs(gs.sprites) do
+	for key, _ in ipairs(gs.sprites) do
 		gs.positions[key].x = spacing * (key)
 		gs.positions[key].y = sprite_height
 	end
@@ -42,16 +28,15 @@ local function sprites_dimension()
 end
 
 --------------------------------------------------------------------------------
-
 function gs.load()
 	gs.width = love.graphics.getWidth()
 	gs.height = love.graphics.getHeight()
 
 	gs.sprites = {}
 
-	local colors = utils.table_read_from_conf(files.available_colors)
+	local colors = qpd.table.read_from_conf(qpd.files.available_colors)
 	for _, color in ipairs(colors) do
-		table.insert(gs.sprites, love.graphics.newImage(files["spr_" .. color]))
+		table.insert(gs.sprites, love.graphics.newImage(qpd.files["spr_" .. color]))
 	end
 
 	gs.offset = {x = gs.sprites[1]:getWidth()/2, y = gs.sprites[1]:getHeight()/2}
@@ -61,7 +46,7 @@ function gs.load()
 		gs.positions[key] = new_position
 	end
 
-	gs.spr_tripod = love.graphics.newImage(files.spr_tripod)
+	gs.spr_tripod = love.graphics.newImage(qpd.files.spr_tripod)
 	gs.tripod_start_pos = {}
 	gs.tripod_pos = {}
 	gs.tripod_rot = -math.pi/2
@@ -74,62 +59,68 @@ function gs.load()
 
 	sprites_dimension()
 
-	gs.title = text_box.new(
-		strings.title,
+	gs.title = qpd.text_box.new(
+		qpd.strings.title,
 		"huge",
 		0,
 		2*gs.height/4,
 		gs.width,
 		"center",
-		color.green)
+		qpd.color.green)
 
-	gs.menu = selection_box.new(
+	gs.menu = qpd.selection_box.new(
 		"regular",
 		0,
 		gs.height*3/4,
 		gs.width,
 		"center",
-		color.yellow,
-		color.red)
+		qpd.color.yellow,
+		qpd.color.red)
 
 	gs.menu:add_selection(
-		strings.menu_start,
+		qpd.strings.menu_extinction,
 		function ()
-			gamestate.switch("game")
+			qpd.gamestate.switch("extinction")
 		end)
 
 	gs.menu:add_selection(
-		strings.menu_settings,
+		qpd.strings.menu_war_of_the_worlds,
 		function ()
-			gamestate.switch("settings_menu")
+			qpd.gamestate.switch("war_of_the_worlds")
 		end)
 
 	gs.menu:add_selection(
-		strings.menu_tilemap_editor,
+		qpd.strings.menu_settings,
 		function ()
-			gamestate.switch( "tilemap_editor")
+			qpd.gamestate.switch("settings_menu")
 		end)
 
 	gs.menu:add_selection(
-		strings.menu_how_to_play,
+		qpd.strings.menu_tilemap_editor,
 		function ()
-			gamestate.switch("message", "how_to_play")
+			qpd.gamestate.switch( "tilemap_editor")
 		end)
 
-	gs.menu:add_selection(strings.menu_exit, quit)
+	gs.menu:add_selection(
+		qpd.strings.menu_how_to_play,
+		function ()
+			qpd.gamestate.switch("message", "how_to_play", "menu")
+		end)
+
+	gs.menu:add_selection(qpd.strings.menu_exit, quit)
 
 	gs.actions = {}
 	-- action to key functions
-	gs.actions[keymap.keys.select] = function () gs.menu:select() end
-	gs.actions[keymap.keys.up] =
+	gs.actions[qpd.keymap.keys.select] = function () gs.menu:select() end
+	gs.actions[qpd.keymap.keys.up] =
 		function ()
 			gs.menu:up()
 		end
-	gs.actions[keymap.keys.down] =
+	gs.actions[qpd.keymap.keys.down] =
 		function ()
 			gs.menu:down()
 		end
-	gs.actions[keymap.keys.exit] = quit
+	gs.actions[qpd.keymap.keys.exit] = quit
 
 	local particle_settings = {}
 	particle_settings.max_duration = 2
@@ -138,7 +129,7 @@ function gs.load()
 
 	gs.particles = {}
 	for i=1,N_PARTICLES,1 do
-		gs.particles[i] = particle.new(particle_settings)
+		gs.particles[i] = qpd.particle.new(particle_settings)
 	end
 end
 
@@ -187,10 +178,10 @@ function gs.update(dt)
 	for i=1,N_PARTICLES,1 do
 		gs.particles[i]:update(dt)
 	end
-	if love.keyboard.isDown(keymap.keys.left) and not love.keyboard.isDown(keymap.keys.right) then
-		gs.tripod_pos.x = utils.clamp(gs.tripod_pos.x - gs.tripod_speed * dt, 0, gs.width)
-	elseif not love.keyboard.isDown(keymap.keys.left) and love.keyboard.isDown(keymap.keys.right) then
-		gs.tripod_pos.x = utils.clamp(gs.tripod_pos.x + gs.tripod_speed * dt, 0, gs.width)
+	if love.keyboard.isDown(qpd.keymap.keys.left) and not love.keyboard.isDown(qpd.keymap.keys.right) then
+		gs.tripod_pos.x = qpd.value.clamp(gs.tripod_pos.x - gs.tripod_speed * dt, 0, gs.width)
+	elseif not love.keyboard.isDown(qpd.keymap.keys.left) and love.keyboard.isDown(qpd.keymap.keys.right) then
+		gs.tripod_pos.x = qpd.value.clamp(gs.tripod_pos.x + gs.tripod_speed * dt, 0, gs.width)
 	end
 end
 
@@ -204,7 +195,7 @@ end
 function gs.resize(w, h)
 	gs.width = w
 	gs.height = h
-	fonts.resize(w, h)
+	qpd.fonts.resize(w, h)
 	gs.title:resize(0, h/2, w)
 	gs.menu:resize(0, h*3/4, w)
 	for i=1,N_PARTICLES,1 do

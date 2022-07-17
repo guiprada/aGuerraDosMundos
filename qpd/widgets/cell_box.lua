@@ -1,8 +1,7 @@
 local cell_box = {}
 
-local utils = require "qpd.utils"
-local grid_selector = require "qpd.widgets.grid_selector"
-
+local qpd_table = require "qpd.table"
+local qpd_grid_selector = require "qpd.widgets.grid_selector"
 
 function cell_box.new(x, y, width, tilesize, cell_set)
 	local o = {}
@@ -16,9 +15,9 @@ function cell_box.new(x, y, width, tilesize, cell_set)
 	local w_cells = math.floor(width/tilesize) -- how many cell we can fit
 	if w_cells > #cell_set then w_cells = #cell_set end -- if we need less
 	local h_cells = math.ceil(#cell_set/w_cells)
-	o.selector = grid_selector.new(x, y, 1, 1, w_cells, h_cells, tilesize)
+	o.selector = qpd_grid_selector.new(x, y, 1, 1, w_cells, h_cells, tilesize)
 
-	utils.assign_methods(o, cell_box)
+	qpd_table.assign_methods(o, cell_box)
 	return o
 end
 

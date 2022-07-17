@@ -1,76 +1,63 @@
 local gs = {}
 
-local gamestate = require "qpd.gamestate"
-local utils = require "qpd.utils"
-
-local text_box = require "qpd.widgets.text_box"
-local selection_box = require "qpd.widgets.selection_box"
-
-local color = require "qpd.color"
-
-local files = require "qpd.services.files"
-local keymap = require "qpd.services.keymap"
-local fonts = require "qpd.services.fonts"
-local strings = require "qpd.services.strings"
+local qpd = require "qpd.qpd"
 
 --------------------------------------------------------------------------------
-
 local function exit()
-	gamestate.switch("settings_menu")
+	qpd.gamestate.switch("settings_menu")
 end
 
 local function save(value)
-	local game_conf = utils.table_read_from_conf(files.game_conf)
+	local game_conf = qpd.table.read_from_conf(qpd.files.game_conf)
 	game_conf.difficulty = value
 	print(value)
-	utils.table_write_to_file(game_conf, files.game_conf)
+	qpd.table.write_to_file(game_conf, qpd.files.game_conf)
 	exit()
 end
 
 --------------------------------------------------------------------------------
-
 function gs.load(args)
 
 	local w = love.graphics.getWidth()
 	local h = love.graphics.getHeight()
 
-	gs.title = text_box.new(
-		strings.difficulty_title,
+	gs.title = qpd.text_box.new(
+		qpd.strings.difficulty_title,
 		"huge",
 		0,
 		0,
 		w,
 		"center",
-		color.yellow)
+		qpd.color.yellow)
 
-	gs.instructions = text_box.new(
-		strings.difficulty_instructions,
+	gs.instructions = qpd.text_box.new(
+		qpd.strings.difficulty_instructions,
 		"regular",
 		0,
 		h*7/8,
 		w,
 		"center",
-		color.offwhite)
+		qpd.color.offwhite)
 
-	gs.selection_box = selection_box.new(
+	gs.selection_box = qpd.selection_box.new(
 		"big",
 		0,
 		h*1/4,
 		w,
 		"center",
-		color.gray,
-		color.red)
+		qpd.color.gray,
+		qpd.color.red)
 
-	local difficulties = utils.table_read_from_conf(files.available_difficulty)
+	local difficulties = qpd.table.read_from_conf(qpd.files.available_difficulty)
 	for key, value in ipairs(difficulties) do
 		gs.selection_box:add_selection(value, function() save(key) end)
 	end
 
 	gs.actions = {}
-	gs.actions[keymap.keys.exit] = exit
-	gs.actions[keymap.keys.up] = function () gs.selection_box:up() end
-	gs.actions[keymap.keys.down] = function () gs.selection_box:down() end
-	gs.actions[keymap.keys.select] =  function () gs.selection_box:select() end
+	gs.actions[qpd.keymap.keys.exit] = exit
+	gs.actions[qpd.keymap.keys.up] = function () gs.selection_box:up() end
+	gs.actions[qpd.keymap.keys.down] = function () gs.selection_box:down() end
+	gs.actions[qpd.keymap.keys.select] =  function () gs.selection_box:select() end
 end
 
 function gs.draw()
@@ -88,7 +75,7 @@ function gs.keyreleased(key, scancode)
 end
 
 function gs.resize(w, h)
-	fonts.resize(w, h)
+	qpd.fonts.resize(w, h)
 	gs.title:resize(0, 0, w)
 	gs.instructions:resize(0, h*7/8, w)
 	gs.selection_box:resize(0, h*1/4, w)
