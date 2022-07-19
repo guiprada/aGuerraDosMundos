@@ -187,6 +187,17 @@ function AutoPlayer:update(dt, tilesize, ghost_state)
 			elseif self.direction == "right" then
 				self.next_direction = "up"
 			end
+
+		-- 	if not self._change_counter then
+		-- 		self._change_counter = 1
+		-- 	else
+		-- 		self._change_counter = self._change_counter + 1
+		-- 		if self._change_counter > 10 then
+		-- 			self._is_active = false
+		-- 		end
+		-- 	end
+		-- else
+		-- 	self._change_counter = 0
 		end
 
 		GridActor.update(self, dt, tilesize)
@@ -195,8 +206,19 @@ function AutoPlayer:update(dt, tilesize, ghost_state)
 		if self.direction ~= last_direction then
 			self._fitness = self._fitness + 1
 		end
+
 		if self.changed_tile == true then
 			self._fitness = self._fitness + 0.1
+			self._not_changed_tile = 0
+		else
+			if not self._not_changed_tile then
+				self._not_changed_tile = 1
+			else
+				self._not_changed_tile = self._not_changed_tile + 1
+				if self._not_changed_tile > 10 then
+					self._is_active = false
+				end
+			end
 		end
 
 		-- remove if colliding
