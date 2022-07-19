@@ -177,8 +177,6 @@ function AutoPlayer:update(dt, tilesize, ghost_state)
 		local outputs = self._ann:get_outputs(inputs)
 
 		if outputs[1].value == 1 then
-			print("changed")
-			self._fitness = self._fitness + 1
 			-- go left
 			if self.direction == "up" then
 				self.next_direction = "left"
