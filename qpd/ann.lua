@@ -141,7 +141,7 @@ function NN:new(inputs, outputs, hidden_layers, neurons_per_hidden_layer, o)
 	return o
 end
 
-function NN:crossover(mom, dad)
+function NN:crossover(mom, dad, mutate_chance, mutate_percentage)
 	local son = {}
 	setmetatable(son, self)
 
@@ -151,9 +151,9 @@ function NN:crossover(mom, dad)
 		for j = 1, #layer do
 			local inputs = {}
 			for k = 1, #layer[j] do
-				inputs[k] = qpd_random.choose(mom[i][j][k], dad[i][j][k], mom[i][j][k] + dad[i][j][k] /2) + qpd_random.choose(-0.01, 0.01) * qpd_random.random()
+				inputs[k] = qpd_random.choose(mom[i][j][k], dad[i][j][k], mom[i][j][k] + dad[i][j][k] /2) * (qpd_random.toss(mutate_chance) and qpd_random.choose(-mutate_percentage, mutate_percentage) or 1)
 			end
-			local bias = qpd_random.choose(mom[i][j].bias, dad[i][j].bias, mom[i][j].bias + dad[i][j].bias /2) + qpd_random.choose(-0.01, 0.01) * qpd_random.random()
+			local bias = qpd_random.choose(mom[i][j].bias, dad[i][j].bias, mom[i][j].bias + dad[i][j].bias /2) * (qpd_random.toss(mutate_chance) and qpd_random.choose(-mutate_percentage, mutate_percentage) or 1)
 			new_layer[j] = _Neuron:new(inputs, bias)
 		end
 

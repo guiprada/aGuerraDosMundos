@@ -85,9 +85,13 @@ function gs.load(map_file_path)
 
 		-- Initalize Autoplayer
 		local AutoPlayer_search_path_length = 5
-		local AutoPlayer_speed = 100
+		gs.AutoPlayer_speed = 1000
 		AutoPlayer.init(gs.grid, AutoPlayer_search_path_length)
-		gs.AutoPlayerPopulation = GeneticPopulation:new(AutoPlayer, 10, 100, nil, {speed = AutoPlayer_speed}, gs.tilemap_view.tilesize)
+		gs.AutoPlayerPopulation = GeneticPopulation:new(AutoPlayer, 50, 100000, nil, {speed = gs.AutoPlayer_speed}, gs.tilemap_view.tilesize)
+
+
+		-- max dt
+		gs.max_dt = (gs.tilemap_view.tilesize / 4) / qpd.value.max(gs.AutoPlayer_speed)
 
 		-- define keyboard actions
 		gs.actions_keyup = {}
@@ -124,6 +128,12 @@ function gs.update(dt)
 	-- gs.tilemap_view:follow(dt, gs.player.speed_factor, gs.player:get_center())
 
 	if not gs.paused then
+		-- dt should not be to high
+		local dt = dt < gs.max_dt and dt or gs.max_dt
+		if (dt > gs.max_dt ) then
+			print("ops, dt too high, physics wont work, skipping dt= " .. dt)
+		end
+
 		-- clear grid collisions
 		gs.grid:clear_collisions()
 
@@ -155,6 +165,7 @@ function gs.resize(w, h)
 	gs.tilemap_view:resize(gs.width, gs.height)
 
 	gs.AutoPlayerPopulation:set_tilesize(gs.tilemap_view.tilesize)
+	gs.max_dt = (gs.tilemap_view.tilesize / 4) / qpd.value.max(gs.AutoPlayer_speed)
 end
 
 function gs.unload()

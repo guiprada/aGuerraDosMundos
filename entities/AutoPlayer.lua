@@ -15,12 +15,15 @@ local outputs_to_next_direction = {
 	"do_nothing",
 }
 
-function AutoPlayer.init(grid, search_path_length)
+function AutoPlayer.init(grid, search_path_length, mutate_chance, mutate_percentage)
 	GridActor.init(grid)
 
 	AutoPlayer._search_path_length = search_path_length
 	AutoPlayer._max_grid_distance = math.ceil(math.sqrt((grid.width ^ 2) + (grid.height ^ 2)))
 	AutoPlayer._hunger_limit = 144 * 60 * 1
+
+	AutoPlayer._mutate_chance = 0.05 or mutate_chance
+	AutoPlayer._mutate_percentage = 0.05 or mutate_percentage
 
 	GridActor.register_type(autoplayer_type_name)
 end
@@ -46,6 +49,8 @@ function AutoPlayer:reset(tilesize, reset_table)
 
 	self._fitness = 0
 	self._hunger = 0
+	self._collision_counter = 0
+	self._idle_counter = 0
 
 	local target_grid = AutoPlayer.grid:get_valid_cell()
 	self._home_grid.x = target_grid.x
@@ -58,10 +63,10 @@ function AutoPlayer:reset(tilesize, reset_table)
 	self._ann = ann or qpd.ann:new(6, 5, 1, 5)
 end
 
-function AutoPlayer:crossover(mom, dad, reset_table)
-	local newAnn = qpd.ann:crossover(mom._ann, dad._ann)
+function AutoPlayer:crossover(mom, dad, tilesize, reset_table)
+	local newAnn = qpd.ann:crossover(mom._ann, dad._ann, self._mutate_chance, self._mutate_percentage)
 	-- reset
-	self:reset({speed = reset_table.speed, ann = newAnn})
+	self:reset(tilesize, {speed = reset_table.speed, ann = newAnn})
 end
 
 function AutoPlayer:draw(tilesize)
@@ -99,12 +104,18 @@ end
 
 function AutoPlayer:find_in_path_x(dx)
 	local search_path_length = -AutoPlayer._search_path_length
+	local cell_x, cell_y
+	if self:is_front_wall() then
+		cell_x, cell_y = self._cell.x, self._cell.y
+	else
+		cell_x, cell_y = self:get_cell_in_front()
+	end
 	for i = 1, search_path_length do
-		if not GridActor.grid:is_grid_way({x = self._cell.x + dx, y = self._cell.y}) then
+		if not GridActor.grid:is_grid_way({x = cell_x + dx, y = cell_y}) then
 			return i - search_path_length
 		end
 
-		local obj_list = AutoPlayer.grid:get_grid_actors_in_position({x = self._cell + dx * i, y = self._cell.y})
+		local obj_list = AutoPlayer.grid:get_grid_actors_in_position({x = cell_x + dx * i, y = cell_y})
 		if (#obj_list > 0) then
 			if list_has_class("ghost") then
 				return i - search_path_length
@@ -118,12 +129,18 @@ end
 
 function AutoPlayer:find_in_path_y(dy)
 	local search_path_length = -AutoPlayer._search_path_length
+	local cell_x, cell_y
+	if self:is_front_wall() then
+		cell_x, cell_y = self._cell.x, self._cell.y
+	else
+		cell_x, cell_y = self:get_cell_in_front()
+	end
 	for i = 1, search_path_length do
-		if not GridActor.grid:is_grid_way({x = self._cell.x, y = self._cell.y + dy}) then
+		if not GridActor.grid:is_grid_way({x = cell_x, y = cell_y + dy}) then
 			return i - search_path_length
 		end
 
-		local obj_list = AutoPlayer.grid:get_grid_actors_in_position({x = self._cell, y = self._cell.y  + dy * i})
+		local obj_list = AutoPlayer.grid:get_grid_actors_in_position({x = cell_x, y = cell_y + dy * i})
 		if (#obj_list > 0) then
 			if list_has_class("ghost") then
 				return i - search_path_length
@@ -161,11 +178,32 @@ function AutoPlayer:update(dt, tilesize, ghost_state)
 		if not (greatest_index == 5) then
 			self.next_direction = outputs_to_next_direction[greatest_index]
 		end
-		-- print(self.next_direction)
+
+		-- remove if idling
+		if self.direction == "idle" then
+			self._idle_counter = self._idle_counter + 1
+			if self._idle_counter > 5 then
+				self._is_active = false
+			end
+		-- else
+		-- 	self._idle_counter = 0
+		end
 
 		GridActor.update(self, dt, tilesize)
 		if self.changed_tile == true then
 			self._fitness = self._fitness + 0.001
+		end
+
+		-- remove if colliding
+		if self._has_collided then
+			self._fitness = self._fitness - 1
+
+			self._collision_counter = self._collision_counter + 1
+			if self._collision_counter > 5 then
+				self._is_active = false
+			end
+		-- else
+		-- 	self._collision_counter = 0
 		end
 	end
 end

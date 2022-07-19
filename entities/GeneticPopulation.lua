@@ -32,11 +32,11 @@ end
 function GeneticPopulation:add_to_history(this)
 	local this_history = this:get_history()
 
-	if #self._history == self._population_size then
+	if #self._history > math.floor(self._population_size/10) then
 		local lowest, lowest_index = qpd.table.get_lowest(self._history, "_fitness")
 
 		if this_history._fitness > lowest._fitness then
-			self._history_fitness_sum = self._history_fitness_sum - lowest.fitness
+			self._history_fitness_sum = self._history_fitness_sum - lowest._fitness
 
 			self._history[lowest_index] = this_history
 			self._history_fitness_sum = self._history_fitness_sum + this_history._fitness
@@ -55,10 +55,10 @@ function GeneticPopulation:selection()
 	local mom, dad
 	for i = 1, #self._history do
 		local this = self._history[i]
-		sum = sum + this.fitness
-		if (not mom) and (sum > randFloatMom) then
+		sum = sum + this._fitness
+		if (not mom) and (sum >= randFloatMom) then
 			mom = this
-		elseif (not dad) and (sum > randFloatDad) then
+		elseif (not dad) and (sum >= randFloatDad) then
 			dad = this
 		end
 		if mom and dad then
@@ -85,7 +85,7 @@ function GeneticPopulation:replace(i)
 		local mom, dad = self:selection()
 
 		-- cross
-		self._population[i]:crossover(mom, dad, self:get_reset_table())
+		self._population[i]:crossover(mom, dad, self:get_tilesize(), self:get_reset_table())
 	end
 end
 

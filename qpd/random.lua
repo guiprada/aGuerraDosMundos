@@ -8,6 +8,14 @@ function random.seed(seed)
 	math.randomseed(seed or os.time())
 end
 
+function random.toss(chance)
+	if random.random() <= chance then
+		return true
+	else
+		return false
+	end
+end
+
 function random.choose(...)
 	local choices = {...}
 	local choice = math.random(1, #choices)

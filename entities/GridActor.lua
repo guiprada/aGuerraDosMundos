@@ -42,6 +42,7 @@ function GridActor:new(o)
 
 	o._is_active = false
 	o.changed_tile = false
+	o._has_collided = false
 	o.speed = 0
 	o.direction = "idle"
 	o.next_direction = "idle"
@@ -72,7 +73,9 @@ end
 
 function GridActor:reset(cell, speed, tilesize)
 	self.changed_tile = false
+	self._has_collided = false
 	self.speed = speed or 0
+	self._tilesize = tilesize
 	self.direction = "idle"
 	self.next_direction = "idle"
 
@@ -122,6 +125,12 @@ function GridActor:update(dt, tilesize)
 		print("physics sanity check failed, Actor traveled distance > tilesize")
 	end
 
+	if tilesize ~= self._tilesize then
+		self._tilesize = tilesize
+		-- here we just center on grid, we should perhaps do a scaling
+		self:center_on_cell()
+	end
+
 	-- print(self.speed)
 	if (self._is_active) then
 		self.changed_tile = false
@@ -134,8 +143,8 @@ function GridActor:update(dt, tilesize)
 		end
 
 		-- update o info
-		self:update_dynamic_front(tilesize)
-		self:update_cell(tilesize)
+		self:update_dynamic_front()
+		self:update_cell()
 
 		--on change tile
 		if  self._cell.x ~= self.last_cell.x or
@@ -179,57 +188,59 @@ function GridActor:update(dt, tilesize)
 		end
 
 		-- check collision with wall
+		self._has_collided = false
 		if(self:is_front_wall()) then
 			self.direction = "idle"
 			self.next_direction = "idle"
-			self:center_on_cell(tilesize)
+			self:center_on_cell()
+			self._has_collided = true
 		end
 
 		-- relays mov for cornering
 		if self.relay_x_counter >= 1 then
 			self.x = self.x - self.relay_x/self.relay_times
 			self.relay_x_counter = self.relay_x_counter -1
-			if self.relay_x_counter == 0 then self:center_on_cell_x(tilesize) end
+			if self.relay_x_counter == 0 then self:center_on_cell_x() end
 		end
 
 		if self.relay_y_counter >= 1 then
 			self.y = self.y - self.relay_y/self.relay_times
 			self.relay_y_counter = self.relay_y_counter -1
-			if self.relay_y_counter == 0 then self:center_on_cell_y(tilesize) end
+			if self.relay_y_counter == 0 then self:center_on_cell_y() end
 		end
 
 		GridActor.grid:update_collision(self)
 	end
 end
 
-function GridActor:center_on_cell(tilesize)
-	self.x, self.y = GridActor.grid.cell_to_center_point(self._cell.x, self._cell.y, tilesize)
+function GridActor:center_on_cell()
+	self.x, self.y = GridActor.grid.cell_to_center_point(self._cell.x, self._cell.y, self._tilesize)
 end
 
-function GridActor:center_on_cell_x(tilesize)
-	self.x, _ = GridActor.grid.cell_to_center_point(self._cell.x, self._cell.y, tilesize)
+function GridActor:center_on_cell_x()
+	self.x, _ = GridActor.grid.cell_to_center_point(self._cell.x, self._cell.y, self._tilesize)
 end
 
-function GridActor:center_on_cell_y(tilesize)
-	_, self.y = GridActor.grid.cell_to_center_point(self._cell.x, self._cell.y, tilesize)
+function GridActor:center_on_cell_y()
+	_, self.y = GridActor.grid.cell_to_center_point(self._cell.x, self._cell.y, self._tilesize)
 end
 
-function GridActor:update_dynamic_front(tilesize)
+function GridActor:update_dynamic_front()
 	-- returns the point that is lookahead in front of the player
 	-- it does consider the direction obj is set
 	local point = {}
 	-- the player has a dynamic center
 	if self.direction == "up" then
-		point.y = self.y - (tilesize/2)
+		point.y = self.y - (self._tilesize/2)
  		point.x = self.x
 	elseif self.direction == "down" then
-		point.y = self.y + (tilesize/2)
+		point.y = self.y + (self._tilesize/2)
 		point.x = self.x
 	elseif self.direction == "left" then
-		point.x = self.x - (tilesize/2)
+		point.x = self.x - (self._tilesize/2)
 		point.y = self.y
 	elseif self.direction == "right" then
-		point.x = self.x + (tilesize/2)
+		point.x = self.x + (self._tilesize/2)
 		point.y = self.y
 	else -- "idle"
 		point.y = self.y
@@ -239,22 +250,12 @@ function GridActor:update_dynamic_front(tilesize)
 	self.front = point
 end
 
-function GridActor:update_cell(tilesize)
-	self._cell.x, self._cell.y = GridActor.grid.point_to_cell(self.x, self.y, tilesize)
+function GridActor:update_cell()
+	self._cell.x, self._cell.y = GridActor.grid.point_to_cell(self.x, self.y, self._tilesize)
 end
 
 function GridActor:get_cell_in_front()
-	if self._direction == "up" then
-		return self._cell.x -1, self._cell.y
-	elseif self._direction == "down" then
-		return self._cell.x + 1, self._cell.y
-	elseif self._direction == "left" then
-		return self._cell.x, self._cell.y - 1
-	elseif self._direction == "right" then
-		return self._cell.x, self._cell.y + 1
-	else
-		return self._cell.x, self._cell.y
-	end
+	return GridActor.grid.point_to_cell(self.front.x, self.front.y, self._tilesize)
 end
 
 function GridActor:get_enabled_directions()

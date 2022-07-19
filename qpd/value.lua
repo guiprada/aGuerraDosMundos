@@ -13,13 +13,24 @@ end
 
 function qpd_value.max(x, y)
 	-- Returns the greatest value amongst x and y.
-
-	return x > y and x or y
+	if x and y then
+		return x > y and x or y
+	elseif x then
+		return x
+	else
+		return y
+	end
 end
 
 function qpd_value.min(x, y)
 	-- Returns the smallest value amongst x and y.
-	return x < y and x or y
+	if x and y then
+		return x < y and x or y
+	elseif x then
+		return x
+	else
+		return y
+	end
 end
 
 function qpd_value.round(x)
