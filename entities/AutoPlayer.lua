@@ -7,14 +7,6 @@ local qpd = require "qpd.qpd"
 
 local autoplayer_type_name = "player"
 
-local outputs_to_next_direction = {
-	"up",
-	"down",
-	"left",
-	"right",
-	"do_nothing",
-}
-
 function AutoPlayer.init(grid, search_path_length, mutate_chance, mutate_percentage)
 	GridActor.init(grid)
 
@@ -56,7 +48,7 @@ function AutoPlayer:reset(tilesize, reset_table)
 	self._target_grid.x = target_grid.x
 	self._target_grid.y = target_grid.y
 
-	self._ann = ann or qpd.ann:new(6, 5, 1, 5)
+	self._ann = ann or qpd.ann:new(3, 1, 1, 3)
 end
 
 function AutoPlayer:crossover(mom, dad, tilesize, reset_table)
@@ -150,65 +142,73 @@ function AutoPlayer:find_in_path_y(dy)
 	return search_path_length
 end
 
+function AutoPlayer:find_in_front()
+	if self.direction == "up" then
+		return self:find_in_path_y(-1)/AutoPlayer._search_path_length
+	elseif self.direction == "down" then
+		return self:find_in_path_y(1)/AutoPlayer._search_path_length
+	elseif self.direction == "left" then
+		return self:find_in_path_x(-1)/AutoPlayer._search_path_length
+	elseif self.direction == "right" then
+		return self:find_in_path_x(1)/AutoPlayer._search_path_length
+	end
+end
+
 function AutoPlayer:update(dt, tilesize, ghost_state)
 	if (self._is_active) then
+		local last_direction = self.direction
+		if self.direction == "idle" then
+			local enable_directions = AutoPlayer.grid:get_enabled_directions(self._cell.x, self._cell.y)
+			if enable_directions[1] == true then
+				self.direction = "up"
+			elseif enable_directions[2] == true then
+				self.direction = "down"
+			elseif enable_directions[3] == true then
+				self.direction = "left"
+			elseif enable_directions[4] == true then
+				self.direction = "right"
+			end
+		end
 		local inputs = {
-			self:find_in_path_x( 1)/AutoPlayer._search_path_length,
-			self:find_in_path_x(-1)/AutoPlayer._search_path_length,
-			self:find_in_path_y( 1)/AutoPlayer._search_path_length,
-			self:find_in_path_y(-1)/AutoPlayer._search_path_length,
+			self:find_in_front(),
 			(ghost_state == "frightened") and 0 or 1, -- ghosts freightned
 			(ghost_state == "scattering") and 0 or 1, -- ghosts scattering
 		}
 		local outputs = self._ann:get_outputs(inputs)
 
-		local greatest_index = 1
-		local greatest_value = outputs[greatest_index].value
-		for i = 2, #outputs do
-			local this_value = outputs[i].value
-
-			if this_value >= greatest_value then
-				greatest_value = this_value
-				greatest_index = i
+		if outputs[1].value == 1 then
+			print("changed")
+			self._fitness = self._fitness + 1
+			-- go left
+			if self.direction == "up" then
+				self.next_direction = "left"
+			elseif self.direction == "down" then
+				self.next_direction = "right"
+			elseif self.direction == "left" then
+				self.next_direction = "down"
+			elseif self.direction == "right" then
+				self.next_direction = "up"
 			end
-		end
-
-		local last_direction = self.direction
-		if not (greatest_index == 5) then
-			self.next_direction = outputs_to_next_direction[greatest_index]
 		end
 
 		GridActor.update(self, dt, tilesize)
+
+		-- rewarded if changed tile
+		if self.direction ~= last_direction then
+			self._fitness = self._fitness + 1
+		end
 		if self.changed_tile == true then
-			self._fitness = self._fitness + 0.01
-			self._stuck = 0
-		else
-			if self._stuck then
-				self._stuck = self._stuck + 1
-			else
-				self._stuck = 1
-			end
-			if self._stuck == 5 then
-				self._is_active = false
-			end
+			self._fitness = self._fitness + 0.1
 		end
 
 		-- remove if colliding
 		if self._has_collided then
-			self._fitness = self._fitness - 1
-
-			self._collision_counter = self._collision_counter + 3
-			if self._collision_counter > 9 then
+			self._collision_counter = self._collision_counter + 1
+			if self._collision_counter > 10 then
 				self._is_active = false
 			end
 		else
-			self._collision_counter = self._collision_counter - 1
-		end
-
-		-- if self.direction == "idle" and last_direction == "idle" then
-		-- 	self._is_active = false
-		if last_direction ~= self.direction then
-			self._fitness = self._fitness + 0.1
+			self._collision_counter = 0
 		end
 	end
 end

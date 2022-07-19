@@ -46,7 +46,7 @@ function _Neuron:print()
 	print("")
 end
 
-function _Neuron:update(inputs, output_layer)
+function _Neuron:update(inputs, output_layer_not_binary)
 	local this_type = type(inputs)
 
 	if this_type == "table" then
@@ -57,7 +57,7 @@ function _Neuron:update(inputs, output_layer)
 			sum = sum + weight * input
 		end
 
-		if not output_layer then
+		if not output_layer_not_binary then
 			if sum > self.bias then
 				self.value = 1
 			else
@@ -109,10 +109,10 @@ function _NeuronLayer:print()
 	print("-----------------------------------")
 end
 
-function _NeuronLayer:update(inputs, output_layer)
+function _NeuronLayer:update(inputs, output_layer_not_binary)
 	for i = 1, #self do
 		local neuron = self[i]
-		neuron:update(inputs, output_layer)
+		neuron:update(inputs, output_layer_not_binary)
 	end
 end
 
@@ -169,7 +169,7 @@ function NN:print()
 	end
 end
 
-function NN:get_outputs(inputs)
+function NN:get_outputs(inputs, output_layer_not_binary)
 	self[1]:update_entry_layer(inputs)
 	local last_layer = self[1]
 
@@ -180,7 +180,7 @@ function NN:get_outputs(inputs)
 	end
 
 	--output layer
-	self[#self]:update(last_layer, true)
+	self[#self]:update(last_layer, output_layer_not_binary or false)
 
 	local output_layer_index = #self
 	return self[output_layer_index]
