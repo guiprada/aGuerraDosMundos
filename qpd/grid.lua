@@ -50,11 +50,11 @@ function grid.new(matrix, collisions)
 		end
 	end
 
-	o._grid_collisions = {}
+	o._collisions = {}
 	for i = 1, o.height do
-		o._grid_collisions[i] = {}
+		o._collisions[i] = {}
 		for j = 1, o.width do
-			o._grid_collisions[i][j] = {}
+			o._collisions[i][j] = {}
 		end
 	end
 
@@ -127,7 +127,7 @@ end
 
 function grid.update_collision(self, gridActor)
 	local cell_x, cell_y = gridActor._cell.x, gridActor._cell.y
-	local other_obj_list = self._grid_collisions[cell_y][cell_x]
+	local other_obj_list = self._collisions[cell_y][cell_x]
 	if (#other_obj_list > 0) then -- has collided
 		for i = 1, #other_obj_list do
 			local other = other_obj_list[i]
@@ -139,13 +139,17 @@ function grid.update_collision(self, gridActor)
 			end
 		end
 	end
-	table.insert(self._grid_collisions[cell_y][cell_x], gridActor)
+	table.insert(self._collisions[cell_y][cell_x], gridActor)
+end
+
+function grid.get_collisions_in_cell(self, cell_x, cell_y)
+	return self._collisions[cell_y][cell_x]
 end
 
 function grid.clear_collisions(self)
 	for i = 1, self.height do
 		for j = 1, self.width do
-			local position = self._grid_collisions[i][j]
+			local position = self._collisions[i][j]
 			for k = #position, 1, -1 do
 				position[k] = nil
 			end

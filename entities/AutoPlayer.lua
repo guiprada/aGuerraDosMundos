@@ -20,7 +20,6 @@ function AutoPlayer.init(grid, search_path_length, mutate_chance, mutate_percent
 
 	AutoPlayer._search_path_length = search_path_length
 	AutoPlayer._max_grid_distance = math.ceil(math.sqrt((grid.width ^ 2) + (grid.height ^ 2)))
-	AutoPlayer._hunger_limit = 144 * 60 * 1
 
 	AutoPlayer._mutate_chance = 0.05 or mutate_chance
 	AutoPlayer._mutate_percentage = 0.05 or mutate_percentage
@@ -48,9 +47,7 @@ function AutoPlayer:reset(tilesize, reset_table)
 	GridActor.reset(self, cell, speed, tilesize)
 
 	self._fitness = 0
-	self._hunger = 0
 	self._collision_counter = 0
-	self._idle_counter = 0
 
 	local target_grid = AutoPlayer.grid:get_valid_cell()
 	self._home_grid.x = target_grid.x
@@ -58,7 +55,6 @@ function AutoPlayer:reset(tilesize, reset_table)
 
 	self._target_grid.x = target_grid.x
 	self._target_grid.y = target_grid.y
-
 
 	self._ann = ann or qpd.ann:new(6, 5, 1, 5)
 end
@@ -103,23 +99,24 @@ local function list_has_class(class_name, grid_actor_list)
 end
 
 function AutoPlayer:find_in_path_x(dx)
-	local search_path_length = -AutoPlayer._search_path_length
+	local search_path_length = AutoPlayer._search_path_length
 	local cell_x, cell_y
 	if self:is_front_wall() then
 		cell_x, cell_y = self._cell.x, self._cell.y
 	else
 		cell_x, cell_y = self:get_cell_in_front()
 	end
+
 	for i = 1, search_path_length do
-		if not GridActor.grid:is_grid_way({x = cell_x + dx, y = cell_y}) then
-			return i - search_path_length
+		if not GridActor.grid:is_valid_cell(cell_x + dx * i, cell_y) then
+			return - (search_path_length - i)
 		end
 
-		local obj_list = AutoPlayer.grid:get_grid_actors_in_position({x = cell_x + dx * i, y = cell_y})
-		if (#obj_list > 0) then
-			if list_has_class("ghost") then
-				return i - search_path_length
-			elseif list_has_class("pill") or list_has_class("player") then
+		local collision_list = AutoPlayer.grid:get_collisions_in_cell(cell_x + dx * i, cell_y)
+		if (#collision_list > 0) then
+			if list_has_class("ghost", collision_list) then
+				return - (search_path_length - i)
+			elseif list_has_class("pill", collision_list) then -- or list_has_class("player", collision_list) then
 				return search_path_length - i
 			end
 		end
@@ -128,23 +125,24 @@ function AutoPlayer:find_in_path_x(dx)
 end
 
 function AutoPlayer:find_in_path_y(dy)
-	local search_path_length = -AutoPlayer._search_path_length
+	local search_path_length = AutoPlayer._search_path_length
 	local cell_x, cell_y
 	if self:is_front_wall() then
 		cell_x, cell_y = self._cell.x, self._cell.y
 	else
 		cell_x, cell_y = self:get_cell_in_front()
 	end
+
 	for i = 1, search_path_length do
-		if not GridActor.grid:is_grid_way({x = cell_x, y = cell_y + dy}) then
-			return i - search_path_length
+		if not GridActor.grid:is_valid_cell(cell_x, cell_y + dy * i) then
+			return - (search_path_length - i)
 		end
 
-		local obj_list = AutoPlayer.grid:get_grid_actors_in_position({x = cell_x, y = cell_y + dy * i})
-		if (#obj_list > 0) then
-			if list_has_class("ghost") then
-				return i - search_path_length
-			elseif list_has_class("pill") or list_has_class("player") then
+		local collision_list = AutoPlayer.grid:get_collisions_in_cell(cell_x, cell_y + dy * i)
+		if (#collision_list > 0) then
+			if list_has_class("ghost", collision_list) then
+				return - (search_path_length - i)
+			elseif list_has_class("pill", collision_list) then -- or list_has_class("player", collision_list) then
 				return search_path_length - i
 			end
 		end
@@ -155,10 +153,10 @@ end
 function AutoPlayer:update(dt, tilesize, ghost_state)
 	if (self._is_active) then
 		local inputs = {
-			self:find_in_path_x(1),
-			self:find_in_path_x(-1),
-			self:find_in_path_y(1),
-			self:find_in_path_y(-1),
+			self:find_in_path_x( 1)/AutoPlayer._search_path_length,
+			self:find_in_path_x(-1)/AutoPlayer._search_path_length,
+			self:find_in_path_y( 1)/AutoPlayer._search_path_length,
+			self:find_in_path_y(-1)/AutoPlayer._search_path_length,
 			(ghost_state == "frightened") and 0 or 1, -- ghosts freightned
 			(ghost_state == "scattering") and 0 or 1, -- ghosts scattering
 		}
@@ -175,47 +173,52 @@ function AutoPlayer:update(dt, tilesize, ghost_state)
 			end
 		end
 
+		local last_direction = self.direction
 		if not (greatest_index == 5) then
 			self.next_direction = outputs_to_next_direction[greatest_index]
 		end
 
-		-- remove if idling
-		if self.direction == "idle" then
-			self._idle_counter = self._idle_counter + 1
-			if self._idle_counter > 5 then
-				self._is_active = false
-			end
-		-- else
-		-- 	self._idle_counter = 0
-		end
-
 		GridActor.update(self, dt, tilesize)
 		if self.changed_tile == true then
-			self._fitness = self._fitness + 0.001
+			self._fitness = self._fitness + 0.01
+			self._stuck = 0
+		else
+			if self._stuck then
+				self._stuck = self._stuck + 1
+			else
+				self._stuck = 1
+			end
+			if self._stuck == 5 then
+				self._is_active = false
+			end
 		end
 
 		-- remove if colliding
 		if self._has_collided then
 			self._fitness = self._fitness - 1
 
-			self._collision_counter = self._collision_counter + 1
-			if self._collision_counter > 5 then
+			self._collision_counter = self._collision_counter + 3
+			if self._collision_counter > 9 then
 				self._is_active = false
 			end
-		-- else
-		-- 	self._collision_counter = 0
+		else
+			self._collision_counter = self._collision_counter - 1
+		end
+
+		-- if self.direction == "idle" and last_direction == "idle" then
+		-- 	self._is_active = false
+		if last_direction ~= self.direction then
+			self._fitness = self._fitness + 0.1
 		end
 	end
 end
 
 function AutoPlayer:got_ghost()
 	self:add_fitness(1)
-	self._hunger = 0
 end
 
 function AutoPlayer:got_pill()
 	self:add_fitness(1)
-	self._hunger = 0
 end
 
 function AutoPlayer:get_ann()
