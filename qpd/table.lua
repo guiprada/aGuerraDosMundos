@@ -10,6 +10,16 @@ function qpd_table.assign_methods(self, class)
 	end
 end
 
+function qpd_table.merge(t1, t2)
+	if t1 and t2 then
+		for key, value in pairs(t2) do
+			t1[key] = value
+		end
+	else
+		print("ERROR: try to merge nil table")
+	end
+end
+
 function qpd_table.average(tables, indexer)
 	-- Returns the average of parameter indexer of a list of tables.
 	-- tables is an table of tables
@@ -185,6 +195,76 @@ function qpd_table.print(this_table)
 			print(key, ": ", tostring(value))
 		end
 	end
+end
+
+function qpd_table.get_highest(tables, indexer)
+	local length = #tables
+	local highest_index = 1
+	local highest = tables[highest_index][indexer]
+
+	for i = 2, length, 1 do
+		if (tables[i][indexer] > highest) then
+			highest_index = i
+			highest = tables[highest_index][indexer]
+		end
+	end
+	return tables[highest_index], highest_index
+end
+
+function qpd_table.get_lowest(tables, indexer)
+	local length = #tables
+	local lowest_index = 1
+	local lowest = tables[lowest_index][indexer]
+
+	for  i = 2, length, 1 do
+		if (tables[i][indexer] < lowest) then
+			lowest_index = i
+			lowest = tables[lowest_index][indexer]
+		end
+	end
+	return tables[lowest_index], lowest_index
+end
+
+function qpd_table.get_highest_index(tables, indexer)
+	local length = #tables
+	local highest = 1
+	for i=1, length, 1 do
+		if(tables[i][indexer] > tables[highest][indexer])then
+			highest = i
+		end
+	end
+	return highest
+end
+
+function qpd_table.get_lowest_index(tables, indexer)
+	local length = #tables
+	local lowest = 1
+	for i=1, length, 1 do
+		if(tables[i][indexer] < tables[lowest][indexer])then
+			lowest = i
+		end
+	end
+	return lowest
+end
+
+function qpd_table.get_n_best(tables, indexer, n)
+	local copy = {}
+	for i=1, #tables, 1 do
+		copy[i]= tables[i]
+	end
+
+	local highest_stack = {}
+
+	local limit = 3
+	if (#tables < limit) then
+		limit = #tables
+	end
+	for i=1, limit, 1 do
+		local new_top_index = qpd_table.get_highest_index(copy, indexer)
+		table.insert(highest_stack, tables[new_top_index])
+		table.remove(copy, new_top_index)
+	end
+	return highest_stack
 end
 
 return qpd_table

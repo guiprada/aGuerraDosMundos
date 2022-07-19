@@ -1,21 +1,22 @@
 local particle = {}
 
 local qpd_table = require "qpd.table"
+local qpd_random = require "qpd.random"
 
 function particle.reset(self)
-	self.timer = love.math.random(self.min_duration, self.max_duration)
+	self.timer = qpd_random.random(self.min_duration, self.max_duration)
 	self.max_timer = self.timer
 
 	self.x =
-		self.spawn_rect.x + love.math.random(1, self.spawn_rect.width)
+		self.spawn_rect.x + qpd_random.random(1, self.spawn_rect.width)
 
 	self.y =
-		self.spawn_rect.y + love.math.random(1, self.spawn_rect.height)
+		self.spawn_rect.y + qpd_random.random(1, self.spawn_rect.height)
 
 	self.color = {}
-	self.color.r = love.math.random()
-	self.color.g = love.math.random()
-	self.color.b = love.math.random()
+	self.color.r = qpd_random.random()
+	self.color.g = qpd_random.random()
+	self.color.b = qpd_random.random()
 	self.color.a = 1
 end
 
@@ -51,7 +52,7 @@ function particle.new(settings)
 		width = love.graphics.getWidth(),
 		height = love.graphics.getHeight()}
 
-	o.max_size = love.math.random(1, settings.max_size)
+	o.max_size = qpd_random.random(1, settings.max_size)
 
 	o.min_duration = settings.min_duration
 	o.max_duration = settings.max_duration

@@ -1,5 +1,6 @@
 local qpd = {}
 
+qpd.ann = require "qpd.ann"
 qpd.array = require "qpd.array"
 qpd.camera = require "qpd.camera"
 qpd.collision = require "qpd.collision"
@@ -10,6 +11,7 @@ qpd.matrix = require "qpd.matrix"
 qpd.point = require "qpd.point"
 qpd.tilemap_view = require "qpd.tilemap_view"
 qpd.tilemap = require "qpd.tilemap"
+qpd.random = require "qpd.random"
 qpd.table = require "qpd.table"
 qpd.timer = require "qpd.timer"
 qpd.value = require "qpd.value"

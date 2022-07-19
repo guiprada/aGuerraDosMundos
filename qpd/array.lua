@@ -1,11 +1,13 @@
 local array = {}
 
+local qpd_random = require "qpd.random"
+
 function array.shuffle(array)
 	-- shuffles an array
 	-- utils seeds the rng on load
 
 	for i=1,#array, 1 do
-		local j = math.random(1, #array)
+		local j = qpd_random.random(1, #array)
 		array[i], array[j] = array[j], array[i]
 	end
 end

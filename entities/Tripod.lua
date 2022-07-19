@@ -47,7 +47,7 @@ function Tripod._get_next_cell(self, dt, targets, tilesize)
 	for i = -1, 1, 1 do
 		for j = -1, 1, 1 do
 			local cell_x, cell_y = self._cell.x + i, self._cell.y + j
-			if self.grid:is_cell_valid(cell_x, cell_y) then
+			if self.grid:is_valid_cell(cell_x, cell_y) then
 				local new_value = {x = cell_x, y = cell_y}
 				table.insert(allowed, new_value)
 			end
@@ -69,7 +69,7 @@ function Tripod._get_next_cell(self, dt, targets, tilesize)
 		self._next_cell.x, self._next_cell.y = next_grid.x, next_grid.y
 		if  self._last_cell.x == self._next_cell.x and
 			self._last_cell.y == self._next_cell.y then -- is_stuck
-			self._target_cell = self.grid:get_valid_pos()
+			self._target_cell = self.grid:get_valid_cell()
 			self._is_stuck = false
 		end
 	else

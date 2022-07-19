@@ -2,6 +2,9 @@ local gs = {}
 
 local qpd = require "qpd.qpd"
 
+local GeneticPopulation = require "entities.GeneticPopulation"
+local AutoPlayer = require "entities.AutoPlayer"
+
 --------------------------------------------------------------------------------
 local color_array = {}
 color_array[1] = qpd.color.gray
@@ -58,6 +61,11 @@ function gs.load(map_file_path)
 			gs.cell_set[index] = qpd.cell_color.new(value)
 		end
 
+		-- add sprites
+		local brick_sprite = love.graphics.newImage(qpd.files.spr_brick)
+		gs.cell_set[#gs.cell_set+1] = qpd.cell_sprite.new(brick_sprite)
+		gs.cell_set[#gs.cell_set+1] = gs.cell_set[#gs.cell_set]
+
 		-- create the on_screen tilemap_view
 		gs.tilemap_view = qpd.tilemap_view.new(gs.map_matrix, gs.cell_set, gs.width, gs.height)
 
@@ -66,11 +74,20 @@ function gs.load(map_file_path)
 
 		-- create grid
 		local collisions = {}
+		collisions[0] = false
 		for i = 1, #gs.cell_set, 1 do
 			collisions[i] = true
 		end
-		local grid = qpd.grid.new(gs.map_matrix, collisions)
+		gs.grid = qpd.grid.new(gs.map_matrix, collisions)
 
+		-- Initialize Ghosts
+		gs.ghost_states = {"scattering", "chasing", "frightened"}
+
+		-- Initalize Autoplayer
+		local AutoPlayer_search_path_length = 5
+		local AutoPlayer_speed = 100
+		AutoPlayer.init(gs.grid, AutoPlayer_search_path_length)
+		gs.AutoPlayerPopulation = GeneticPopulation:new(AutoPlayer, 10, 100, nil, {speed = AutoPlayer_speed}, gs.tilemap_view.tilesize)
 
 		-- define keyboard actions
 		gs.actions_keyup = {}
@@ -94,6 +111,7 @@ function gs.draw()
 	gs.tilemap_view.camera:draw(
 		function ()
 			gs.tilemap_view:draw()
+			gs.AutoPlayerPopulation:draw()
 		end)
 	gs.fps:draw()
 	if gs.paused then
@@ -106,6 +124,12 @@ function gs.update(dt)
 	-- gs.tilemap_view:follow(dt, gs.player.speed_factor, gs.player:get_center())
 
 	if not gs.paused then
+		-- clear grid collisions
+		gs.grid:clear_collisions()
+
+		-- randomize ghost_state
+		gs.ghost_state = qpd.random.choose_list(gs.ghost_states)
+		gs.AutoPlayerPopulation:update(dt, gs.ghost_state)
 	end
 end
 
@@ -130,14 +154,7 @@ function gs.resize(w, h)
 
 	gs.tilemap_view:resize(gs.width, gs.height)
 
-	gs.player:resize(gs.tilemap_view.tilesize)
-	gs.friend:resize(gs.tilemap_view.tilesize)
-	for _, item in ipairs(gs.tripods) do
-		item:resize(gs.tilemap_view.tilesize)
-	end
-	for _, item in ipairs(gs.collectables) do
-		item:resize(gs.tilemap_view.tilesize)
-	end
+	gs.AutoPlayerPopulation:set_tilesize(gs.tilemap_view.tilesize)
 end
 
 function gs.unload()

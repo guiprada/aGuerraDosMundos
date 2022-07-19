@@ -39,7 +39,7 @@ function gs.load(map_file_path)
 	-- create a cell_set
 	local cell_set = {}
 	for index, value in ipairs(color_array) do
-		cell_set[index] = qpd.cells.color.new(value)
+		cell_set[index] = qpd.cell_color.new(value)
 	end
 	-- add sprites
 	local brick_sprite = love.graphics.newImage(qpd.files.spr_brick)
