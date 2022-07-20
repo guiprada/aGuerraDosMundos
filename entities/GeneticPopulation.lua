@@ -66,7 +66,7 @@ function GeneticPopulation:selection()
 		end
 	end
 
-	print("Error in population selection!")
+	print("Error in population selection!", randFloatMom, randFloatDad, self._history_fitness_sum, mom, dad)
 	mom = mom or self._history[#self._history]
 	dad = dad or self._history[#self._history]
 	return mom, dad
@@ -74,7 +74,6 @@ end
 
 function GeneticPopulation:replace(i)
 	self._count = self._count + 1
-	print(self._count)
 	self:add_to_history(self._population[i])
 
 	if self._random_init > 0 then

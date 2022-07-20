@@ -60,4 +60,8 @@ function Population:get_reset_table()
 	return self._reset_table
 end
 
+function Population:get_count()
+	return self._count
+end
+
 return Population

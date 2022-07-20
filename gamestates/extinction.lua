@@ -87,7 +87,7 @@ function gs.load(map_file_path)
 		local AutoPlayer_search_path_length = 5
 		gs.AutoPlayer_speed = 1000
 		AutoPlayer.init(gs.grid, AutoPlayer_search_path_length)
-		gs.AutoPlayerPopulation = GeneticPopulation:new(AutoPlayer, 50, 100000, nil, {speed = gs.AutoPlayer_speed}, gs.tilemap_view.tilesize)
+		gs.AutoPlayerPopulation = GeneticPopulation:new(AutoPlayer, 50, 5000, nil, {speed = gs.AutoPlayer_speed}, gs.tilemap_view.tilesize)
 
 
 		-- max dt
@@ -118,6 +118,10 @@ function gs.draw()
 			gs.AutoPlayerPopulation:draw()
 		end)
 	gs.fps:draw()
+	love.graphics.print(
+		gs.AutoPlayerPopulation:get_count(),
+		200,
+		0)
 	if gs.paused then
 		gs.paused_text:draw()
 	end

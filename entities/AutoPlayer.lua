@@ -51,7 +51,7 @@ function AutoPlayer:reset(tilesize, reset_table)
 	self:set_random_valid_direction()
 	self._orientation = self.direction
 
-	self._ann = ann or qpd.ann:new(3, 1, 1, 3)
+	self._ann = ann or qpd.ann:new(5, 1, 1, 5)
 end
 
 function AutoPlayer:crossover(mom, dad, tilesize, reset_table)
@@ -93,74 +93,98 @@ local function list_has_class(class_name, grid_actor_list)
 	return false
 end
 
-function AutoPlayer:find_in_path_x(dx)
+function AutoPlayer:find_in_path_x(dx, class)
 	local search_path_length = AutoPlayer._search_path_length
-	local cell_x, cell_y
-	if self:is_front_wall() then
-		cell_x, cell_y = self._cell.x, self._cell.y
-	else
-		cell_x, cell_y = self:get_cell_in_front()
-	end
+	local cell_x, cell_y = self._cell.x, self._cell.y
 
 	for i = 1, search_path_length do
 		if not GridActor.grid:is_valid_cell(cell_x + dx * i, cell_y) then
-			return - (search_path_length - i)
+			return 0
 		end
 
 		local collision_list = AutoPlayer.grid:get_collisions_in_cell(cell_x + dx * i, cell_y)
 		if (#collision_list > 0) then
-			if list_has_class("ghost", collision_list) then
-				return - (search_path_length - i)
-			elseif list_has_class("pill", collision_list) then -- or list_has_class("player", collision_list) then
-				return search_path_length - i
+			if list_has_class(class, collision_list) then
+				return (search_path_length - i)
 			end
 		end
 	end
 	return search_path_length
 end
 
-function AutoPlayer:find_in_path_y(dy)
+function AutoPlayer:find_in_path_y(dy, class)
 	local search_path_length = AutoPlayer._search_path_length
-	local cell_x, cell_y
-	if self:is_front_wall() then
-		cell_x, cell_y = self._cell.x, self._cell.y
-	else
-		cell_x, cell_y = self:get_cell_in_front()
-	end
+	local cell_x, cell_y = self._cell.x, self._cell.y
 
 	for i = 1, search_path_length do
 		if not GridActor.grid:is_valid_cell(cell_x, cell_y + dy * i) then
-			return - (search_path_length - i)
+			return 0
 		end
 
 		local collision_list = AutoPlayer.grid:get_collisions_in_cell(cell_x, cell_y + dy * i)
 		if (#collision_list > 0) then
-			if list_has_class("ghost", collision_list) then
-				return - (search_path_length - i)
-			elseif list_has_class("pill", collision_list) then -- or list_has_class("player", collision_list) then
-				return search_path_length - i
+			if list_has_class(class, collision_list) then
+				return (search_path_length - i)
 			end
 		end
 	end
 	return search_path_length
 end
 
-function AutoPlayer:find_in_front()
+function AutoPlayer:distance_in_front_class(class)
 	if self._orientation == "up" then
-		return self:find_in_path_y(-1)/AutoPlayer._search_path_length
+		return self:find_in_path_y(-1, class)/AutoPlayer._search_path_length
 	elseif self._orientation == "down" then
-		return self:find_in_path_y(1)/AutoPlayer._search_path_length
+		return self:find_in_path_y(1, class)/AutoPlayer._search_path_length
 	elseif self._orientation == "left" then
-		return self:find_in_path_x(-1)/AutoPlayer._search_path_length
+		return self:find_in_path_x(-1, class)/AutoPlayer._search_path_length
 	elseif self._orientation == "right" then
-		return self:find_in_path_x(1)/AutoPlayer._search_path_length
+		return self:find_in_path_x(1, class)/AutoPlayer._search_path_length
+	end
+end
+
+function AutoPlayer:find_collision_in_path_x(dx)
+	local search_path_length = AutoPlayer._search_path_length
+	local cell_x, cell_y = self._cell.x, self._cell.y
+
+	for i = 1, search_path_length do
+		if not GridActor.grid:is_valid_cell(cell_x + dx * i, cell_y) then
+			return (search_path_length - i)
+		end
+	end
+	return 0
+end
+
+function AutoPlayer:find_collision_in_path_y(dy)
+	local search_path_length = AutoPlayer._search_path_length
+	local cell_x, cell_y = self._cell.x, self._cell.y
+
+	for i = 1, search_path_length do
+		if not GridActor.grid:is_valid_cell(cell_x, cell_y + dy * i) then
+			return (search_path_length - i)
+		end
+	end
+	return 0
+end
+
+function AutoPlayer:distance_in_front_collision()
+	if self._orientation == "up" then
+		return self:find_collision_in_path_y(-1)/AutoPlayer._search_path_length
+	elseif self._orientation == "down" then
+		return self:find_collision_in_path_y(1)/AutoPlayer._search_path_length
+	elseif self._orientation == "left" then
+		return self:find_collision_in_path_x(-1)/AutoPlayer._search_path_length
+	elseif self._orientation == "right" then
+		return self:find_collision_in_path_x(1)/AutoPlayer._search_path_length
 	end
 end
 
 function AutoPlayer:update(dt, tilesize, ghost_state)
 	if (self._is_active) then
 		local inputs = {
-			self:find_in_front(),
+			self:distance_in_front_collision(),
+			self:distance_in_front_class("ghost"),
+			self:distance_in_front_class("pill"),
 			(ghost_state == "frightened") and 0 or 1, -- ghosts freightned
 			(ghost_state == "scattering") and 0 or 1, -- ghosts scattering
 		}
@@ -183,6 +207,7 @@ function AutoPlayer:update(dt, tilesize, ghost_state)
 			if not self._change_counter then
 				self._change_counter = 1
 			else
+				-- self._fitness = self._fitness + 1
 				self._change_counter = self._change_counter + 1
 				if self._change_counter > 6 then
 					self._is_active = false
@@ -208,7 +233,7 @@ function AutoPlayer:update(dt, tilesize, ghost_state)
 				self._not_changed_tile = 1
 			else
 				self._not_changed_tile = self._not_changed_tile + 1
-				if self._not_changed_tile > 10 then
+				if self._not_changed_tile > 20 then
 					self._is_active = false
 				end
 			end
