@@ -48,6 +48,9 @@ function AutoPlayer:reset(tilesize, reset_table)
 	self._target_grid.x = target_grid.x
 	self._target_grid.y = target_grid.y
 
+	self:set_random_valid_direction()
+	self._orientation = self.direction
+
 	self._ann = ann or qpd.ann:new(3, 1, 1, 3)
 end
 
@@ -143,32 +146,19 @@ function AutoPlayer:find_in_path_y(dy)
 end
 
 function AutoPlayer:find_in_front()
-	if self.direction == "up" then
+	if self._orientation == "up" then
 		return self:find_in_path_y(-1)/AutoPlayer._search_path_length
-	elseif self.direction == "down" then
+	elseif self._orientation == "down" then
 		return self:find_in_path_y(1)/AutoPlayer._search_path_length
-	elseif self.direction == "left" then
+	elseif self._orientation == "left" then
 		return self:find_in_path_x(-1)/AutoPlayer._search_path_length
-	elseif self.direction == "right" then
+	elseif self._orientation == "right" then
 		return self:find_in_path_x(1)/AutoPlayer._search_path_length
 	end
 end
 
 function AutoPlayer:update(dt, tilesize, ghost_state)
 	if (self._is_active) then
-		local last_direction = self.direction
-		if self.direction == "idle" then
-			local enable_directions = AutoPlayer.grid:get_enabled_directions(self._cell.x, self._cell.y)
-			if enable_directions[1] == true then
-				self.direction = "up"
-			elseif enable_directions[2] == true then
-				self.direction = "down"
-			elseif enable_directions[3] == true then
-				self.direction = "left"
-			elseif enable_directions[4] == true then
-				self.direction = "right"
-			end
-		end
 		local inputs = {
 			self:find_in_front(),
 			(ghost_state == "frightened") and 0 or 1, -- ghosts freightned
@@ -178,35 +168,38 @@ function AutoPlayer:update(dt, tilesize, ghost_state)
 
 		if outputs[1].value == 1 then
 			-- go left
-			if self.direction == "up" then
+			if self._orientation == "up" then
 				self.next_direction = "left"
-			elseif self.direction == "down" then
+			elseif self._orientation == "down" then
 				self.next_direction = "right"
-			elseif self.direction == "left" then
+			elseif self._orientation == "left" then
 				self.next_direction = "down"
-			elseif self.direction == "right" then
+			elseif self._orientation == "right" then
 				self.next_direction = "up"
 			end
 
-		-- 	if not self._change_counter then
-		-- 		self._change_counter = 1
-		-- 	else
-		-- 		self._change_counter = self._change_counter + 1
-		-- 		if self._change_counter > 10 then
-		-- 			self._is_active = false
-		-- 		end
-		-- 	end
-		-- else
-		-- 	self._change_counter = 0
+			self._orientation = self.next_direction
+
+			if not self._change_counter then
+				self._change_counter = 1
+			else
+				self._change_counter = self._change_counter + 1
+				if self._change_counter > 6 then
+					self._is_active = false
+				end
+			end
+		else
+			self._change_counter = 0
 		end
 
 		GridActor.update(self, dt, tilesize)
 
-		-- rewarded if changed tile
-		if self.direction ~= last_direction then
-			self._fitness = self._fitness + 1
-		end
+		-- rewarded if changed direction
+		-- if self.direction ~= last_direction then
+		-- 	self._fitness = self._fitness + 1
+		-- end
 
+		-- rewarded if changed tile
 		if self.changed_tile == true then
 			self._fitness = self._fitness + 0.1
 			self._not_changed_tile = 0

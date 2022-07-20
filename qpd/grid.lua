@@ -4,6 +4,12 @@ local grid = {}
 local qpd_table = require "qpd.table"
 local qpd_random = require "qpd.random"
 
+local directions = {
+	"up",
+	"down",
+	"left",
+	"right"
+}
 -----------------------------------------------------------------------
 function grid._is_collision(self, n)
 	return self.collisions[n] or false
@@ -32,6 +38,7 @@ function grid.new(matrix, collisions)
 	o.height = #o.matrix
 
 	qpd_table.assign_methods(o, grid)
+	o.directions = directions
 
 	o._enabled_directions = {}
 	for i = 1, o.height do

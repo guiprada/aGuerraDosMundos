@@ -2,6 +2,8 @@
 local GridActor = {}
 GridActor.__index = GridActor
 
+local qpd = require "qpd.qpd"
+
 local registered_types_list = {
 	"generic",
 }
@@ -211,6 +213,24 @@ function GridActor:update(dt, tilesize)
 
 		GridActor.grid:update_collision(self)
 	end
+end
+
+function GridActor:set_random_valid_direction()
+	local enable_directions = GridActor.grid:get_enabled_directions(self._cell.x, self._cell.y)
+	local direction_select_list = {}
+
+	if enable_directions[1] == true then
+		table.insert(direction_select_list, 1)
+	elseif enable_directions[2] == true then
+		table.insert(direction_select_list, 2)
+	elseif enable_directions[3] == true then
+		table.insert(direction_select_list, 3)
+	elseif enable_directions[4] == true then
+		table.insert(direction_select_list, 4)
+	end
+
+	local selected_direction = qpd.random.choose_list(direction_select_list)
+	self.direction = GridActor.grid.directions[selected_direction]
 end
 
 function GridActor:center_on_cell()
