@@ -75,6 +75,8 @@ end
 
 function GridActor:reset(cell, speed, tilesize)
 	self.changed_tile = false
+	self.changed_tile_x = false
+	self.changed_tile_y = false
 	self._has_collided = false
 	self.speed = speed or 0
 	self._tilesize = tilesize
@@ -221,11 +223,14 @@ function GridActor:set_random_valid_direction()
 
 	if enable_directions[1] == true then
 		table.insert(direction_select_list, 1)
-	elseif enable_directions[2] == true then
+	end
+	if enable_directions[2] == true then
 		table.insert(direction_select_list, 2)
-	elseif enable_directions[3] == true then
+	end
+	if enable_directions[3] == true then
 		table.insert(direction_select_list, 3)
-	elseif enable_directions[4] == true then
+	end
+	if enable_directions[4] == true then
 		table.insert(direction_select_list, 4)
 	end
 

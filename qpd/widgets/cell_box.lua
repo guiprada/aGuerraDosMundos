@@ -33,7 +33,6 @@ end
 
 function cell_box.left(self)
 	self.selector:left()
-	print("called")
 end
 
 function cell_box.right(self)

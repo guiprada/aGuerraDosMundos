@@ -48,17 +48,31 @@ function GeneticPopulation:add_to_history(this)
 end
 
 function GeneticPopulation:selection()
-	local randFloatMom = self._history_fitness_sum * qpd.random.random()
-	local randFloatDad = self._history_fitness_sum * qpd.random.random()
+	-- local mom = qpd.table.get_highest(self._population, "_fitness")
+	local mom_table = self._population
+	table.sort(mom_table, function(a,b) return a._fitness > b._fitness end)
+	if mom_table[1]._fitness < mom_table[#mom_table]._fitness then
+		print("error sorting by fitness")
+	end
+	local max_index = 5
+	if max_index > #mom_table then
+		max_index = #mom_table
+	end
+	local mom_index_list = {}
+	for i = 1, max_index do
+		mom_index_list[i] = i
+	end
 
+	local mom_index = qpd.random.choose_list(mom_index_list)
+	local mom = mom_table[mom_index]
+
+	local randFloatDad = self._history_fitness_sum * qpd.random.random()
 	local sum = 0
-	local mom, dad
+	local dad
 	for i = 1, #self._history do
 		local this = self._history[i]
 		sum = sum + this._fitness
-		if (not mom) and (sum >= randFloatMom) then
-			mom = this
-		elseif (not dad) and (sum >= randFloatDad) then
+		if (sum >= randFloatDad) then
 			dad = this
 		end
 		if mom and dad then
@@ -66,9 +80,10 @@ function GeneticPopulation:selection()
 		end
 	end
 
-	print("Error in population selection!", randFloatMom, randFloatDad, self._history_fitness_sum, mom, dad)
+	print("Error in population selection!")
 	mom = mom or self._history[#self._history]
 	dad = dad or self._history[#self._history]
+
 	return mom, dad
 end
 

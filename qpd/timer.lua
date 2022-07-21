@@ -52,6 +52,7 @@ function qpd_timer.new(duration, callback)
 	o._duration = duration
 	o._callback = callback
 	o._enabled = false
+	o._timer = false
 
 	return o
 end

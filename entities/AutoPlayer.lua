@@ -7,6 +7,30 @@ local qpd = require "qpd.qpd"
 
 local autoplayer_type_name = "player"
 
+local function rotate_left(self)
+	if self._orientation == "up" then
+		self._orientation = "left"
+	elseif self._orientation == "down" then
+		self._orientation = "right"
+	elseif self._orientation == "left" then
+		self._orientation = "down"
+	elseif self._orientation == "right" then
+		self._orientation = "up"
+	end
+end
+
+local function rotate_right(self)
+	if self._orientation == "up" then
+		self._orientation = "right"
+	elseif self._orientation == "down" then
+		self._orientation = "left"
+	elseif self._orientation == "left" then
+		self._orientation = "up"
+	elseif self._orientation == "right" then
+		self._orientation = "down"
+	end
+end
+
 function AutoPlayer.init(grid, search_path_length, mutate_chance, mutate_percentage)
 	GridActor.init(grid)
 
@@ -50,6 +74,7 @@ function AutoPlayer:reset(tilesize, reset_table)
 
 	self:set_random_valid_direction()
 	self._orientation = self.direction
+	self.rotate = qpd.random.choose(rotate_left, rotate_right)
 
 	self._ann = ann or qpd.ann:new(5, 1, 1, 5)
 end
@@ -179,6 +204,18 @@ function AutoPlayer:distance_in_front_collision()
 	end
 end
 
+function AutoPlayer:is_front_collision()
+	if self._orientation == "up" then
+		return GridActor.grid:is_valid_cell(self._cell.x - 1, self._cell.y) and 1 or 0
+	elseif self._orientation == "down" then
+		return GridActor.grid:is_valid_cell(self._cell.x + 1, self._cell.y) and 1 or 0
+	elseif self._orientation == "left" then
+		return GridActor.grid:is_valid_cell(self._cell.x, self._cell.y - 1) and 1 or 0
+	elseif self._orientation == "right" then
+		return GridActor.grid:is_valid_cell(self._cell.x, self._cell.y + 1) and 1 or 0
+	end
+end
+
 function AutoPlayer:update(dt, tilesize, ghost_state)
 	if (self._is_active) then
 		local inputs = {
@@ -191,63 +228,56 @@ function AutoPlayer:update(dt, tilesize, ghost_state)
 		local outputs = self._ann:get_outputs(inputs)
 
 		if outputs[1].value == 1 then
-			-- go left
-			if self._orientation == "up" then
-				self.next_direction = "left"
-			elseif self._orientation == "down" then
-				self.next_direction = "right"
-			elseif self._orientation == "left" then
-				self.next_direction = "down"
-			elseif self._orientation == "right" then
-				self.next_direction = "up"
-			end
-
-			self._orientation = self.next_direction
-
-			if not self._change_counter then
-				self._change_counter = 1
-			else
-				-- self._fitness = self._fitness + 1
-				self._change_counter = self._change_counter + 1
-				if self._change_counter > 6 then
-					self._is_active = false
-				end
-			end
-		else
-			self._change_counter = 0
+			self:rotate()
+			self.next_direction = self._orientation
 		end
 
 		GridActor.update(self, dt, tilesize)
 
-		-- rewarded if changed direction
-		-- if self.direction ~= last_direction then
-		-- 	self._fitness = self._fitness + 1
-		-- end
-
 		-- rewarded if changed tile
 		if self.changed_tile == true then
-			self._fitness = self._fitness + 0.1
+			if not self._change_boost then
+				self._change_boost = 1
+			end
+
+			local changed_tile_x, changed_tile_y
+			if self._cell.x ~= self.last_cell.x then
+				changed_tile_x = true
+			elseif self._cell.y ~= self.last_cell.y then
+				changed_tile_y = true
+			end
+			if changed_tile_x then
+				self._change_in_x = true
+			elseif changed_tile_y then
+				self._change_in_y = true
+			end
+
+			if self._change_in_x and self._change_in_y then
+				self._change_boost = 10
+			end
+
+			self._fitness = self._fitness + 0.1 * self._change_boost
 			self._not_changed_tile = 0
 		else
 			if not self._not_changed_tile then
 				self._not_changed_tile = 1
 			else
 				self._not_changed_tile = self._not_changed_tile + 1
-				if self._not_changed_tile > 20 then
+				if self._not_changed_tile > 60 then
 					self._is_active = false
 				end
 			end
 		end
 
-		-- remove if colliding
-		if self._has_collided then
-			self._collision_counter = self._collision_counter + 1
-			if self._collision_counter > 10 then
-				self._is_active = false
-			end
-		else
-			self._collision_counter = 0
-		end
+		-- -- remove if colliding
+		-- if self._has_collided then
+		-- 	self._collision_counter = self._collision_counter + 1
+		-- 	if self._collision_counter > 50 then
+		-- 		self._is_active = false
+		-- 	end
+		-- else
+		-- 	self._collision_counter = 0
+		-- end
 	end
 end
 

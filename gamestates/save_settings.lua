@@ -12,7 +12,7 @@ end
 local function fallback_settings()
 	-- settings have only been applied, not saved, so just apply the saved
 	-- settings
-	qpd.window.apply(window.get_settings())
+	qpd.window.apply(qpd.window.get_settings())
 	qpd.fonts.resize()
 	qpd.gamestate.switch("settings_menu")
 end
@@ -32,6 +32,7 @@ function gs.load(new_settings)
 
 
 	gs.timer = qpd.timer.new(10, timer_out)
+	gs.timer:reset()
 
 	gs.instructions = qpd.text_box.new(
 		qpd.strings.save_settings_instructions,

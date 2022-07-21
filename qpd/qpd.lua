@@ -23,6 +23,7 @@ qpd.strings = require "qpd.services.strings"
 qpd.window = require "qpd.services.window"
 
 qpd.cell_box = require "qpd.widgets.cell_box"
+qpd.file_picker = require "qpd.widgets.file_picker"
 qpd.fps = require "qpd.widgets.fps"
 qpd.grid_selector = require "qpd.widgets.grid_selector"
 qpd.particle = require "qpd.widgets.particle"
