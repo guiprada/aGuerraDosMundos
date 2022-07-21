@@ -38,7 +38,7 @@ function grid.new(matrix, collisions)
 	o.height = #o.matrix
 
 	qpd_table.assign_methods(o, grid)
-	o.directions = directions
+	o._directions = directions
 
 	o._enabled_directions = {}
 	for i = 1, o.height do

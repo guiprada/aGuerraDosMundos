@@ -5,7 +5,7 @@ local GeneticPopulation = {}
 GeneticPopulation.__index = GeneticPopulation
 qpd.table.assign_methods(GeneticPopulation, Population)
 
-function GeneticPopulation:new(class, active_size, population_size, new_table, reset_table, tilesize, o)
+function GeneticPopulation:new(class, active_size, population_size, new_table, reset_table, o)
 	local o = o or {}
 	setmetatable(o, self)
 
@@ -13,7 +13,6 @@ function GeneticPopulation:new(class, active_size, population_size, new_table, r
 	o._population_size = population_size
 	o._random_init = population_size
 	o._reset_table = reset_table
-	o._tilesize = tilesize
 
 	o._population = {}
 	o._history = {}
@@ -22,7 +21,7 @@ function GeneticPopulation:new(class, active_size, population_size, new_table, r
 
 	for i = 1, active_size do
 		o._population[i] = class:new(new_table)
-		o._population[i]:reset(o:get_tilesize(), o:get_reset_table())
+		o._population[i]:reset(o:get_reset_table())
 		o._count = o._count + 1
 	end
 
@@ -93,13 +92,13 @@ function GeneticPopulation:replace(i)
 
 	if self._random_init > 0 then
 		self._random_init = self._random_init - 1
-		self._population[i]:reset(self:get_tilesize(), self:get_reset_table())
+		self._population[i]:reset(self:get_reset_table())
 	else
 		-- find parents
 		local mom, dad = self:selection()
 
 		-- cross
-		self._population[i]:crossover(mom, dad, self:get_tilesize(), self:get_reset_table())
+		self._population[i]:crossover(mom, dad, self:get_reset_table())
 	end
 end
 

@@ -32,8 +32,6 @@ local function rotate_right(self)
 end
 
 function AutoPlayer.init(grid, search_path_length, mutate_chance, mutate_percentage)
-	GridActor.init(grid)
-
 	AutoPlayer._search_path_length = search_path_length
 	AutoPlayer._max_grid_distance = math.ceil(math.sqrt((grid.width ^ 2) + (grid.height ^ 2)))
 
@@ -54,18 +52,20 @@ function AutoPlayer:new(o)
 	return o
 end
 
-function AutoPlayer:reset(tilesize, reset_table)
-	local cell = reset_table._cell
-	local speed = reset_table.speed
-	local ann = reset_table.ann
+function AutoPlayer:reset(reset_table)
+	local cell, ann
+	if reset_table then
+		cell = reset_table._cell
+		ann = reset_table.ann
+	end
 
-	cell = cell or AutoPlayer.grid:get_valid_cell()
-	GridActor.reset(self, cell, speed, tilesize)
+	cell = cell or AutoPlayer._grid:get_valid_cell()
+	GridActor.reset(self, cell)
 
 	self._fitness = 0
 	self._collision_counter = 0
 
-	local target_grid = AutoPlayer.grid:get_valid_cell()
+	local target_grid = AutoPlayer._grid:get_valid_cell()
 	self._home_grid.x = target_grid.x
 	self._home_grid.y = target_grid.y
 
@@ -73,37 +73,37 @@ function AutoPlayer:reset(tilesize, reset_table)
 	self._target_grid.y = target_grid.y
 
 	self:set_random_valid_direction()
-	self._orientation = self.direction
-	self.rotate = qpd.random.choose(rotate_left, rotate_right)
+	self._orientation = self._direction
+	self._rotate = qpd.random.choose(rotate_left, rotate_right)
 
 	self._ann = ann or qpd.ann:new(5, 1, 1, 5)
 end
 
-function AutoPlayer:crossover(mom, dad, tilesize, reset_table)
+function AutoPlayer:crossover(mom, dad)
 	local newAnn = qpd.ann:crossover(mom._ann, dad._ann, self._mutate_chance, self._mutate_percentage)
 	-- reset
-	self:reset(tilesize, {speed = reset_table.speed, ann = newAnn})
+	self:reset({ann = newAnn})
 end
 
-function AutoPlayer:draw(tilesize)
+function AutoPlayer:draw()
 	--AutoPlayer body :)
 	if (self._is_active) then
 		love.graphics.setColor(0.9, 0.9, 0.9)
 		love.graphics.circle(	"fill",
 								self.x,
 								self.y,
-								tilesize*0.55)
+								self._tilesize*0.55)
 
 		-- front dot
 		love.graphics.setColor(1, 0, 1)
 		--love.graphics.setColor(138/255,43/255,226/255, 0.9)
 		love.graphics.circle(	"fill",
-								self.front.x,
-								self.front.y,
-								tilesize/5)
+								self._front.x,
+								self._front.y,
+								self._tilesize/5)
 		-- front line, mesma cor
 		-- love.graphics.setColor(1, 0, 1)
-		love.graphics.line(self.x, self.y, self.front.x, self.front.y)
+		love.graphics.line(self.x, self.y, self._front.x, self._front.y)
 		love.graphics.setColor(1,1,1)
 	end
 end
@@ -123,11 +123,11 @@ function AutoPlayer:find_in_path_x(dx, class)
 	local cell_x, cell_y = self._cell.x, self._cell.y
 
 	for i = 1, search_path_length do
-		if not GridActor.grid:is_valid_cell(cell_x + dx * i, cell_y) then
+		if not GridActor._grid:is_valid_cell(cell_x + dx * i, cell_y) then
 			return 0
 		end
 
-		local collision_list = AutoPlayer.grid:get_collisions_in_cell(cell_x + dx * i, cell_y)
+		local collision_list = AutoPlayer._grid:get_collisions_in_cell(cell_x + dx * i, cell_y)
 		if (#collision_list > 0) then
 			if list_has_class(class, collision_list) then
 				return (search_path_length - i)
@@ -142,11 +142,11 @@ function AutoPlayer:find_in_path_y(dy, class)
 	local cell_x, cell_y = self._cell.x, self._cell.y
 
 	for i = 1, search_path_length do
-		if not GridActor.grid:is_valid_cell(cell_x, cell_y + dy * i) then
+		if not GridActor._grid:is_valid_cell(cell_x, cell_y + dy * i) then
 			return 0
 		end
 
-		local collision_list = AutoPlayer.grid:get_collisions_in_cell(cell_x, cell_y + dy * i)
+		local collision_list = AutoPlayer._grid:get_collisions_in_cell(cell_x, cell_y + dy * i)
 		if (#collision_list > 0) then
 			if list_has_class(class, collision_list) then
 				return (search_path_length - i)
@@ -173,7 +173,7 @@ function AutoPlayer:find_collision_in_path_x(dx)
 	local cell_x, cell_y = self._cell.x, self._cell.y
 
 	for i = 1, search_path_length do
-		if not GridActor.grid:is_valid_cell(cell_x + dx * i, cell_y) then
+		if not GridActor._grid:is_valid_cell(cell_x + dx * i, cell_y) then
 			return (search_path_length - i)
 		end
 	end
@@ -185,7 +185,7 @@ function AutoPlayer:find_collision_in_path_y(dy)
 	local cell_x, cell_y = self._cell.x, self._cell.y
 
 	for i = 1, search_path_length do
-		if not GridActor.grid:is_valid_cell(cell_x, cell_y + dy * i) then
+		if not GridActor._grid:is_valid_cell(cell_x, cell_y + dy * i) then
 			return (search_path_length - i)
 		end
 	end
@@ -206,17 +206,17 @@ end
 
 function AutoPlayer:is_front_collision()
 	if self._orientation == "up" then
-		return GridActor.grid:is_valid_cell(self._cell.x - 1, self._cell.y) and 1 or 0
+		return GridActor._grid:is_valid_cell(self._cell.x - 1, self._cell.y) and 1 or 0
 	elseif self._orientation == "down" then
-		return GridActor.grid:is_valid_cell(self._cell.x + 1, self._cell.y) and 1 or 0
+		return GridActor._grid:is_valid_cell(self._cell.x + 1, self._cell.y) and 1 or 0
 	elseif self._orientation == "left" then
-		return GridActor.grid:is_valid_cell(self._cell.x, self._cell.y - 1) and 1 or 0
+		return GridActor._grid:is_valid_cell(self._cell.x, self._cell.y - 1) and 1 or 0
 	elseif self._orientation == "right" then
-		return GridActor.grid:is_valid_cell(self._cell.x, self._cell.y + 1) and 1 or 0
+		return GridActor._grid:is_valid_cell(self._cell.x, self._cell.y + 1) and 1 or 0
 	end
 end
 
-function AutoPlayer:update(dt, tilesize, ghost_state)
+function AutoPlayer:update(dt, speed, ghost_state)
 	if (self._is_active) then
 		local inputs = {
 			self:distance_in_front_collision(),
@@ -228,23 +228,22 @@ function AutoPlayer:update(dt, tilesize, ghost_state)
 		local outputs = self._ann:get_outputs(inputs)
 
 		if outputs[1].value == 1 then
-			self:rotate()
-			-- self.next_direction = self._orientation
-			self.direction = self._orientation
+			self:_rotate()
+			self._direction = self._orientation
 		end
 
-		GridActor.update(self, dt, tilesize)
+		GridActor.update(self, dt, speed)
 
 		-- rewarded if changed tile
-		if self.changed_tile == true then
+		if self._changed_tile == true then
 			if not self._change_boost then
 				self._change_boost = 1
 			end
 
 			local changed_tile_x, changed_tile_y
-			if self._cell.x ~= self.last_cell.x then
+			if self._cell.x ~= self._last_cell.x then
 				changed_tile_x = true
-			elseif self._cell.y ~= self.last_cell.y then
+			elseif self._cell.y ~= self._last_cell.y then
 				changed_tile_y = true
 			end
 			if changed_tile_x then
@@ -254,7 +253,7 @@ function AutoPlayer:update(dt, tilesize, ghost_state)
 			end
 
 			if self._change_in_x and self._change_in_y then
-				self._change_boost = 10
+				self._change_boost = 100
 			end
 
 			self._fitness = self._fitness + 0.1 * self._change_boost

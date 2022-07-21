@@ -2,8 +2,11 @@ local gs = {}
 
 local qpd = require "qpd.qpd"
 
+local GridActor = require "entities.GridActor"
 local GeneticPopulation = require "entities.GeneticPopulation"
 local AutoPlayer = require "entities.AutoPlayer"
+local Population = require "entities.Population"
+local Ghost = require "entities.Ghost"
 
 --------------------------------------------------------------------------------
 local color_array = {}
@@ -80,15 +83,20 @@ function gs.load(map_file_path)
 		end
 		gs.grid = qpd.grid.new(gs.map_matrix, collisions)
 
+		-- Initialze GridActor
+		GridActor.init(gs.grid, gs.tilemap_view.tilesize)
+
 		-- Initialize Ghosts
 		gs.ghost_states = {"scattering", "chasing", "frightened"}
+		gs.Ghost_speed = 1050
+		local ghost_target_spread = 15
+		Ghost.init(gs.grid, gs.tilemap_view.tilesize, gs.Ghost_speed, "scattering", ghost_target_spread)
 
 		-- Initalize Autoplayer
 		local AutoPlayer_search_path_length = 5
 		gs.AutoPlayer_speed = 1000
 		AutoPlayer.init(gs.grid, AutoPlayer_search_path_length)
-		gs.AutoPlayerPopulation = GeneticPopulation:new(AutoPlayer, 50, 5000, nil, {speed = gs.AutoPlayer_speed}, gs.tilemap_view.tilesize)
-
+		gs.AutoPlayerPopulation = GeneticPopulation:new(AutoPlayer, 50, 50000)
 
 		-- max dt
 		gs.max_dt = (gs.tilemap_view.tilesize / 4) / qpd.value.max(gs.AutoPlayer_speed)
@@ -130,7 +138,6 @@ end
 function gs.update(dt)
 	-- center camera
 	-- gs.tilemap_view:follow(dt, gs.player.speed_factor, gs.player:get_center())
-
 	if not gs.paused then
 		-- dt should not be to high
 		local dt = dt < gs.max_dt and dt or gs.max_dt
@@ -143,7 +150,7 @@ function gs.update(dt)
 
 		-- randomize ghost_state
 		gs.ghost_state = qpd.random.choose_list(gs.ghost_states)
-		gs.AutoPlayerPopulation:update(dt, gs.ghost_state)
+		gs.AutoPlayerPopulation:update(dt, gs.AutoPlayer_speed, gs.ghost_state)
 	end
 end
 
@@ -168,7 +175,7 @@ function gs.resize(w, h)
 
 	gs.tilemap_view:resize(gs.width, gs.height)
 
-	gs.AutoPlayerPopulation:set_tilesize(gs.tilemap_view.tilesize)
+	GridActor.set_tilesize(gs.tilemap_view.tilesize)
 	gs.max_dt = (gs.tilemap_view.tilesize / 4) / qpd.value.max(gs.AutoPlayer_speed)
 end
 
