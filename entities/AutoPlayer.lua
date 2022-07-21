@@ -229,7 +229,8 @@ function AutoPlayer:update(dt, tilesize, ghost_state)
 
 		if outputs[1].value == 1 then
 			self:rotate()
-			self.next_direction = self._orientation
+			-- self.next_direction = self._orientation
+			self.direction = self._orientation
 		end
 
 		GridActor.update(self, dt, tilesize)
