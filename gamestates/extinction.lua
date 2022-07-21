@@ -96,7 +96,7 @@ function gs.load(map_file_path)
 		local AutoPlayer_search_path_length = 5
 		gs.AutoPlayer_speed = 1000
 		AutoPlayer.init(gs.grid, AutoPlayer_search_path_length)
-		gs.AutoPlayerPopulation = GeneticPopulation:new(AutoPlayer, 50, 50000)
+		gs.AutoPlayerPopulation = GeneticPopulation:new(AutoPlayer, 50, 100000)
 
 		-- max dt
 		gs.max_dt = (gs.tilemap_view.tilesize / 4) / qpd.value.max(gs.AutoPlayer_speed)

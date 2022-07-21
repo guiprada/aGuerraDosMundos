@@ -161,6 +161,16 @@ function GridActor:update(dt, speed)
 			end
 		end
 
+		-- check collision with wall
+		self._has_collided = false
+		if(self:is_front_wall()) then
+			self._direction = "idle"
+			self._next_direction = "idle"
+			self:center_on_cell() -- it stops relayed cornering
+			self._has_collided = true
+		end
+
+		-- do move :)
 		if self._direction ~= "idle" then
 			if self._direction == "up" then self.y = self.y - speed * dt
 			elseif self._direction == "down" then self.y = self.y + speed * dt
@@ -175,22 +185,21 @@ function GridActor:update(dt, speed)
 
 		--on change tile
 		self._changed_tile = false
-		if  self._cell.x ~= self._last_cell.x or
-			self._cell.y ~= self._last_cell.y then
+		if  self._cell.x ~= self._last_cell.x then
+			self._changed_tile = "x"
+		end
+		if self._cell.y ~= self._last_cell.y then
+			if self._changed_tile then
+				self._changed_tile = "xy"
+			else
+				self._changed_tile = "y"
+			end
+		end
 
-			self._changed_tile = true
+		if self._changed_tile then
 			self._enabled_directions = self:get_enabled_directions()
 			self._last_cell.x = self._cell.x
 			self._last_cell.y = self._cell.y
-		end
-
-		-- check collision with wall
-		self._has_collided = false
-		if(self:is_front_wall()) then
-			self._direction = "idle"
-			self._next_direction = "idle"
-			self:center_on_cell()
-			self._has_collided = true
 		end
 
 		-- relays mov for cornering
@@ -236,6 +245,8 @@ function GridActor:center_on_cell()
 end
 
 function GridActor:center_on_cell_x()
+	self._relay_x_counter = 0
+	self._relay_y_counter = 0
 	self.x, _ = GridActor._grid.cell_to_center_point(self._cell.x, self._cell.y, self._tilesize)
 end
 

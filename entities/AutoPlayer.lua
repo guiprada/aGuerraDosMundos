@@ -31,6 +31,18 @@ local function rotate_right(self)
 	end
 end
 
+local function flip(self)
+	if self._orientation == "up" then
+		self._orientation = "down"
+	elseif self._orientation == "down" then
+		self._orientation = "up"
+	elseif self._orientation == "left" then
+		self._orientation = "right"
+	elseif self._orientation == "right" then
+		self._orientation = "left"
+	end
+end
+
 function AutoPlayer.init(grid, search_path_length, mutate_chance, mutate_percentage)
 	AutoPlayer._search_path_length = search_path_length
 	AutoPlayer._max_grid_distance = math.ceil(math.sqrt((grid.width ^ 2) + (grid.height ^ 2)))
@@ -72,6 +84,10 @@ function AutoPlayer:reset(reset_table)
 	self._target_grid.x = target_grid.x
 	self._target_grid.y = target_grid.y
 
+	self._2d_badge = false
+	self._change_in_x = false
+	self._change_in_y = false
+
 	self:set_random_valid_direction()
 	self._orientation = self._direction
 	self._rotate = qpd.random.choose(rotate_left, rotate_right)
@@ -88,7 +104,11 @@ end
 function AutoPlayer:draw()
 	--AutoPlayer body :)
 	if (self._is_active) then
-		love.graphics.setColor(0.9, 0.9, 0.9)
+		if self._2d_badge then
+			love.graphics.setColor(0.9, 0.9, 0.9)
+		else
+			love.graphics.setColor(0.5, 0.5, 0.5)
+		end
 		love.graphics.circle(	"fill",
 								self.x,
 								self.y,
@@ -204,15 +224,39 @@ function AutoPlayer:distance_in_front_collision()
 	end
 end
 
+function AutoPlayer:distance_in_left_collision()
+	if self._orientation == "up" then
+		return self:find_collision_in_path_x(-1)/AutoPlayer._search_path_length
+	elseif self._orientation == "down" then
+		return self:find_collision_in_path_x(1)/AutoPlayer._search_path_length
+	elseif self._orientation == "left" then
+		return self:find_collision_in_path_y(1)/AutoPlayer._search_path_length
+	elseif self._orientation == "right" then
+		return self:find_collision_in_path_y(-1)/AutoPlayer._search_path_length
+	end
+end
+
+function AutoPlayer:distance_in_right_collision()
+	if self._orientation == "up" then
+		return self:find_collision_in_path_x(1)/AutoPlayer._search_path_length
+	elseif self._orientation == "down" then
+		return self:find_collision_in_path_x(-1)/AutoPlayer._search_path_length
+	elseif self._orientation == "left" then
+		return self:find_collision_in_path_y(-1)/AutoPlayer._search_path_length
+	elseif self._orientation == "right" then
+		return self:find_collision_in_path_y(1)/AutoPlayer._search_path_length
+	end
+end
+
 function AutoPlayer:is_front_collision()
 	if self._orientation == "up" then
-		return GridActor._grid:is_valid_cell(self._cell.x - 1, self._cell.y) and 1 or 0
-	elseif self._orientation == "down" then
-		return GridActor._grid:is_valid_cell(self._cell.x + 1, self._cell.y) and 1 or 0
-	elseif self._orientation == "left" then
 		return GridActor._grid:is_valid_cell(self._cell.x, self._cell.y - 1) and 1 or 0
-	elseif self._orientation == "right" then
+	elseif self._orientation == "down" then
 		return GridActor._grid:is_valid_cell(self._cell.x, self._cell.y + 1) and 1 or 0
+	elseif self._orientation == "left" then
+		return GridActor._grid:is_valid_cell(self._cell.x - 1, self._cell.y) and 1 or 0
+	elseif self._orientation == "right" then
+		return GridActor._grid:is_valid_cell(self._cell.x - 1, self._cell.y) and 1 or 0
 	end
 end
 
@@ -229,31 +273,29 @@ function AutoPlayer:update(dt, speed, ghost_state)
 
 		if outputs[1].value == 1 then
 			self:_rotate()
-			self._direction = self._orientation
 		end
+		if self._direction ~= self._orientation then
+			self._next_direction = self._orientation
+		end
+
 
 		GridActor.update(self, dt, speed)
 
 		-- rewarded if changed tile
-		if self._changed_tile == true then
+		if self._changed_tile then
 			if not self._change_boost then
 				self._change_boost = 1
 			end
 
-			local changed_tile_x, changed_tile_y
-			if self._cell.x ~= self._last_cell.x then
-				changed_tile_x = true
-			elseif self._cell.y ~= self._last_cell.y then
-				changed_tile_y = true
-			end
-			if changed_tile_x then
+			if self._changed_tile == "x" then
 				self._change_in_x = true
-			elseif changed_tile_y then
+			elseif self._changed_tile == "y" then
 				self._change_in_y = true
 			end
 
 			if self._change_in_x and self._change_in_y then
 				self._change_boost = 100
+				self._2d_badge = true
 			end
 
 			self._fitness = self._fitness + 0.1 * self._change_boost
