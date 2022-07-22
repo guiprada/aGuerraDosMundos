@@ -11,8 +11,8 @@ local directions = {
 	"right"
 }
 -----------------------------------------------------------------------
-function grid._is_collision(self, n)
-	return self.collisions[n] or false
+function grid.is_blocked_cell_type(self, n)
+	return self._collision_cells[n] or false
 end
 
 -----------------------------------------------------------------------
@@ -29,10 +29,10 @@ function grid.cell_to_center_point(cell_x, cell_y, tilesize)
 end
 
 -----------------------------------------------------------------------
-function grid.new(matrix, collisions)
+function grid.new(matrix, collision_cells)
 	local o = {}
 	o.matrix = matrix
-	o.collisions = collisions
+	o._collision_cells = collision_cells
 
 	o.width = #o.matrix[1]
 	o.height = #o.matrix
@@ -48,7 +48,7 @@ function grid.new(matrix, collisions)
 	o.array_cell_valid_pos = {}
 	for i = 1, o.width do
 		for j = 1, o.height do
-			if ( not o:_is_collision(o.matrix[j][i]) ) then
+			if (not o:is_blocked_cell(i, j)) then
 				local value = {}
 				value.x = i
 				value.y = j
@@ -74,20 +74,31 @@ function grid.get_valid_cell(self)
 	return cell
 end
 
-function grid.is_colliding_point(self, x, y, tilesize)
+function grid.is_blocked_point(self, x, y, tilesize)
 	local cell_x, cell_y = grid.point_to_cell(x, y, tilesize)
-	return self:is_colliding_cell(cell_x, cell_y)
+	return self:is_blocked_cell(cell_x, cell_y)
 end
 
-function grid.is_colliding_cell(self, cell_x, cell_y)
-	local cell_value = self.matrix[cell_y][cell_x]
-	return self.collisions[cell_value] or false
+function grid.is_blocked_cell(self, cell_x, cell_y)
+	if self.matrix[cell_y] then
+		local cell_value = self.matrix[cell_y][cell_x]
+		if cell_value then
+			return self:is_blocked_cell_type(cell_value)
+		end
+	end
+	return true
 end
 
 function grid.is_valid_cell(self, cell_x, cell_y)
-	if 	cell_x >= 1 and cell_x <= self.width and
-		cell_y >= 1 and	cell_y <= self.height and
-		not self:is_colliding_cell(cell_x, cell_y) then
+	return not self:is_blocked_cell(cell_x, cell_y)
+end
+
+function grid.is_corridor(self, cell_x, cell_y)
+	local enabled_directions = self:get_enabled_directions(cell_x, cell_y)
+	if enabled_directions[1] == true and enabled_directions[2] == true and enabled_directions[3] == false and enabled_directions[4] == false then
+		return true
+	end
+	if enabled_directions[1] == false and enabled_directions[2] == false and enabled_directions[3] == true and enabled_directions[4] == true then
 		return true
 	end
 	return false
@@ -105,7 +116,7 @@ function grid.check_unobstructed(self, origin, angle, distance, tilesize, maybe_
 	local x, y = origin.x, origin.y
 	while acc_distance < distance do
 		current_cell.x, current_cell.y = grid.point_to_cell(x, y, tilesize)
-		if self:is_colliding_cell(current_cell.x, current_cell.y) then
+		if self:is_blocked_cell(current_cell.x, current_cell.y) then
 			return false
 		end
 		acc_distance = acc_distance + math.sqrt(step_x^2 + step_y^2)
@@ -135,6 +146,9 @@ end
 function grid.update_collision(self, gridActor)
 	local cell_x, cell_y = gridActor._cell.x, gridActor._cell.y
 	local other_obj_list = self._collisions[cell_y][cell_x]
+	if not other_obj_list then
+		print("update_collision received a bogus position")
+	end
 	if (#other_obj_list > 0) then -- has collided
 		for i = 1, #other_obj_list do
 			local other = other_obj_list[i]
@@ -150,6 +164,7 @@ function grid.update_collision(self, gridActor)
 end
 
 function grid.get_collisions_in_cell(self, cell_x, cell_y)
+	-- print(cell_x, cell_y)
 	return self._collisions[cell_y][cell_x]
 end
 

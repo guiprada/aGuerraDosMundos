@@ -21,9 +21,9 @@ function Population:new(class, population_size, new_table, reset_table, o)
 	return o
 end
 
-function Population:draw()
+function Population:draw(...)
 	for i = 1, #self._population do
-		self._population[i]:draw()
+		self._population[i]:draw(...)
 	end
 end
 

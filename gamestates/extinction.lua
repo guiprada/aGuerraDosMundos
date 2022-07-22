@@ -90,7 +90,8 @@ function gs.load(map_file_path)
 		gs.ghost_states = {"scattering", "chasing", "frightened"}
 		gs.Ghost_speed = 1050
 		local ghost_target_spread = 15
-		Ghost.init(gs.grid, gs.tilemap_view.tilesize, gs.Ghost_speed, "scattering", ghost_target_spread)
+		Ghost.init(gs.grid, "scattering", ghost_target_spread)
+		gs.GhostPopulation = GeneticPopulation:new(Ghost, 1, 10000)
 
 		-- Initalize Autoplayer
 		local AutoPlayer_search_path_length = 5
@@ -124,7 +125,9 @@ function gs.draw()
 		function ()
 			gs.tilemap_view:draw()
 			gs.AutoPlayerPopulation:draw()
+			gs.GhostPopulation:draw(gs.ghost_state)
 		end)
+
 	gs.fps:draw()
 	love.graphics.print(
 		gs.AutoPlayerPopulation:get_count(),
@@ -149,7 +152,9 @@ function gs.update(dt)
 		gs.grid:clear_collisions()
 
 		-- randomize ghost_state
-		gs.ghost_state = qpd.random.choose_list(gs.ghost_states)
+		gs.ghost_state = "chasing" -- qpd.random.choose_list(gs.ghost_states)
+		Ghost.set_state(gs.ghost_state)
+		gs.GhostPopulation:update(dt, gs.Ghost_speed, gs.AutoPlayerPopulation:get_population())
 		gs.AutoPlayerPopulation:update(dt, gs.AutoPlayer_speed, gs.ghost_state)
 	end
 end

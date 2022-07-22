@@ -113,13 +113,10 @@ function GridActor:is_type(type_name)
 	end
 end
 
-function GridActor:draw(tilesize)
+function GridActor:draw()
 	if (self._is_active) then
 		love.graphics.setColor(1, 1, 0)
-		love.graphics.circle(	"fill",
-								self.x,
-								self.y,
-								tilesize*0.55)
+		love.graphics.circle("fill", self.x, self.y, self._tilesize*0.55)
 	end
 end
 
@@ -220,7 +217,7 @@ function GridActor:update(dt, speed)
 end
 
 function GridActor:set_random_valid_direction()
-	local enable_directions = GridActor._grid:get_enabled_directions(self._cell.x, self._cell.y)
+	local enable_directions = self:get_enabled_directions()
 	local direction_select_list = {}
 
 	if enable_directions[1] == true then
@@ -236,8 +233,12 @@ function GridActor:set_random_valid_direction()
 		table.insert(direction_select_list, 4)
 	end
 
-	local selected_direction = qpd.random.choose_list(direction_select_list)
-	self._direction = GridActor._grid._directions[selected_direction]
+	if #direction_select_list > 0 then
+		local selected_direction = qpd.random.choose_list(direction_select_list)
+		self._direction = GridActor._grid._directions[selected_direction]
+	else
+		print("Set random valid direction for invalid position:", self._cell.x, self._cell.y)
+	end
 end
 
 function GridActor:center_on_cell()
@@ -293,7 +294,7 @@ end
 
 function GridActor:is_front_wall()
 	local cell_x, cell_y = self:get_cell_in_front()
-	return not GridActor._grid:is_valid_cell(cell_x, cell_y)
+	return GridActor._grid:is_blocked_cell(cell_x, cell_y)
 end
 
 return GridActor
