@@ -131,10 +131,10 @@ function grid.get_enabled_directions(self, cell_x, cell_y)
 		return enabled_directions
 	else
 		enabled_directions = {}
-		enabled_directions[1] = self:is_valid_cell(cell_x - 1, cell_y) -- up
-		enabled_directions[2] = self:is_valid_cell(cell_x + 1, cell_y) -- down
-		enabled_directions[3] = self:is_valid_cell(cell_x, cell_y - 1) -- left
-		enabled_directions[4] = self:is_valid_cell(cell_x, cell_y + 1) -- right
+		enabled_directions[1] = self:is_valid_cell(cell_x, cell_y - 1) -- up
+		enabled_directions[2] = self:is_valid_cell(cell_x, cell_y + 1) -- down
+		enabled_directions[3] = self:is_valid_cell(cell_x - 1, cell_y) -- left
+		enabled_directions[4] = self:is_valid_cell(cell_x + 1, cell_y) -- right
 
 		-- memoize
 		self._enabled_directions[cell_y][cell_x] = enabled_directions

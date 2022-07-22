@@ -73,14 +73,7 @@ function Ghost:reset(reset_table)
 	self._target_offset = target_offset
 
 	-- set a valid direction
-	-- print(self._cell.x, self._cell.y)
-	local enabled_directions = self:get_enabled_directions()
-	-- for i = 1, 4 do
-	-- 	print(enabled_directions[i])
-	-- end
 	self:set_random_valid_direction()
-	-- print(self._direction)
-
 	self:update_dynamic_front()
 end
 

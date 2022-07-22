@@ -91,7 +91,7 @@ function gs.load(map_file_path)
 		gs.Ghost_speed = 1050
 		local ghost_target_spread = 15
 		Ghost.init(gs.grid, "scattering", ghost_target_spread)
-		gs.GhostPopulation = GeneticPopulation:new(Ghost, 1, 10000)
+		gs.GhostPopulation = GeneticPopulation:new(Ghost, 5, 10000)
 
 		-- Initalize Autoplayer
 		local AutoPlayer_search_path_length = 5
