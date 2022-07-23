@@ -13,8 +13,8 @@ function qpd_timer.update(self, dt)
 	if self._enabled then
 		self._timer = self._timer - dt
 		if self._timer <= 0 then
-			self._callback()
 			self._enabled = false
+			self._callback()
 		end
 	end
 end
@@ -36,11 +36,11 @@ function qpd_timer.set_duration(self, value)
 end
 
 function qpd_timer.start(self)
-	self._enabled = false
+	self._enabled = true
 end
 
 function qpd_timer.stop(self)
-	self._enabled = true
+	self._enabled = false
 end
 
 --------------------------------------------------------------------------------

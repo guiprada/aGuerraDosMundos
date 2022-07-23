@@ -8,10 +8,10 @@ local function exit()
 end
 
 local function save(value)
-	local game_conf = qpd.table.read_from_conf(qpd.files.game_conf)
-	game_conf.difficulty = value
+	local games_conf = qpd.table.read_from_conf(qpd.files.games_conf)
+	games_conf.difficulty = value
 	print(value)
-	qpd.table.write_to_file(game_conf, qpd.files.game_conf)
+	qpd.table.write_to_file(games_conf, qpd.files.games_conf)
 	exit()
 end
 

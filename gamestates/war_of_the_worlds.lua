@@ -33,7 +33,13 @@ function gs.load(map_file_path)
 	gs.paused = false
 
 	-- load game.conf settings
-	local game_conf = qpd.table.read_from_conf(qpd.files.game_conf)
+	local war_of_the_worlds_conf = qpd.table.read_from_conf(qpd.files.war_of_the_worlds_conf)
+	local games_conf = qpd.table.read_from_conf(qpd.files.games_conf)
+	local game_conf = {}
+	if war_of_the_worlds_conf and games_conf then
+		qpd.table.merge(game_conf, war_of_the_worlds_conf)
+		qpd.table.merge(game_conf, games_conf)
+	end
 	if not game_conf then
 		print("Failed to read game.conf")
 	else

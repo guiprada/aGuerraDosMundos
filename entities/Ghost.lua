@@ -224,12 +224,6 @@ function Ghost:update(dt, speed, targets)
 			self:center_on_cell() -- it stops relayed cornering
 			self._has_collided = true
 		end
-		-- local front_grid_cell_x, front_grid_cell_y = Ghost._grid.point_to_cell(self._front.x, self._front.y, self._tilesize)
-		-- if(Ghost._grid:is_blocked_cell(front_grid_cell_x, front_grid_cell_y)) then
-		-- 	self.direction = "idle"
-		-- 	self.next_direction = "idle"
-		-- 	self:center_on_cell()
-		-- end
 
 		--on change tile
 		self._changed_tile = false

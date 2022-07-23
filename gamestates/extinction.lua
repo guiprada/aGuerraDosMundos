@@ -28,16 +28,42 @@ color_array[15] = qpd.color.orange
 color_array[16] = qpd.color.lime
 
 --------------------------------------------------------------------------------
+local function change_ghost_state()
+	local ghosts = gs.GhostPopulation:get_population()
+	if (gs.ghost_state == "scattering") then
+	-- if game.ghost_state == "frightened" do nothing
+		gs.ghost_state = "chasing"
+		for i = 1, #ghosts do
+			ghosts[i]:flip_direction()
+		end
+		gs.ghost_state_timer:reset(gs.ghost_chase_time)
+	elseif (gs.ghost_state == "chasing") then
+		gs.ghost_state = "scattering"
+		for i = 1, #ghosts do
+			ghosts[i]:flip_direction()
+		end
+		gs.ghost_state_timer:reset(gs.ghost_scatter_time)
+	end
+end
+
+--------------------------------------------------------------------------------
 function gs.load(map_file_path)
 	gs.width = love.graphics.getWidth()
 	gs.height = love.graphics.getHeight()
 	gs.paused = false
 
 	-- load game.conf settings
-	local game_conf = qpd.table.read_from_conf(qpd.files.game_conf)
+	local extinction_conf = qpd.table.read_from_conf(qpd.files.extinction_conf)
+	local games_conf = qpd.table.read_from_conf(qpd.files.games_conf)
+	local game_conf = {}
+	if extinction_conf and games_conf then
+		qpd.table.merge(game_conf, extinction_conf)
+		qpd.table.merge(game_conf, games_conf)
+	end
 	if not game_conf then
-		print("Failed to read game.conf")
+		print("Failed to read games.conf or extinction.conf")
 	else
+		gs.game_speed = 100
 		gs.default_zoom = game_conf.default_zoom
 		-- local difficulty_factor = game_conf.difficulty/3
 
@@ -87,20 +113,25 @@ function gs.load(map_file_path)
 		GridActor.init(gs.grid, gs.tilemap_view.tilesize)
 
 		-- Initialize Ghosts
-		gs.ghost_states = {"scattering", "chasing", "frightened"}
-		gs.Ghost_speed = 1050
-		local ghost_target_spread = 15
-		Ghost.init(gs.grid, "scattering", ghost_target_spread)
-		gs.GhostPopulation = GeneticPopulation:new(Ghost, 5, 10000)
+		gs.ghost_chase_time = 5
+		gs.ghost_scatter_time = 2
+		gs.ghost_state_timer = qpd.timer.new(gs.ghost_scatter_time, change_ghost_state)
+		gs.ghost_state_timer:reset()
+		gs.ghost_state = "scattering"
+		-- gs.ghost_states = {"scattering", "chasing", "frightened"}
+		gs.Ghost_speed_factor = 5
+		local ghost_target_spread = 6
+		Ghost.init(gs.grid, gs.ghost_state, ghost_target_spread)
+		gs.GhostPopulation = GeneticPopulation:new(Ghost, 10, 10000)
 
 		-- Initalize Autoplayer
 		local AutoPlayer_search_path_length = 5
-		gs.AutoPlayer_speed = 1000
+		gs.AutoPlayer_speed_factor = 10
 		AutoPlayer.init(gs.grid, AutoPlayer_search_path_length)
 		gs.AutoPlayerPopulation = GeneticPopulation:new(AutoPlayer, 50, 100000)
 
 		-- max dt
-		gs.max_dt = (gs.tilemap_view.tilesize / 4) / qpd.value.max(gs.AutoPlayer_speed)
+		gs.max_dt = (gs.tilemap_view.tilesize / 4) / qpd.value.max(gs.AutoPlayer_speed_factor * gs.game_speed, gs.Ghost_speed_factor * gs.game_speed)
 
 		-- define keyboard actions
 		gs.actions_keyup = {}
@@ -116,6 +147,20 @@ function gs.load(map_file_path)
 				else
 					gs.paused = true
 				end
+			end
+		gs.actions_keyup['-'] =
+			function ()
+				if gs.game_speed > 10 then
+					gs.game_speed = gs.game_speed - 10
+				end
+				print("speed:", gs.game_speed)
+			end
+		gs.actions_keyup['s'] =
+			function ()
+				if gs.game_speed < 150 then
+					gs.game_speed = gs.game_speed + 10
+				end
+				print("speed:", gs.game_speed)
 			end
 	end
 end
@@ -151,11 +196,13 @@ function gs.update(dt)
 		-- clear grid collisions
 		gs.grid:clear_collisions()
 
+		-- game.ghost_state timer
+		gs.ghost_state_timer:update(dt)
+
 		-- randomize ghost_state
-		gs.ghost_state = "chasing" -- qpd.random.choose_list(gs.ghost_states)
 		Ghost.set_state(gs.ghost_state)
-		gs.GhostPopulation:update(dt, gs.Ghost_speed, gs.AutoPlayerPopulation:get_population())
-		gs.AutoPlayerPopulation:update(dt, gs.AutoPlayer_speed, gs.ghost_state)
+		gs.GhostPopulation:update(dt, gs.Ghost_speed_factor * gs.game_speed, gs.AutoPlayerPopulation:get_population())
+		gs.AutoPlayerPopulation:update(dt, gs.AutoPlayer_speed_factor * gs.game_speed, gs.ghost_state)
 	end
 end
 
@@ -181,7 +228,7 @@ function gs.resize(w, h)
 	gs.tilemap_view:resize(gs.width, gs.height)
 
 	GridActor.set_tilesize(gs.tilemap_view.tilesize)
-	gs.max_dt = (gs.tilemap_view.tilesize / 4) / qpd.value.max(gs.AutoPlayer_speed)
+	gs.max_dt = (gs.tilemap_view.tilesize / 4) / qpd.value.max(gs.AutoPlayer_speed_factor * gs.game_speed, gs.Ghost_speed_factor * gs.game_speed)
 end
 
 function gs.unload()

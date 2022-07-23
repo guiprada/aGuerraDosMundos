@@ -92,7 +92,7 @@ function AutoPlayer:reset(reset_table)
 	self:set_random_valid_direction()
 	self._orientation = self._direction
 
-	self._ann = ann or qpd.ann:new(7, 2, 1, 5)
+	self._ann = ann or qpd.ann:new(7, 2, 1, 7)
 end
 
 function AutoPlayer:crossover(mom, dad)
@@ -144,13 +144,13 @@ function AutoPlayer:find_in_path_x(dx, class)
 
 	for i = 1, search_path_length do
 		if GridActor._grid:is_blocked_cell(cell_x + dx * i, cell_y) then
-			return 0
+			return search_path_length
 		end
 
 		local collision_list = AutoPlayer._grid:get_collisions_in_cell(cell_x + dx * i, cell_y)
 		if (#collision_list > 0) then
 			if list_has_class(class, collision_list) then
-				return (search_path_length - i)
+				return i
 			end
 		end
 	end
@@ -163,13 +163,13 @@ function AutoPlayer:find_in_path_y(dy, class)
 
 	for i = 1, search_path_length do
 		if GridActor._grid:is_blocked_cell(cell_x, cell_y + dy * i) then
-			return 0
+			return search_path_length
 		end
 
 		local collision_list = AutoPlayer._grid:get_collisions_in_cell(cell_x, cell_y + dy * i)
 		if (#collision_list > 0) then
 			if list_has_class(class, collision_list) then
-				return (search_path_length - i)
+				return i
 			end
 		end
 	end
@@ -291,53 +291,61 @@ function AutoPlayer:update(dt, speed, ghost_state)
 
 		GridActor.update(self, dt, speed)
 
+		self._fitness = self._fitness + 0.001
+
+		-- if (self:distance_in_front_class("ghost") < 0.6) and (outputs[1].value == 1) and (outputs[1].value == 1) then
+		-- 	print("escaped")
+		-- elseif (self:distance_in_front_class("ghost") < 0.6) then
+		-- 	print("not escape")
+		-- end
+
 		-- rewarded if changed tile
-		if self._changed_tile then
-			if self._2d_badge_counter then
-				self._2d_badge_counter = self._2d_badge_counter - 1
-				if self._2d_badge_counter <= 0 then
-					self._2d_badge = false
-				end
-			end
+		-- if self._changed_tile then
+		-- 	if self._2d_badge_counter then
+		-- 		self._2d_badge_counter = self._2d_badge_counter - 1
+		-- 		if self._2d_badge_counter <= 0 then
+		-- 			self._2d_badge = false
+		-- 		end
+		-- 	end
 
-			if not self._change_boost then
-				self._change_boost = 1
-			end
+		-- 	if not self._change_boost then
+		-- 		self._change_boost = 1
+		-- 	end
 
-			if self._changed_tile == "x" then
-				self._change_in_x = true
-			elseif self._changed_tile == "y" then
-				self._change_in_y = true
-			end
+		-- 	if self._changed_tile == "x" then
+		-- 		self._change_in_x = true
+		-- 	elseif self._changed_tile == "y" then
+		-- 		self._change_in_y = true
+		-- 	end
 
-			if self._change_in_x and self._change_in_y then
-				self._change_boost = 100
-				self._2d_badge = true
-				self._2d_badge_counter = 100
-			end
+		-- 	if self._change_in_x and self._change_in_y then
+		-- 		self._change_boost = 100
+		-- 		self._2d_badge = true
+		-- 		self._2d_badge_counter = 100
+		-- 	end
 
-			self._fitness = self._fitness + 0.1 * self._change_boost
-			self._not_changed_tile = 0
-		else
-			if not self._not_changed_tile then
-				self._not_changed_tile = 1
-			else
-				self._not_changed_tile = self._not_changed_tile + 1
-				if self._not_changed_tile > 60 then
-					self._is_active = false
-				end
-			end
-		end
+		-- 	self._fitness = self._fitness + 0.1 * self._change_boost
+		-- 	self._not_changed_tile = 0
+		-- else
+		-- 	if not self._not_changed_tile then
+		-- 		self._not_changed_tile = 1
+		-- 	else
+		-- 		self._not_changed_tile = self._not_changed_tile + 1
+		-- 		if self._not_changed_tile > 60 then
+		-- 			self._is_active = false
+		-- 		end
+		-- 	end
+		-- end
 
-		-- remove if colliding
-		if self._has_collided then
-			self._collision_counter = self._collision_counter + 1
-			if self._collision_counter > 50 then
-				self._is_active = false
-			end
-		else
-			self._fitness = self._fitness + 0.001
-		end
+		-- -- remove if colliding
+		-- if self._has_collided then
+		-- 	self._collision_counter = self._collision_counter + 1
+		-- 	if self._collision_counter > 50 then
+		-- 		self._is_active = false
+		-- 	end
+		-- else
+		-- 	self._fitness = self._fitness + 0.001
+		-- end
 	end
 end
 

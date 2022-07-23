@@ -151,9 +151,11 @@ function NN:crossover(mom, dad, mutate_chance, mutate_percentage)
 		for j = 1, #layer do
 			local inputs = {}
 			for k = 1, #layer[j] do
-				inputs[k] = qpd_random.choose(mom[i][j][k], dad[i][j][k], (mom[i][j][k] + dad[i][j][k]) /2) * (qpd_random.toss(mutate_chance) and qpd_random.choose(-mutate_percentage, mutate_percentage) or 1)
+				inputs[k] = qpd_random.choose(mom[i][j][k], dad[i][j][k]) * (qpd_random.toss(mutate_chance) and qpd_random.choose(-mutate_percentage, mutate_percentage) or 1)
+				-- inputs[k] = qpd_random.choose(mom[i][j][k], dad[i][j][k], (mom[i][j][k] + dad[i][j][k]) /2) * (qpd_random.toss(mutate_chance) and qpd_random.choose(-mutate_percentage, mutate_percentage) or 1)
 			end
-			local bias = qpd_random.choose(mom[i][j].bias, dad[i][j].bias, (mom[i][j].bias + dad[i][j].bias) /2) * (qpd_random.toss(mutate_chance) and qpd_random.choose(-mutate_percentage, mutate_percentage) or 1)
+			local bias = qpd_random.choose(mom[i][j].bias, dad[i][j].bias) * (qpd_random.toss(mutate_chance) and qpd_random.choose(-mutate_percentage, mutate_percentage) or 1)
+			-- local bias = qpd_random.choose(mom[i][j].bias, dad[i][j].bias, (mom[i][j].bias + dad[i][j].bias) /2) * (qpd_random.toss(mutate_chance) and qpd_random.choose(-mutate_percentage, mutate_percentage) or 1)
 			new_layer[j] = _Neuron:new(inputs, bias)
 		end
 
