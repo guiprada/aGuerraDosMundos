@@ -43,12 +43,14 @@ local function flip(self)
 	end
 end
 
-function AutoPlayer.init(grid, search_path_length, mutate_chance, mutate_percentage)
+function AutoPlayer.init(grid, search_path_length, mutate_chance, mutate_percentage, ann_depth, ann_width)
 	AutoPlayer._search_path_length = search_path_length
 	AutoPlayer._max_grid_distance = math.ceil(math.sqrt((grid.width ^ 2) + (grid.height ^ 2)))
 
-	AutoPlayer._mutate_chance = 0.05 or mutate_chance
-	AutoPlayer._mutate_percentage = 0.05 or mutate_percentage
+	AutoPlayer._mutate_chance = mutate_chance
+	AutoPlayer._mutate_percentage = mutate_percentage
+	AutoPlayer._ann_depth = ann_depth
+	AutoPlayer._ann_width = ann_width
 
 	GridActor.register_type(autoplayer_type_name)
 end
@@ -92,7 +94,7 @@ function AutoPlayer:reset(reset_table)
 	self:set_random_valid_direction()
 	self._orientation = self._direction
 
-	self._ann = ann or qpd.ann:new(7, 2, 1, 7)
+	self._ann = ann or qpd.ann:new(6, 2, AutoPlayer._ann_depth, AutoPlayer._ann_width)
 end
 
 function AutoPlayer:crossover(mom, dad)
@@ -291,7 +293,8 @@ function AutoPlayer:update(dt, speed, ghost_state)
 
 		GridActor.update(self, dt, speed)
 
-		self._fitness = self._fitness + 0.001
+		-- fitness reward
+		self._fitness = self._fitness + 0.0001
 
 		-- if (self:distance_in_front_class("ghost") < 0.6) and (outputs[1].value == 1) and (outputs[1].value == 1) then
 		-- 	print("escaped")
@@ -300,42 +303,42 @@ function AutoPlayer:update(dt, speed, ghost_state)
 		-- end
 
 		-- rewarded if changed tile
-		-- if self._changed_tile then
-		-- 	if self._2d_badge_counter then
-		-- 		self._2d_badge_counter = self._2d_badge_counter - 1
-		-- 		if self._2d_badge_counter <= 0 then
-		-- 			self._2d_badge = false
-		-- 		end
-		-- 	end
+		if self._changed_tile then
+			if self._2d_badge_counter then
+				self._2d_badge_counter = self._2d_badge_counter - 1
+				if self._2d_badge_counter <= 0 then
+					self._2d_badge = false
+				end
+			end
 
-		-- 	if not self._change_boost then
-		-- 		self._change_boost = 1
-		-- 	end
+			if not self._change_boost then
+				self._change_boost = 1
+			end
 
-		-- 	if self._changed_tile == "x" then
-		-- 		self._change_in_x = true
-		-- 	elseif self._changed_tile == "y" then
-		-- 		self._change_in_y = true
-		-- 	end
+			if self._changed_tile == "x" then
+				self._change_in_x = true
+			elseif self._changed_tile == "y" then
+				self._change_in_y = true
+			end
 
-		-- 	if self._change_in_x and self._change_in_y then
-		-- 		self._change_boost = 100
-		-- 		self._2d_badge = true
-		-- 		self._2d_badge_counter = 100
-		-- 	end
+			if self._change_in_x and self._change_in_y then
+				self._change_boost = 100
+				self._2d_badge = true
+				self._2d_badge_counter = 100
+			end
 
-		-- 	self._fitness = self._fitness + 0.1 * self._change_boost
-		-- 	self._not_changed_tile = 0
-		-- else
-		-- 	if not self._not_changed_tile then
-		-- 		self._not_changed_tile = 1
-		-- 	else
-		-- 		self._not_changed_tile = self._not_changed_tile + 1
-		-- 		if self._not_changed_tile > 60 then
-		-- 			self._is_active = false
-		-- 		end
-		-- 	end
-		-- end
+			self._fitness = self._fitness + 0.1 * self._change_boost
+			self._not_changed_tile = 0
+		else
+			if not self._not_changed_tile then
+				self._not_changed_tile = 1
+			else
+				self._not_changed_tile = self._not_changed_tile + 1
+				if self._not_changed_tile > 60 then
+					self._is_active = false
+				end
+			end
+		end
 
 		-- -- remove if colliding
 		-- if self._has_collided then

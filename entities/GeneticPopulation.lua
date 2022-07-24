@@ -10,8 +10,10 @@ function GeneticPopulation:new(class, active_size, population_size, new_table, r
 	setmetatable(o, self)
 
 	o._class = class
+	o._active_size = active_size
 	o._population_size = population_size
 	o._random_init = population_size
+	o._new_table = o._new_table
 	o._reset_table = reset_table
 
 	o._population = {}
@@ -19,8 +21,8 @@ function GeneticPopulation:new(class, active_size, population_size, new_table, r
 	o._history_fitness_sum = 0
 	o._count = 0
 
-	for i = 1, active_size do
-		o._population[i] = class:new(new_table)
+	for i = 1, o._active_size do
+		o._population[i] = o._class:new(o._new_table)
 		o._population[i]:reset(o:get_reset_table())
 		o._count = o._count + 1
 	end
@@ -46,42 +48,27 @@ function GeneticPopulation:add_to_history(this)
 	end
 end
 
-function GeneticPopulation:selection()
-	-- local mom = qpd.table.get_highest(self._population, "_fitness")
-	local mom_table = self._population
-	table.sort(mom_table, function(a,b) return a._fitness > b._fitness end)
-	if mom_table[1]._fitness < mom_table[#mom_table]._fitness then
-		print("error sorting by fitness")
-	end
-	local max_index = 5
-	if max_index > #mom_table then
-		max_index = #mom_table
-	end
-	local mom_index_list = {}
-	for i = 1, max_index do
-		mom_index_list[i] = i
-	end
-
-	local mom_index = qpd.random.choose_list(mom_index_list)
-	local mom = mom_table[mom_index]
-
-	local randFloatDad = self._history_fitness_sum * qpd.random.random()
+local function roulette(population, total_fitness)
+	local total_fitness = total_fitness or qpd.table.sum(population, "_fitness")
+	local randFloat = total_fitness * qpd.random.random()
 	local sum = 0
-	local dad
-	for i = 1, #self._history do
-		local this = self._history[i]
+	for i = 1, #population do
+		local this = population[i]
 		sum = sum + this._fitness
-		if (sum >= randFloatDad) then
-			dad = this
-		end
-		if mom and dad then
-			return mom, dad
+		if (sum >= randFloat) then
+			return this
 		end
 	end
+end
 
-	print("Error in population selection!")
-	mom = mom or self._history[#self._history]
-	dad = dad or self._history[#self._history]
+function GeneticPopulation:selection()
+	local mom = roulette(self._population)
+	local dad = roulette(self._history)
+	if not (mom and dad) then
+		print("Error in population selection!")
+		mom = mom or self._history[#self._population]
+		dad = dad or self._history[#self._history]
+	end
 
 	return mom, dad
 end
@@ -97,6 +84,22 @@ function GeneticPopulation:replace(i)
 		-- find parents
 		local mom, dad = self:selection()
 
+		-- cross
+		self._population[i]:crossover(mom, dad, self:get_reset_table())
+	end
+end
+
+function GeneticPopulation:add_active()
+	self._active_size = self._active_size + 1
+	local i = self._active_size
+	self._population[i] = self._class:new(self._new_table)
+
+	if self._random_init > 0 then
+		self._random_init = self._random_init - 1
+		self._population[i]:reset(self:get_reset_table())
+	else
+		-- find parents
+		local mom, dad = self:selection()
 		-- cross
 		self._population[i]:crossover(mom, dad, self:get_reset_table())
 	end

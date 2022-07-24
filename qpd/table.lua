@@ -20,6 +20,19 @@ function qpd_table.merge(t1, t2)
 	end
 end
 
+function qpd_table.sum(tables, indexer)
+	-- Returns the average of parameter indexer of a list of tables.
+	-- tables is an table of tables
+	local length = #tables
+	local sum = 0
+
+	for _, value in pairs(tables) do
+		sum = sum + value[indexer]
+	end
+
+	return sum
+end
+
 function qpd_table.average(tables, indexer)
 	-- Returns the average of parameter indexer of a list of tables.
 	-- tables is an table of tables
