@@ -94,7 +94,7 @@ function AutoPlayer:reset(reset_table)
 	self:set_random_valid_direction()
 	self._orientation = self._direction
 
-	self._ann = ann or qpd.ann:new(6, 2, AutoPlayer._ann_depth, AutoPlayer._ann_width)
+	self._ann = ann or qpd.ann:new(6, 3, AutoPlayer._ann_depth, AutoPlayer._ann_width)
 end
 
 function AutoPlayer:crossover(mom, dad)
@@ -303,42 +303,42 @@ function AutoPlayer:update(dt, speed, ghost_state)
 		-- end
 
 		-- rewarded if changed tile
-		if self._changed_tile then
-			if self._2d_badge_counter then
-				self._2d_badge_counter = self._2d_badge_counter - 1
-				if self._2d_badge_counter <= 0 then
-					self._2d_badge = false
-				end
-			end
+		-- if self._changed_tile then
+		-- 	if self._2d_badge_counter then
+		-- 		self._2d_badge_counter = self._2d_badge_counter - 1
+		-- 		if self._2d_badge_counter <= 0 then
+		-- 			self._2d_badge = false
+		-- 		end
+		-- 	end
 
-			if not self._change_boost then
-				self._change_boost = 1
-			end
+		-- 	if not self._change_boost then
+		-- 		self._change_boost = 1
+		-- 	end
 
-			if self._changed_tile == "x" then
-				self._change_in_x = true
-			elseif self._changed_tile == "y" then
-				self._change_in_y = true
-			end
+		-- 	if self._changed_tile == "x" then
+		-- 		self._change_in_x = true
+		-- 	elseif self._changed_tile == "y" then
+		-- 		self._change_in_y = true
+		-- 	end
 
-			if self._change_in_x and self._change_in_y then
-				self._change_boost = 100
-				self._2d_badge = true
-				self._2d_badge_counter = 100
-			end
+		-- 	if self._change_in_x and self._change_in_y then
+		-- 		self._change_boost = 100
+		-- 		self._2d_badge = true
+		-- 		self._2d_badge_counter = 100
+		-- 	end
 
-			self._fitness = self._fitness + 0.1 * self._change_boost
-			self._not_changed_tile = 0
-		else
-			if not self._not_changed_tile then
-				self._not_changed_tile = 1
-			else
-				self._not_changed_tile = self._not_changed_tile + 1
-				if self._not_changed_tile > 60 then
-					self._is_active = false
-				end
-			end
-		end
+		-- 	self._fitness = self._fitness + 0.1 * self._change_boost
+		-- 	self._not_changed_tile = 0
+		-- else
+		-- 	if not self._not_changed_tile then
+		-- 		self._not_changed_tile = 1
+		-- 	else
+		-- 		self._not_changed_tile = self._not_changed_tile + 1
+		-- 		if self._not_changed_tile > 60 then
+		-- 			self._is_active = false
+		-- 		end
+		-- 	end
+		-- end
 
 		-- -- remove if colliding
 		-- if self._has_collided then

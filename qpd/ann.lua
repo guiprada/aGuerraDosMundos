@@ -2,6 +2,7 @@
 local NN = {}
 NN.__index = NN
 
+local qpd_table = require "qpd.table"
 local qpd_random = require "qpd.random"
 
 -- Internal Classes
@@ -146,7 +147,7 @@ function NN:crossover(mom, dad, mutate_chance, mutate_percentage)
 	setmetatable(son, self)
 
 	for i = 1, #mom do
-		local layer = mom[i]
+		local layer = qpd_table.clone(mom[i])
 		local new_layer = {}
 		for j = 1, #layer do
 			local inputs = {}

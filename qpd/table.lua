@@ -189,7 +189,7 @@ function qpd_table.clone(source, dest)
 	for k, value in pairs(source) do
 		if(type(value) == "table")then
 			dest[k] = {}
-			qpd_table.table_set(value, dest[k])
+			qpd_table.clone(value, dest[k])
 		else
 			dest[k] = value
 		end
