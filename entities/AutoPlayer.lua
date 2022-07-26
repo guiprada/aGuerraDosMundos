@@ -94,7 +94,7 @@ function AutoPlayer:reset(reset_table)
 	self:set_random_valid_direction()
 	self._orientation = self._direction
 
-	self._ann = ann or qpd.ann:new(6, 3, AutoPlayer._ann_depth, AutoPlayer._ann_width)
+	self._ann = ann or qpd.ann:new(8, 3, AutoPlayer._ann_depth, AutoPlayer._ann_width)
 end
 
 function AutoPlayer:crossover(mom, dad)
@@ -190,6 +190,18 @@ function AutoPlayer:distance_in_front_class(class)
 	end
 end
 
+function AutoPlayer:distance_in_back_class(class)
+	if self._orientation == "up" then
+		return self:find_in_path_y(1, class)/AutoPlayer._search_path_length
+	elseif self._orientation == "down" then
+		return self:find_in_path_y(-1, class)/AutoPlayer._search_path_length
+	elseif self._orientation == "left" then
+		return self:find_in_path_x(1, class)/AutoPlayer._search_path_length
+	elseif self._orientation == "right" then
+		return self:find_in_path_x(-1, class)/AutoPlayer._search_path_length
+	end
+end
+
 function AutoPlayer:find_collision_in_path_x(dx)
 	local search_path_length = AutoPlayer._search_path_length
 	local cell_x, cell_y = self._cell.x, self._cell.y
@@ -267,34 +279,47 @@ end
 
 function AutoPlayer:update(dt, speed, ghost_state)
 	if (self._is_active) then
+		local ghost_in_front = self:distance_in_front_class("ghost")
+		local ghosts_freighted = (ghost_state == "frightened") and 1 or 0
 		local inputs = {
 			self:is_left_collision(),
 			self:distance_in_front_collision(),
 			self:is_right_collision(),
-			self:distance_in_front_class("ghost"),
+			ghost_in_front,
+			self:distance_in_back_class("ghost"),
 			self:distance_in_front_class("pill"),
-			(ghost_state == "frightened") and 0 or 1, -- ghosts freightned
-			(ghost_state == "scattering") and 0 or 1, -- ghosts scattering
+			self:distance_in_back_class("pill"),
+			ghosts_freighted, -- ghosts freightned
+			-- (ghost_state == "scattering") and 1 or 0, -- ghosts scattering
 		}
-		local outputs = self._ann:get_outputs(inputs)
+		local outputs = self._ann:get_outputs(inputs, true)
 
-		if outputs[1].value == 1 and outputs[1].value == 1 then
+		local greatest_index = 1
+		local greatest_value = outputs[greatest_index].value
+		for i = 1, #outputs do
+			if outputs[i].value > greatest_value then
+				greatest_index = i
+			end
+		end
+
+		if greatest_index == 1 then
 			flip(self)
-		elseif outputs[1].value == 1 then
+			if ghost_in_front < 1 and ghosts_freighted == 0 then
+				-- print("escaping")
+				self._fitness = self._fitness + 1
+			end
+		elseif greatest_index == 2 then
 			rotate_left(self)
-		elseif outputs[2].value == 1 then
+		elseif greatest_index == 3 then
 			rotate_right(self)
 		end
 
-		if self._direction ~= self._orientation then
-			self._next_direction = self._orientation
-		end
-
+		self._next_direction = self._orientation
 
 		GridActor.update(self, dt, speed)
 
 		-- fitness reward
-		self._fitness = self._fitness + 0.0001
+		-- self._fitness = self._fitness + 0.0001
 
 		-- if (self:distance_in_front_class("ghost") < 0.6) and (outputs[1].value == 1) and (outputs[1].value == 1) then
 		-- 	print("escaped")
@@ -304,12 +329,12 @@ function AutoPlayer:update(dt, speed, ghost_state)
 
 		-- rewarded if changed tile
 		-- if self._changed_tile then
-		-- 	if self._2d_badge_counter then
-		-- 		self._2d_badge_counter = self._2d_badge_counter - 1
-		-- 		if self._2d_badge_counter <= 0 then
-		-- 			self._2d_badge = false
-		-- 		end
-		-- 	end
+			-- if self._2d_badge_counter then
+			-- 	self._2d_badge_counter = self._2d_badge_counter - 1
+			-- 	if self._2d_badge_counter <= 0 then
+			-- 		self._2d_badge = false
+			-- 	end
+			-- end
 
 		-- 	if not self._change_boost then
 		-- 		self._change_boost = 1
@@ -330,14 +355,19 @@ function AutoPlayer:update(dt, speed, ghost_state)
 		-- 	self._fitness = self._fitness + 0.1 * self._change_boost
 		-- 	self._not_changed_tile = 0
 		-- else
-		-- 	if not self._not_changed_tile then
-		-- 		self._not_changed_tile = 1
-		-- 	else
-		-- 		self._not_changed_tile = self._not_changed_tile + 1
-		-- 		if self._not_changed_tile > 60 then
-		-- 			self._is_active = false
-		-- 		end
-		-- 	end
+			-- if not self._not_changed_tile then
+			-- 	if not self._not_changed_tile_counter then
+			-- 		self._not_changed_tile_counter = 1
+			-- 	else
+			-- 		self._not_changed_tile_counter = self._not_changed_tile_counter + 1
+			-- 	end
+			-- 	if self._not_changed_tile_counter > 60 then
+			-- 		self._not_changed_tile_counter = nil
+			-- 		self._is_active = false
+			-- 	end
+			-- else
+			-- 	self._not_changed_tile = 0
+			-- end
 		-- end
 
 		-- -- remove if colliding
@@ -346,8 +376,8 @@ function AutoPlayer:update(dt, speed, ghost_state)
 		-- 	if self._collision_counter > 50 then
 		-- 		self._is_active = false
 		-- 	end
-		-- else
-		-- 	self._fitness = self._fitness + 0.001
+		-- -- else
+		-- -- 	self._fitness = self._fitness + 0.001
 		-- end
 	end
 end

@@ -62,8 +62,10 @@ local function roulette(population, total_fitness)
 end
 
 function GeneticPopulation:selection()
-	local mom = roulette(self._population)
-	local dad = roulette(self._history)
+	local everybody = qpd.table.clone(self._history)
+	qpd.table.merge(everybody, self._population)
+	local mom = roulette(everybody)
+	local dad = roulette(everybody)
 	if not (mom and dad) then
 		print("Error in population selection!")
 		mom = mom or self._history[#self._population]

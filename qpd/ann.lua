@@ -149,14 +149,28 @@ function NN:crossover(mom, dad, mutate_chance, mutate_percentage)
 	for i = 1, #mom do
 		local layer = qpd_table.clone(mom[i])
 		local new_layer = {}
+		local crossover_layer = qpd_random.random(1, #layer)
+		local crossover_neuron = qpd_random.random(1, #layer[1])
 		for j = 1, #layer do
 			local inputs = {}
 			for k = 1, #layer[j] do
-				-- inputs[k] = qpd_random.choose(mom[i][j][k], dad[i][j][k]) * (qpd_random.toss(mutate_chance) and qpd_random.choose(-mutate_percentage, mutate_percentage) or 1)
-				inputs[k] = qpd_random.choose(mom[i][j][k], dad[i][j][k], (mom[i][j][k] + dad[i][j][k]) /2) * (qpd_random.toss(mutate_chance) and qpd_random.choose(-mutate_percentage, mutate_percentage) or 1)
+
+				if j >= crossover_layer and k >= crossover_neuron then
+					inputs[k] = qpd_random.choose(mom[i][j][k], dad[i][j][k]) * (qpd_random.toss(mutate_chance) and qpd_random.choose(-mutate_percentage, mutate_percentage) or 1)
+					-- inputs[k] = qpd_random.choose(mom[i][j][k], dad[i][j][k], (mom[i][j][k] + dad[i][j][k]) /2) * (qpd_random.toss(mutate_chance) and qpd_random.choose(-mutate_percentage, mutate_percentage) or 1)
+				else
+					inputs[k] = mom[i][j][k]
+				end
 			end
-			-- local bias = qpd_random.choose(mom[i][j].bias, dad[i][j].bias) * (qpd_random.toss(mutate_chance) and qpd_random.choose(-mutate_percentage, mutate_percentage) or 1)
-			local bias = qpd_random.choose(mom[i][j].bias, dad[i][j].bias, (mom[i][j].bias + dad[i][j].bias) /2) * (qpd_random.toss(mutate_chance) and qpd_random.choose(-mutate_percentage, mutate_percentage) or 1)
+
+			local bias
+			if j >= crossover_layer then
+				bias = qpd_random.choose(mom[i][j].bias, dad[i][j].bias) * (qpd_random.toss(mutate_chance) and qpd_random.choose(-mutate_percentage, mutate_percentage) or 1)
+				-- bias = qpd_random.choose(mom[i][j].bias, dad[i][j].bias, (mom[i][j].bias + dad[i][j].bias) /2) * (qpd_random.toss(mutate_chance) and qpd_random.choose(-mutate_percentage, mutate_percentage) or 1)
+			else
+				bias = mom[i][j].bias
+			end
+
 			new_layer[j] = _Neuron:new(inputs, bias)
 		end
 

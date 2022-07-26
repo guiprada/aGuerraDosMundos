@@ -46,13 +46,16 @@ function grid.new(matrix, collision_cells)
 	end
 
 	o.array_cell_valid_pos = {}
+	o.array_cell_invalid_pos = {}
 	for i = 1, o.width do
 		for j = 1, o.height do
+			local value = {}
+			value.x = i
+			value.y = j
 			if (not o:is_blocked_cell(i, j)) then
-				local value = {}
-				value.x = i
-				value.y = j
 				table.insert(o.array_cell_valid_pos, value)
+			else
+				table.insert(o.array_cell_invalid_pos, value)
 			end
 		end
 	end
