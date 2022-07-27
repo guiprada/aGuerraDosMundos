@@ -348,32 +348,32 @@ function AutoPlayer:update(dt, speed, ghost_state)
 		-- fitness reward
 		self._fitness = self._fitness + 0.0001
 
-		-- rewarded if changed tile
-		if self._changed_tile then
-			if self._cell.x > self._max_cell.x then
-				self._fitness = self._fitness + (self._cell.x - self._max_cell.x) * 0.01
-				self._max_cell.x = self._cell.x
-			elseif self._cell.y > self._max_cell.y then
-				self._fitness = self._fitness + (self._cell.y - self._max_cell.y) * 0.01
-				self._max_cell.y = self._cell.y
-			elseif self._cell.x < self._min_cell.x then
-				self._fitness = self._fitness + (self._min_cell.x - self._cell.x) * 0.01
-				self._min_cell.x = self._cell.x
-			elseif self._cell.y < self._min_cell.y then
-				self._fitness = self._fitness + (self._min_cell.y - self._cell.y) * 0.01
-				self._min_cell.y = self._cell.y
-			end
-		end
+		-- -- rewarded if changed tile
+		-- if self._changed_tile then
+		-- 	if self._cell.x > self._max_cell.x then
+		-- 		self._fitness = self._fitness + (self._cell.x - self._max_cell.x) * 0.01
+		-- 		self._max_cell.x = self._cell.x
+		-- 	elseif self._cell.y > self._max_cell.y then
+		-- 		self._fitness = self._fitness + (self._cell.y - self._max_cell.y) * 0.01
+		-- 		self._max_cell.y = self._cell.y
+		-- 	elseif self._cell.x < self._min_cell.x then
+		-- 		self._fitness = self._fitness + (self._min_cell.x - self._cell.x) * 0.01
+		-- 		self._min_cell.x = self._cell.x
+		-- 	elseif self._cell.y < self._min_cell.y then
+		-- 		self._fitness = self._fitness + (self._min_cell.y - self._cell.y) * 0.01
+		-- 		self._min_cell.y = self._cell.y
+		-- 	end
+		-- end
 
-		-- remove if colliding
-		if self._has_collided then
-			print(self._fitness)
-			self._fitness = self._fitness - 0.01
-			if self._fitness < 0 then
-				self._fitness = 0
-				self._is_active = false
-			end
-		end
+		-- -- remove if colliding
+		-- if self._has_collided then
+		-- 	print(self._fitness)
+		-- 	self._fitness = self._fitness - 0.01
+		-- 	if self._fitness < 0 then
+		-- 		self._fitness = 0
+		-- 		self._is_active = false
+		-- 	end
+		-- end
 	end
 end
 

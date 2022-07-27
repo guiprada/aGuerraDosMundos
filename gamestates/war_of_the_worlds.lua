@@ -323,7 +323,7 @@ function gs.resize(w, h)
 
 	gs.paused_text:resize(0, gs.height/2, gs.width)
 
-	gs.tilemap_view:resize(gs.width, gs.height)
+	gs.tilemap_view.camera:set_viewport(0, 0, w, h)
 
 	gs.player:resize(gs.tilemap_view.tilesize)
 	gs.friend:resize(gs.tilemap_view.tilesize)
