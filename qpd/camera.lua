@@ -35,6 +35,8 @@ function camera.draw(self, func)
 	apply(self)
 	func()
 	unapply(self)
+
+	love.graphics.circle("fill", self._drift_x, self._drift_y, 5)
 end
 
 function camera.get_viewport(self)
@@ -55,7 +57,7 @@ function camera.set_center(self, x, y)
 end
 
 function camera.get_center(self)
-	return  self._drift_x, self._drift_y
+	return self._drift_x, self._drift_y
 end
 
 function camera.get_visible_quad(self)

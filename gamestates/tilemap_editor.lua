@@ -50,7 +50,7 @@ function gs.load(map_file_path)
 	gs.tilemap_view = qpd.tilemap_view.new(gs.map_matrix, cell_set, gs.width, gs.height)
 
 	-- sprite_box
-	gs.cell_box_size_factor = 3
+	gs.cell_box_size_factor = 1
 	gs.sprite_box = qpd.cell_box.new( 0,
 								gs.height - gs.tilemap_view.tilesize * gs.cell_box_size_factor,
 								gs.width,
@@ -174,9 +174,7 @@ function gs.draw()
 		function ()
 			gs.tilemap_view:draw()
 			gs.selector:draw()
-
 		end)
-
 	gs.sprite_box:draw()
 end
 
@@ -221,6 +219,7 @@ function gs.resize(w, h)
 								gs.tilemap_view.tilesize * gs.cell_box_size_factor,
 								gs.tilemap_view.tilemap.draw_functions)
 
+	gs.selector:resize(gs.tilemap_view.tilesize)
 end
 
 function gs.unload()

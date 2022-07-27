@@ -23,6 +23,12 @@ end
 
 --------------------------------------------------------------------------------
 
+function cell_box.resize(self, width, tilesize)
+	self.width = width
+	self.tilesize = tilesize
+	self.selector:resize(tilesize)
+end
+
 function cell_box.set_selector_color(self, color)
 	self.selector.color = color
 end

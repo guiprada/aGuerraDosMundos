@@ -43,6 +43,18 @@ local function flip(self)
 	end
 end
 
+local function keep(self)
+	if self._orientation == "up" then
+		self._orientation = "up"
+	elseif self._orientation == "down" then
+		self._orientation = "down"
+	elseif self._orientation == "left" then
+		self._orientation = "left"
+	elseif self._orientation == "right" then
+		self._orientation = "right"
+	end
+end
+
 function AutoPlayer.init(grid, search_path_length, mutate_chance, mutate_percentage, ann_depth, ann_width)
 	AutoPlayer._search_path_length = search_path_length
 	AutoPlayer._max_grid_distance = math.ceil(math.sqrt((grid.width ^ 2) + (grid.height ^ 2)))
@@ -90,12 +102,18 @@ function AutoPlayer:reset(reset_table)
 	self:set_random_valid_direction()
 	self._orientation = self._direction
 
-	self._min_cell_x = self._cell.x
-	self._max_cell_x = self._cell.x
-	self._min_cell_y = self._cell.y
-	self._max_cell_y = self._cell.y
+	if not self._max_cell then
+		self._max_cell = {}
+	end
+	if not self._min_cell then
+		self._min_cell = {}
+	end
+	self._min_cell.x = self._cell.x
+	self._max_cell.x = self._cell.x
+	self._min_cell.y = self._cell.y
+	self._max_cell.y = self._cell.y
 
-	self._ann = ann or qpd.ann:new(8, 3, AutoPlayer._ann_depth, AutoPlayer._ann_width)
+	self._ann = ann or qpd.ann:new(8, 4, AutoPlayer._ann_depth, AutoPlayer._ann_width)
 end
 
 function AutoPlayer:crossover(mom, dad)
@@ -109,21 +127,30 @@ function AutoPlayer:draw()
 	if (self._is_active) then
 		love.graphics.setColor(0.9, 0.9, 0.9)
 
-		love.graphics.circle(	"fill",
-								self.x,
-								self.y,
-								self._tilesize*0.55)
+		love.graphics.circle("fill", self.x, self.y, self._tilesize*0.55)
 
 		-- front dot
 		love.graphics.setColor(1, 0, 1)
 		--love.graphics.setColor(138/255,43/255,226/255, 0.9)
-		love.graphics.circle(	"fill",
-								self._front.x,
-								self._front.y,
-								self._tilesize/5)
+		love.graphics.circle("fill", self._front.x,	self._front.y, self._tilesize/5)
 		-- front line, mesma cor
 		-- love.graphics.setColor(1, 0, 1)
 		love.graphics.line(self.x, self.y, self._front.x, self._front.y)
+
+		-- orientation based "eyes"
+		love.graphics.setColor(0.3, 0.2, 0.2)
+		local eye_drift = self._tilesize * 0.3
+		if self._orientation == "up" then
+			love.graphics.circle("fill", self.x, self.y - eye_drift, self._tilesize*0.1)
+		elseif self._orientation == "down" then
+			love.graphics.circle("fill", self.x, self.y + eye_drift, self._tilesize*0.1)
+		elseif self._orientation == "left" then
+			love.graphics.circle("fill", self.x - eye_drift, self.y, self._tilesize*0.1)
+		elseif self._orientation == "right" then
+			love.graphics.circle("fill", self.x + eye_drift, self.y, self._tilesize*0.1)
+		end
+
+		-- reset color
 		love.graphics.setColor(1,1,1)
 	end
 end
@@ -186,6 +213,7 @@ function AutoPlayer:distance_in_front_class(class)
 	elseif self._orientation == "right" then
 		return self:find_in_path_x(1, class)/AutoPlayer._search_path_length
 	end
+	print("no orientation set", self._orientation)
 end
 
 function AutoPlayer:distance_in_back_class(class)
@@ -198,6 +226,7 @@ function AutoPlayer:distance_in_back_class(class)
 	elseif self._orientation == "right" then
 		return self:find_in_path_x(-1, class)/AutoPlayer._search_path_length
 	end
+	print("no orientation set", self._orientation)
 end
 
 function AutoPlayer:find_collision_in_path_x(dx)
@@ -234,6 +263,7 @@ function AutoPlayer:distance_in_front_collision()
 	elseif self._orientation == "right" then
 		return self:find_collision_in_path_x(1)/AutoPlayer._search_path_length
 	end
+	print("no orientation set", self._orientation)
 end
 
 function AutoPlayer:is_front_collision()
@@ -277,19 +307,20 @@ end
 
 function AutoPlayer:update(dt, speed, ghost_state)
 	if (self._is_active) then
-		local ghost_in_front = self:distance_in_front_class("ghost")
-		local ghosts_freighted = (ghost_state == "frightened") and 1 or 0
+		-- local ghost_in_front = self:distance_in_front_class("ghost")
+		-- local ghosts_freighted = (ghost_state == "frightened") and 1 or 0
 		local inputs = {
 			self:is_left_collision(),
 			self:distance_in_front_collision(),
 			self:is_right_collision(),
-			ghost_in_front,
+			self:distance_in_front_class("ghost"),
 			self:distance_in_back_class("ghost"),
 			self:distance_in_front_class("pill"),
 			self:distance_in_back_class("pill"),
-			ghosts_freighted, -- ghosts freightned
+			(ghost_state == "frightened") and 1 or 0, -- ghosts freightned
 			-- (ghost_state == "scattering") and 1 or 0, -- ghosts scattering
 		}
+
 		local outputs = self._ann:get_outputs(inputs, true)
 
 		local greatest_index = 1
@@ -301,14 +332,12 @@ function AutoPlayer:update(dt, speed, ghost_state)
 		end
 
 		if greatest_index == 1 then
-			flip(self)
-			if ghost_in_front < 1 and ghosts_freighted == 0 then
-				-- print("escaping")
-				self._fitness = self._fitness + 1
-			end
+			keep(self)
 		elseif greatest_index == 2 then
-			rotate_left(self)
+			flip(self)
 		elseif greatest_index == 3 then
+			rotate_left(self)
+		elseif greatest_index == 4 then
 			rotate_right(self)
 		end
 
@@ -321,24 +350,25 @@ function AutoPlayer:update(dt, speed, ghost_state)
 
 		-- rewarded if changed tile
 		if self._changed_tile then
-			if self._cell.x > self._max_cell_x then
-				self._fitness = self._fitness + (self._cell.x - self._max_cell_x) * 0.01
-				self._max_cell_x = self._cell.x
-			elseif self._cell.y > self._max_cell_y then
-				self._fitness = self._fitness + (self._cell.y - self._max_cell_y) * 0.01
-				self._max_cell_y = self._cell.y
-			elseif self._cell.x < self._min_cell_x then
-				self._fitness = self._fitness + (self._min_cell_x - self._cell.x) * 0.01
-				self._min_cell_x = self._cell.x
-			elseif self._cell.y < self._min_cell_y then
-				self._fitness = self._fitness + (self._min_cell_y - self._cell.y) * 0.01
-				self._min_cell_y = self._cell.y
+			if self._cell.x > self._max_cell.x then
+				self._fitness = self._fitness + (self._cell.x - self._max_cell.x) * 0.01
+				self._max_cell.x = self._cell.x
+			elseif self._cell.y > self._max_cell.y then
+				self._fitness = self._fitness + (self._cell.y - self._max_cell.y) * 0.01
+				self._max_cell.y = self._cell.y
+			elseif self._cell.x < self._min_cell.x then
+				self._fitness = self._fitness + (self._min_cell.x - self._cell.x) * 0.01
+				self._min_cell.x = self._cell.x
+			elseif self._cell.y < self._min_cell.y then
+				self._fitness = self._fitness + (self._min_cell.y - self._cell.y) * 0.01
+				self._min_cell.y = self._cell.y
 			end
 		end
 
 		-- remove if colliding
 		if self._has_collided then
-			self._fitness = self._fitness - 0.001
+			print(self._fitness)
+			self._fitness = self._fitness - 0.01
 			if self._fitness < 0 then
 				self._fitness = 0
 				self._is_active = false

@@ -11,10 +11,10 @@ local qpd_grid = require "qpd.grid"
 -- helper functions
 
 local function _calculate_tilesize(w, h, n_tiles_w, n_tiles_h)
-	-- diagonal based
-	local screen_diag = math.sqrt(w^2 + h^2)
-	local tiles_diag = math.sqrt(n_tiles_h^2 + n_tiles_w^2)
-	return screen_diag/tiles_diag
+	local max_size_in_width = w/n_tiles_w
+	local max_size_in_height = h/n_tiles_h
+
+	return math.floor(qpd_value.min(max_size_in_width, max_size_in_height))
 end
 
 --------------------------------------------------------------------------------
@@ -103,17 +103,38 @@ function tilemap_view.resize(self, width, height)
 	local tile_width = #self.tilemap.matrix[1]
 	local tile_height = #self.tilemap.matrix
 
-	local old_tilesize = self.tilesize
 	self.tilesize = _calculate_tilesize(width, height, tile_width, tile_height)
 
 	local tilemap_width = self.tilesize * tile_width
 	local tilemap_height = self.tilesize * tile_height
 
+	local x_over = width - tilemap_width
+	local y_over = height - tilemap_height
+	local new_center_x = (width)/2 - x_over/2
+	local new_center_y = (height)/2 - y_over/2
+
 	self.camera:reset(tilemap_width, tilemap_height)
-	local old_camera_center_x, old_camera_center_y = self.camera:get_center()
-	local old_camera_cell_x, old_camera_cell_y = qpd_grid.point_to_cell(old_camera_center_x, old_camera_center_y, old_tilesize)
-	local new_camera_center_x, new_camera_center_y = qpd_grid.cell_to_center_point(old_camera_cell_x, old_camera_cell_y, self.tilesize)
-	self.camera:set_center(new_camera_center_x, new_camera_center_y)
+	self.camera:set_center(new_center_x, new_center_y)
 end
+
+-- function tilemap_view.resize_on_spot(self, width, height)
+-- 	self.width = width
+-- 	self.height = height
+
+-- 	local tile_width = #self.tilemap.matrix[1]
+-- 	local tile_height = #self.tilemap.matrix
+
+-- 	local old_tilesize = self.tilesize
+-- 	self.tilesize = _calculate_tilesize(width, height, tile_width, tile_height)
+
+-- 	local tilemap_width = self.tilesize * tile_width
+-- 	local tilemap_height = self.tilesize * tile_height
+
+-- 	local old_camera_center_x, old_camera_center_y = self.camera:get_center()
+-- 	local old_camera_cell_x, old_camera_cell_y = qpd_grid.point_to_cell(old_camera_center_x, old_camera_center_y, old_tilesize)
+-- 	local new_camera_center_x, new_camera_center_y = qpd_grid.cell_to_center_point(old_camera_cell_x, old_camera_cell_y, self.tilesize)
+-- 	self.camera:reset(tilemap_width, tilemap_height)
+-- 	self.camera:set_center(new_camera_center_x, new_camera_center_y)
+-- end
 
 return tilemap_view

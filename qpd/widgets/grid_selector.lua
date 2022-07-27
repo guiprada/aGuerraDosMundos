@@ -38,6 +38,10 @@ end
 
 --------------------------------------------------------------------------------
 
+function grid_selector.resize(self, tilesize)
+	self.tilesize = tilesize
+end
+
 function grid_selector.draw(self)
 	local r, g, b, a = love.graphics.getColor()
 	love.graphics.setColor(qpd_color.unpack(self.color))
