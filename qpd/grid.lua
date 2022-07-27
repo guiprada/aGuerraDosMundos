@@ -10,6 +10,14 @@ local directions = {
 	"left",
 	"right"
 }
+
+local oposite_direction = {
+	["up"] = "down",
+	["down"] = "up",
+	["left"] = "right",
+	["right"] = "left"
+}
+
 -----------------------------------------------------------------------
 function grid.is_blocked_cell_type(self, n)
 	return self._collision_cells[n] or false
@@ -38,24 +46,25 @@ function grid.new(matrix, collision_cells)
 	o.height = #o.matrix
 
 	qpd_table.assign_methods(o, grid)
-	o._directions = directions
+	o.directions = directions
+	o.oposite_direction = oposite_direction
 
 	o._enabled_directions = {}
 	for i = 1, o.height do
 		o._enabled_directions[i] = {}
 	end
 
-	o.array_cell_valid_pos = {}
-	o.array_cell_invalid_pos = {}
+	o._array_valid_cell = {}
+	o._array_invalid_cell = {}
 	for i = 1, o.width do
 		for j = 1, o.height do
 			local value = {}
 			value.x = i
 			value.y = j
 			if (not o:is_blocked_cell(i, j)) then
-				table.insert(o.array_cell_valid_pos, value)
+				table.insert(o._array_valid_cell, value)
 			else
-				table.insert(o.array_cell_invalid_pos, value)
+				table.insert(o._array_invalid_cell, value)
 			end
 		end
 	end
@@ -73,7 +82,13 @@ end
 
 function grid.get_valid_cell(self)
 	local cell = {}
-	cell = self.array_cell_valid_pos[qpd_random.random(#self.array_cell_valid_pos)]
+	cell = self._array_valid_cell[qpd_random.random(#self._array_valid_cell)]
+	return cell
+end
+
+function grid.get_invalid_cell(self)
+	local cell = {}
+	cell = self._array_invalid_cell[qpd_random.random(#self._array_invalid_cell)]
 	return cell
 end
 

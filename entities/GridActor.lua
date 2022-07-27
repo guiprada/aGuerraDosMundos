@@ -235,7 +235,7 @@ function GridActor:set_random_valid_direction()
 
 	if #direction_select_list > 0 then
 		local selected_direction = qpd.random.choose_list(direction_select_list)
-		self._direction = GridActor._grid._directions[selected_direction]
+		self._direction = GridActor._grid.directions[selected_direction]
 	else
 		print("Set random valid direction for invalid position:", self._cell.x, self._cell.y)
 	end

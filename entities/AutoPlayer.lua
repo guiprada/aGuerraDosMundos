@@ -87,12 +87,13 @@ function AutoPlayer:reset(reset_table)
 	self._target_grid.x = target_grid.x
 	self._target_grid.y = target_grid.y
 
-	self._2d_badge = false
-	self._change_in_x = false
-	self._change_in_y = false
-
 	self:set_random_valid_direction()
 	self._orientation = self._direction
+
+	self._min_cell_x = self._cell.x
+	self._max_cell_x = self._cell.x
+	self._min_cell_y = self._cell.y
+	self._max_cell_y = self._cell.y
 
 	self._ann = ann or qpd.ann:new(8, 3, AutoPlayer._ann_depth, AutoPlayer._ann_width)
 end
@@ -106,11 +107,8 @@ end
 function AutoPlayer:draw()
 	--AutoPlayer body :)
 	if (self._is_active) then
-		if self._2d_badge then
-			love.graphics.setColor(0.9, 0.9, 0.9)
-		else
-			love.graphics.setColor(0.5, 0.5, 0.5)
-		end
+		love.graphics.setColor(0.9, 0.9, 0.9)
+
 		love.graphics.circle(	"fill",
 								self.x,
 								self.y,
@@ -319,66 +317,33 @@ function AutoPlayer:update(dt, speed, ghost_state)
 		GridActor.update(self, dt, speed)
 
 		-- fitness reward
-		-- self._fitness = self._fitness + 0.0001
-
-		-- if (self:distance_in_front_class("ghost") < 0.6) and (outputs[1].value == 1) and (outputs[1].value == 1) then
-		-- 	print("escaped")
-		-- elseif (self:distance_in_front_class("ghost") < 0.6) then
-		-- 	print("not escape")
-		-- end
+		self._fitness = self._fitness + 0.0001
 
 		-- rewarded if changed tile
-		-- if self._changed_tile then
-			-- if self._2d_badge_counter then
-			-- 	self._2d_badge_counter = self._2d_badge_counter - 1
-			-- 	if self._2d_badge_counter <= 0 then
-			-- 		self._2d_badge = false
-			-- 	end
-			-- end
+		if self._changed_tile then
+			if self._cell.x > self._max_cell_x then
+				self._fitness = self._fitness + (self._cell.x - self._max_cell_x) * 0.01
+				self._max_cell_x = self._cell.x
+			elseif self._cell.y > self._max_cell_y then
+				self._fitness = self._fitness + (self._cell.y - self._max_cell_y) * 0.01
+				self._max_cell_y = self._cell.y
+			elseif self._cell.x < self._min_cell_x then
+				self._fitness = self._fitness + (self._min_cell_x - self._cell.x) * 0.01
+				self._min_cell_x = self._cell.x
+			elseif self._cell.y < self._min_cell_y then
+				self._fitness = self._fitness + (self._min_cell_y - self._cell.y) * 0.01
+				self._min_cell_y = self._cell.y
+			end
+		end
 
-		-- 	if not self._change_boost then
-		-- 		self._change_boost = 1
-		-- 	end
-
-		-- 	if self._changed_tile == "x" then
-		-- 		self._change_in_x = true
-		-- 	elseif self._changed_tile == "y" then
-		-- 		self._change_in_y = true
-		-- 	end
-
-		-- 	if self._change_in_x and self._change_in_y then
-		-- 		self._change_boost = 100
-		-- 		self._2d_badge = true
-		-- 		self._2d_badge_counter = 100
-		-- 	end
-
-		-- 	self._fitness = self._fitness + 0.1 * self._change_boost
-		-- 	self._not_changed_tile = 0
-		-- else
-			-- if not self._not_changed_tile then
-			-- 	if not self._not_changed_tile_counter then
-			-- 		self._not_changed_tile_counter = 1
-			-- 	else
-			-- 		self._not_changed_tile_counter = self._not_changed_tile_counter + 1
-			-- 	end
-			-- 	if self._not_changed_tile_counter > 60 then
-			-- 		self._not_changed_tile_counter = nil
-			-- 		self._is_active = false
-			-- 	end
-			-- else
-			-- 	self._not_changed_tile = 0
-			-- end
-		-- end
-
-		-- -- remove if colliding
-		-- if self._has_collided then
-		-- 	self._collision_counter = self._collision_counter + 1
-		-- 	if self._collision_counter > 50 then
-		-- 		self._is_active = false
-		-- 	end
-		-- -- else
-		-- -- 	self._fitness = self._fitness + 0.001
-		-- end
+		-- remove if colliding
+		if self._has_collided then
+			self._fitness = self._fitness - 0.001
+			if self._fitness < 0 then
+				self._fitness = 0
+				self._is_active = false
+			end
+		end
 	end
 end
 

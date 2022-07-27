@@ -45,7 +45,8 @@ function Ghost:reset(reset_table)
 		target_offset = reset_table.target_offset
 		try_order = reset_table.try_order
 	end
-	home_cell = home_cell or Ghost._grid:get_valid_cell()
+	home_cell = home_cell or Ghost._grid:get_invalid_cell()
+
 	target_offset = target_offset or qpd.random.random(math.floor(-Ghost._target_spread), math.ceil(Ghost._target_spread))
 	try_order = try_order or nil
 
@@ -65,7 +66,7 @@ function Ghost:reset(reset_table)
 	self._home.x = home_cell.x
 	self._home.y = home_cell.y
 
-	GridActor.reset(self, self._home)
+	GridActor.reset(self, Ghost._grid:get_valid_cell())
 
 	self._n_catches = 0
 	self._fitness = 0
@@ -74,6 +75,7 @@ function Ghost:reset(reset_table)
 
 	-- set a valid direction
 	self:set_random_valid_direction()
+	self._debounce_get_next_direction = true
 	self:update_dynamic_front()
 end
 
@@ -196,21 +198,26 @@ function Ghost:update(dt, speed, targets)
 
 		-- updates average distance to player and group,
 		-- it is used for collision
-		local target = targets[1]
-		local target_distance = qpd.point.distance2(target, self)
-		for i = 2, #targets do
-			local this_target = targets[i]
-			if this_target._is_active then
-				local this_target_distance = qpd.point.distance2(this_target, self)
-				if (this_target_distance < target_distance) then
-					target = this_target
-					target_distance = this_target_distance
+		local target
+		if #targets > 0 then
+			target = targets[1]
+			local target_distance = qpd.point.distance2(target, self)
+			for i = 2, #targets do
+				local this_target = targets[i]
+				if this_target._is_active then
+					local this_target_distance = qpd.point.distance2(this_target, self)
+					if (this_target_distance < target_distance) then
+						target = this_target
+						target_distance = this_target_distance
+					end
 				end
 			end
-		end
 
-		if target_distance < Ghost._tilesize then
-			self:collided(target)
+			if target_distance < Ghost._tilesize then
+				self:collided(target)
+			end
+		else
+			target = Ghost._grid:get_invalid_cell()
 		end
 
 		self:update_dynamic_front()
@@ -219,9 +226,8 @@ function Ghost:update(dt, speed, targets)
 		-- check collision with wall
 		self._has_collided = false
 		if(self:is_front_wall()) then
-			self._direction = "idle"
-			self._next_direction = "idle"
 			self:center_on_cell() -- it stops relayed cornering
+			self:find_next_direction(target)
 			self._has_collided = true
 		end
 
@@ -237,10 +243,13 @@ function Ghost:update(dt, speed, targets)
 				self._changed_tile = "y"
 			end
 		end
+		if self._changed_tile then
+			self._debounce_get_next_direction = false
+		end
 
 		--on tile center, or close
 		local dist_grid_center = qpd.point.distance(self.x, self.y, Ghost._grid.cell_to_center_point(self._cell.x, self._cell.y, self._tilesize))
-		if (dist_grid_center < self._tilesize/16) then
+		if (dist_grid_center < speed*dt) then
 			if ( self._direction == "up" or self._direction== "down") then
 				self:center_on_cell_x()
 			elseif ( self._direction == "left" or self._direction== "right") then
@@ -262,64 +271,66 @@ function Ghost:update(dt, speed, targets)
 end
 
 function Ghost:find_next_direction(target)
-	self.enabled_directions = self:get_enabled_directions()
-	if (#self.enabled_directions < 1) then
-		print("enabled_directions cant be empty")
-	elseif not Ghost._grid:is_corridor(self._cell.x, self._cell.y) then
-	-- if 	(Ghost._grid.grid_types[self._cell.y][self._cell.x]~=3 and-- invertido
-	-- 	Ghost._grid.grid_types[self._cell.y][self._cell.x]~=12 ) then
-		--check which one is closer to the target
-		-- make a table to contain the posible destinations
-		local possible_next_moves = {}
-		for i = 1, #self._try_order, 1 do
-			if (self.enabled_directions[self._try_order[i]] == true) then
-				local cell = {}
-				if(self._try_order[i] == 1) then
-					cell.x = self._cell.x
-					cell.y = self._cell.y - 1
-					cell._direction = "up"
-				elseif(self._try_order[i] == 2) then
-					cell.x = self._cell.x
-					cell.y = self._cell.y + 1
-					cell._direction = "down"
-				elseif(self._try_order[i] == 3) then
-					cell.x = self._cell.x - 1
-					cell.y = self._cell.y
-					cell._direction = "left"
-				elseif(self._try_order[i] == 4) then
-					cell.x = self._cell.x + 1
-					cell.y = self._cell.y
-					cell._direction = "right"
+	if self._debounce_get_next_direction == true then
+		return
+	else
+		self._debounce_get_next_direction = true
+
+		self.enabled_directions = self:get_enabled_directions()
+		if (#self.enabled_directions < 1) then
+			print("enabled_directions cant be empty")
+		elseif not Ghost._grid:is_corridor(self._cell.x, self._cell.y) then
+		-- if 	(Ghost._grid.grid_types[self._cell.y][self._cell.x]~=3 and-- invertido
+		-- 	Ghost._grid.grid_types[self._cell.y][self._cell.x]~=12 ) then
+			--check which one is closer to the target
+			-- make a table to contain the posible destinations
+			local possible_next_moves = {}
+			for i = 1, #self._try_order, 1 do
+				if (self.enabled_directions[self._try_order[i]] == true) then
+					local cell = {}
+					if(self._try_order[i] == 1) then
+						cell.x = self._cell.x
+						cell.y = self._cell.y - 1
+						cell._direction = "up"
+					elseif(self._try_order[i] == 2) then
+						cell.x = self._cell.x
+						cell.y = self._cell.y + 1
+						cell._direction = "down"
+					elseif(self._try_order[i] == 3) then
+						cell.x = self._cell.x - 1
+						cell.y = self._cell.y
+						cell._direction = "left"
+					elseif(self._try_order[i] == 4) then
+						cell.x = self._cell.x + 1
+						cell.y = self._cell.y
+						cell._direction = "right"
+					end
+
+					-- ghost can not reverse direction, so
+					if Ghost._grid.oposite_direction[self._direction] ~= cell._direction then
+						table.insert(possible_next_moves, cell)
+					end
 				end
-
-				table.insert(possible_next_moves, cell)
 			end
-		end
 
-		if (#possible_next_moves == 0) then
-			print("possible_next_moves cant be empty")
-			return
-		end
+			if (#possible_next_moves == 0) then
+				print("possible_next_moves cant be empty")
+				return
+			end
 
-		if (target._is_active) then
-			if (Ghost._state == "chasing") then
-				self:go_to_target(target, possible_next_moves)
-			elseif (Ghost._state == "scattering") then
-				if(Ghost.ghost_go_home_on_scatter) then
-					self:go_home(possible_next_moves)
-				else
+			if (target._is_active) then
+				if (Ghost._state == "chasing") then
+					self:go_to_target(target, possible_next_moves)
+				elseif (Ghost._state == "scattering") then
+						self:go_home(possible_next_moves)
+				elseif (Ghost._state == "frightened") then
 					self:wander(possible_next_moves)
+				else
+					print("error, invalid ghost_state")
 				end
-			elseif (Ghost._state == "frightened") then
-				self:wander(possible_next_moves)
-				-- ghost.run_from_target(self, target, possible_next_moves)
-				-- ghost.go_home(self, possible_next_moves)
-				-- ghost.go_to_closest_pill(self, possible_next_moves)
 			else
-				print("error, invalid ghost_state")
+				self:go_home(possible_next_moves)
 			end
-		else
-			self:wander(possible_next_moves)
 		end
 	end
 end
@@ -405,7 +416,7 @@ end
 
 function Ghost:wander(possible_next_moves)
 	local destination = {}
-	local valid_cell = Ghost._grid:get_valid_cell()
+	local valid_cell = Ghost._grid:get_invalid_cell()
 
 	destination.x = valid_cell.x
 	destination.y = valid_cell.y
@@ -467,12 +478,12 @@ end
 
 function Ghost:get_closest(possible_next_moves, destination)
 	local shortest = 1
-	local shortest_distance = qpd.point.distance2(possible_next_moves[1], destination)
+	local shortest_distance = qpd.point.distance2(possible_next_moves[shortest], destination)
 	for i = 2, #possible_next_moves, 1 do
-		local dist = qpd.point.distance2(possible_next_moves[i], destination)
-		if (dist < shortest_distance) then
+		local this_dist = qpd.point.distance2(possible_next_moves[i], destination)
+		if (this_dist <= shortest_distance) then
 			shortest = i
-			shortest_distance = dist
+			shortest_distance = this_dist
 		end
 	end
 	self._direction = possible_next_moves[shortest]._direction
@@ -480,13 +491,14 @@ end
 
 function Ghost:get_furthest(possible_next_moves, destination)
 	local furthest = 1
-	for i=1, #possible_next_moves, 1 do
-		possible_next_moves[i].dist = qpd.point.distance2(possible_next_moves[i], destination)
-		if ( possible_next_moves[i].dist > possible_next_moves[furthest].dist ) then
+	local furthest_distance = qpd.point.distance2(possible_next_moves[furthest], destination)
+	for i = 2, #possible_next_moves, 1 do
+		local this_dist = qpd.point.distance2(possible_next_moves[i], destination)
+		if (this_dist >= possible_next_moves[furthest].dist) then
 			furthest = i
+			furthest_distance = this_dist
 		end
 	end
-	--print("furthest" .. furthest)
 	self._direction = possible_next_moves[furthest]._direction
 end
 
