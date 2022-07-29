@@ -141,10 +141,11 @@ function gs.load(map_file_path)
 		gs.autoplayer_search_path_length = gs.game_conf.autoplayer_search_path_length
 		gs.autoplayer_mutate_chance = gs.game_conf.autoplayer_mutate_chance
 		gs.autoplayer_mutate_percentage = gs.game_conf.autoplayer_mutate_percentage
+		gs.autoplayer_ann_mode = gs.game_conf.autoplayer_ann_mode
 		gs.autoplayer_ann_depth = gs.game_conf.autoplayer_ann_depth
 		gs.autoplayer_ann_width = gs.game_conf.autoplayer_ann_width
 
-		AutoPlayer.init(gs.grid, gs.autoplayer_search_path_length, gs.autoplayer_mutate_chance, gs.autoplayer_mutate_percentage, gs.autoplayer_ann_depth, gs.autoplayer_ann_width)
+		AutoPlayer.init(gs.grid, gs.autoplayer_search_path_length, gs.autoplayer_mutate_chance, gs.autoplayer_mutate_percentage, gs.autoplayer_ann_depth, gs.autoplayer_ann_width, gs.autoplayer_ann_mode)
 		gs.AutoPlayerPopulation = GeneticPopulation:new(AutoPlayer, gs.autoplayer_active_population, gs.autoplayer_population)
 
 		-- max dt
