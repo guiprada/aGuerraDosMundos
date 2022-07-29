@@ -113,7 +113,7 @@ function AutoPlayer:reset(reset_table)
 	self._min_cell.y = self._cell.y
 	self._max_cell.y = self._cell.y
 
-	self._ann = ann or qpd.ann:new(8, 4, AutoPlayer._ann_depth, AutoPlayer._ann_width)
+	self._ann = ann or qpd.ann:new(11, 4, AutoPlayer._ann_depth, AutoPlayer._ann_width)
 end
 
 function AutoPlayer:crossover(mom, dad)
@@ -229,6 +229,32 @@ function AutoPlayer:distance_in_back_class(class)
 	print("no orientation set", self._orientation)
 end
 
+function AutoPlayer:distance_in_left_class(class)
+	if self._orientation == "up" then
+		return self:find_in_path_x(-1, class)/AutoPlayer._search_path_length
+	elseif self._orientation == "down" then
+		return self:find_in_path_x(1, class)/AutoPlayer._search_path_length
+	elseif self._orientation == "left" then
+		return self:find_in_path_y(1, class)/AutoPlayer._search_path_length
+	elseif self._orientation == "right" then
+		return self:find_in_path_y(-1, class)/AutoPlayer._search_path_length
+	end
+	print("no orientation set", self._orientation)
+end
+
+function AutoPlayer:distance_in_right_class(class)
+	if self._orientation == "up" then
+		return self:find_in_path_x(1, class)/AutoPlayer._search_path_length
+	elseif self._orientation == "down" then
+		return self:find_in_path_x(-1, class)/AutoPlayer._search_path_length
+	elseif self._orientation == "left" then
+		return self:find_in_path_y(-1, class)/AutoPlayer._search_path_length
+	elseif self._orientation == "right" then
+		return self:find_in_path_y(1, class)/AutoPlayer._search_path_length
+	end
+	print("no orientation set", self._orientation)
+end
+
 function AutoPlayer:find_collision_in_path_x(dx)
 	local search_path_length = AutoPlayer._search_path_length
 	local cell_x, cell_y = self._cell.x, self._cell.y
@@ -315,8 +341,12 @@ function AutoPlayer:update(dt, speed, ghost_state)
 			self:is_right_collision(),
 			self:distance_in_front_class("ghost"),
 			self:distance_in_back_class("ghost"),
+			self:distance_in_left_class("ghost"),
+			self:distance_in_right_class("ghost"),
 			self:distance_in_front_class("pill"),
 			self:distance_in_back_class("pill"),
+			self:distance_in_left_class("pill"),
+			self:distance_in_right_class("pill"),
 			(ghost_state == "frightened") and 1 or 0, -- ghosts freightned
 			-- (ghost_state == "scattering") and 1 or 0, -- ghosts scattering
 		}

@@ -55,7 +55,7 @@ local function roulette(population, total_fitness)
 	for i = 1, #population do
 		local this = population[i]
 		sum = sum + this._fitness
-		if (sum >= randFloat) then
+		if (sum > randFloat) then
 			return this
 		end
 	end
