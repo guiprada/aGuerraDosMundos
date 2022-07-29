@@ -157,7 +157,7 @@ local function find_collision_in_path_x(self, dx, grid, search_path_length)
 
 	for i = 1, search_path_length do
 		if grid:is_blocked_cell(cell_x + dx * i, cell_y) then
-			return (search_path_length - i)
+			return i
 		end
 	end
 	return 0
@@ -168,60 +168,86 @@ local function find_collision_in_path_y(self, dy, grid, search_path_length)
 
 	for i = 1, search_path_length do
 		if grid:is_blocked_cell(cell_x, cell_y + dy * i) then
-			return (search_path_length - i)
+			return i
 		end
 	end
 	return 0
 end
 
-local function distance_in_front_collision(self, search_path_length)
+local function distance_in_front_collision(self, grid, search_path_length)
 	if self._orientation == "up" then
-		return self:find_collision_in_path_y(-1)/search_path_length
+		return find_collision_in_path_y(self, -1, grid, search_path_length)/search_path_length
 	elseif self._orientation == "down" then
-		return self:find_collision_in_path_y(1)/search_path_length
+		return find_collision_in_path_y(self, 1, grid, search_path_length)/search_path_length
 	elseif self._orientation == "left" then
-		return self:find_collision_in_path_x(-1)/search_path_length
+		return find_collision_in_path_x(self, -1, grid, search_path_length)/search_path_length
 	elseif self._orientation == "right" then
-		return self:find_collision_in_path_x(1)/search_path_length
+		return find_collision_in_path_x(self, 1, grid, search_path_length)/search_path_length
 	end
 	print("no orientation set", self._orientation)
 end
 
-local function is_front_collision(self, grid)
+local function distance_in_left_collision(self, grid, search_path_length)
 	if self._orientation == "up" then
-		return grid:is_blocked_cell(self._cell.x, self._cell.y - 1) and 1 or 0
+		return find_collision_in_path_x(self, -1, grid, search_path_length)/search_path_length
 	elseif self._orientation == "down" then
-		return grid:is_blocked_cell(self._cell.x, self._cell.y + 1) and 1 or 0
+		return find_collision_in_path_x(self, 1, grid, search_path_length)/search_path_length
 	elseif self._orientation == "left" then
-		return grid:is_blocked_cell(self._cell.x - 1, self._cell.y) and 1 or 0
+		return find_collision_in_path_y(self, 1, grid, search_path_length)/search_path_length
 	elseif self._orientation == "right" then
-		return grid:is_blocked_cell(self._cell.x + 1, self._cell.y) and 1 or 0
+		return find_collision_in_path_y(self, -1, grid, search_path_length)/search_path_length
 	end
 	print("no orientation set", self._orientation)
 end
 
-local function is_left_collision(self, grid)
+local function distance_in_right_collision(self, grid, search_path_length)
 	if self._orientation == "up" then
-		return grid:is_blocked_cell(self._cell.x - 1, self._cell.y) and 1 or 0
+		return find_collision_in_path_x(self, 1, grid, search_path_length)/search_path_length
 	elseif self._orientation == "down" then
-		return grid:is_blocked_cell(self._cell.x + 1, self._cell.y) and 1 or 0
+		return find_collision_in_path_x(self, -1, grid, search_path_length)/search_path_length
 	elseif self._orientation == "left" then
-		return grid:is_blocked_cell(self._cell.x, self._cell.y + 1) and 1 or 0
+		return find_collision_in_path_y(self, -1, grid, search_path_length)/search_path_length
 	elseif self._orientation == "right" then
-		return grid:is_blocked_cell(self._cell.x, self._cell.y - 1) and 1 or 0
+		return find_collision_in_path_y(self, 1, grid, search_path_length)/search_path_length
 	end
 	print("no orientation set", self._orientation)
 end
 
-local function is_right_collision(self, grid)
+local function is_front_free(self, grid)
 	if self._orientation == "up" then
-		return grid:is_blocked_cell(self._cell.x + 1, self._cell.y) and 1 or 0
+		return not grid:is_blocked_cell(self._cell.x, self._cell.y - 1) and 1 or 0
 	elseif self._orientation == "down" then
-		return grid:is_blocked_cell(self._cell.x - 1, self._cell.y) and 1 or 0
+		return not grid:is_blocked_cell(self._cell.x, self._cell.y + 1) and 1 or 0
 	elseif self._orientation == "left" then
-		return grid:is_blocked_cell(self._cell.x, self._cell.y - 1) and 1 or 0
+		return not grid:is_blocked_cell(self._cell.x - 1, self._cell.y) and 1 or 0
 	elseif self._orientation == "right" then
-		return grid:is_blocked_cell(self._cell.x, self._cell.y + 1) and 1 or 0
+		return not grid:is_blocked_cell(self._cell.x + 1, self._cell.y) and 1 or 0
+	end
+	print("no orientation set", self._orientation)
+end
+
+local function is_left_free(self, grid)
+	if self._orientation == "up" then
+		return not grid:is_blocked_cell(self._cell.x - 1, self._cell.y) and 1 or 0
+	elseif self._orientation == "down" then
+		return not grid:is_blocked_cell(self._cell.x + 1, self._cell.y) and 1 or 0
+	elseif self._orientation == "left" then
+		return not grid:is_blocked_cell(self._cell.x, self._cell.y + 1) and 1 or 0
+	elseif self._orientation == "right" then
+		return not grid:is_blocked_cell(self._cell.x, self._cell.y - 1) and 1 or 0
+	end
+	print("no orientation set", self._orientation)
+end
+
+local function is_right_free(self, grid)
+	if self._orientation == "up" then
+		return not grid:is_blocked_cell(self._cell.x + 1, self._cell.y) and 1 or 0
+	elseif self._orientation == "down" then
+		return not grid:is_blocked_cell(self._cell.x - 1, self._cell.y) and 1 or 0
+	elseif self._orientation == "left" then
+		return not grid:is_blocked_cell(self._cell.x, self._cell.y - 1) and 1 or 0
+	elseif self._orientation == "right" then
+		return not grid:is_blocked_cell(self._cell.x, self._cell.y + 1) and 1 or 0
 	end
 	print("no orientation set", self._orientation)
 end
@@ -236,7 +262,7 @@ end
 
 local function grade_path_x(self, dx, grid, search_path_length, ghost_state)
 	local inputs = {
-		is_collision_x(self, dx, grid),
+		find_collision_in_path_x(self, dx, grid, search_path_length),
 		distance_to_class_x(self, dx, "ghost", grid, search_path_length)/search_path_length,
 		distance_to_class_x(self, dx, "pill", grid, search_path_length)/search_path_length,
 		distance_to_class_x(self, dx, "player", grid, search_path_length)/search_path_length,
@@ -251,7 +277,7 @@ end
 
 local function grade_path_y(self, dy, grid, search_path_length, ghost_state)
 	local inputs = {
-		is_collision_y(dy),
+		find_collision_in_path_y(self, dy, grid, search_path_length),
 		distance_to_class_y(self, dy, "ghost", grid, search_path_length)/search_path_length,
 		distance_to_class_y(self,dy, "pill", grid, search_path_length)/search_path_length,
 		distance_to_class_y(self, dy,"player", grid, search_path_length)/search_path_length,
@@ -270,9 +296,9 @@ AutoplayerAnnModes.ann_creates["nb4"] = function (self, ann_depth, ann_width)
 end
 AutoplayerAnnModes.updates.nb4 = function (self, grid, search_path_length, ghost_state)
 	local inputs = {
-		is_left_collision(self, grid),
-		is_front_collision(self, grid),
-		is_right_collision(self, grid),
+		is_left_free(self, grid),
+		distance_in_front_collision(self, grid, search_path_length),
+		is_right_free(self, grid),
 		distance_in_front_class(self, "ghost", grid, search_path_length),
 		distance_in_back_class(self, "ghost", grid, search_path_length),
 		distance_in_left_class(self, "ghost", grid, search_path_length),
@@ -288,6 +314,10 @@ AutoplayerAnnModes.updates.nb4 = function (self, grid, search_path_length, ghost
 		(ghost_state == "frightened") and 1 or 0, -- ghosts freightned
 		(ghost_state == "scattering") and 1 or 0, -- ghosts scattering
 	}
+	for _, input in ipairs(inputs) do
+		io.write(input, " | ")
+	end
+	print("")
 
 	local outputs = self._ann:get_outputs(inputs, true)
 
