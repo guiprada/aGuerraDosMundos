@@ -7,54 +7,6 @@ local qpd = require "qpd.qpd"
 
 local autoplayer_type_name = "player"
 
-local function rotate_left(self)
-	if self._orientation == "up" then
-		self._orientation = "left"
-	elseif self._orientation == "down" then
-		self._orientation = "right"
-	elseif self._orientation == "left" then
-		self._orientation = "down"
-	elseif self._orientation == "right" then
-		self._orientation = "up"
-	end
-end
-
-local function rotate_right(self)
-	if self._orientation == "up" then
-		self._orientation = "right"
-	elseif self._orientation == "down" then
-		self._orientation = "left"
-	elseif self._orientation == "left" then
-		self._orientation = "up"
-	elseif self._orientation == "right" then
-		self._orientation = "down"
-	end
-end
-
-local function flip(self)
-	if self._orientation == "up" then
-		self._orientation = "down"
-	elseif self._orientation == "down" then
-		self._orientation = "up"
-	elseif self._orientation == "left" then
-		self._orientation = "right"
-	elseif self._orientation == "right" then
-		self._orientation = "left"
-	end
-end
-
-local function keep(self)
-	if self._orientation == "up" then
-		self._orientation = "up"
-	elseif self._orientation == "down" then
-		self._orientation = "down"
-	elseif self._orientation == "left" then
-		self._orientation = "left"
-	elseif self._orientation == "right" then
-		self._orientation = "right"
-	end
-end
-
 function AutoPlayer.init(grid, search_path_length, mutate_chance, mutate_percentage, ann_depth, ann_width)
 	AutoPlayer._search_path_length = search_path_length
 	AutoPlayer._max_grid_distance = math.ceil(math.sqrt((grid.width ^ 2) + (grid.height ^ 2)))
@@ -113,7 +65,7 @@ function AutoPlayer:reset(reset_table)
 	self._min_cell.y = self._cell.y
 	self._max_cell.y = self._cell.y
 
-	self._ann = ann or qpd.ann:new(11, 4, AutoPlayer._ann_depth, AutoPlayer._ann_width)
+	self._ann = ann or qpd.ann:new(4, 1, AutoPlayer._ann_depth, AutoPlayer._ann_width)
 end
 
 function AutoPlayer:crossover(mom, dad)
@@ -165,7 +117,7 @@ local function list_has_class(class_name, grid_actor_list)
 	return false
 end
 
-function AutoPlayer:find_in_path_x(dx, class)
+function AutoPlayer:distance_to_class_x(dx, class)
 	local search_path_length = AutoPlayer._search_path_length
 	local cell_x, cell_y = self._cell.x, self._cell.y
 
@@ -184,7 +136,7 @@ function AutoPlayer:find_in_path_x(dx, class)
 	return search_path_length
 end
 
-function AutoPlayer:find_in_path_y(dy, class)
+function AutoPlayer:distance_to_class_y(dy, class)
 	local search_path_length = AutoPlayer._search_path_length
 	local cell_x, cell_y = self._cell.x, self._cell.y
 
@@ -203,206 +155,91 @@ function AutoPlayer:find_in_path_y(dy, class)
 	return search_path_length
 end
 
-function AutoPlayer:distance_in_front_class(class)
-	if self._orientation == "up" then
-		return self:find_in_path_y(-1, class)/AutoPlayer._search_path_length
-	elseif self._orientation == "down" then
-		return self:find_in_path_y(1, class)/AutoPlayer._search_path_length
-	elseif self._orientation == "left" then
-		return self:find_in_path_x(-1, class)/AutoPlayer._search_path_length
-	elseif self._orientation == "right" then
-		return self:find_in_path_x(1, class)/AutoPlayer._search_path_length
-	end
-	print("no orientation set", self._orientation)
+function AutoPlayer:is_collision_x(dx)
+	return GridActor._grid:is_blocked_cell(self._cell.x + dx, self._cell.y) and 1 or 0
 end
 
-function AutoPlayer:distance_in_back_class(class)
-	if self._orientation == "up" then
-		return self:find_in_path_y(1, class)/AutoPlayer._search_path_length
-	elseif self._orientation == "down" then
-		return self:find_in_path_y(-1, class)/AutoPlayer._search_path_length
-	elseif self._orientation == "left" then
-		return self:find_in_path_x(1, class)/AutoPlayer._search_path_length
-	elseif self._orientation == "right" then
-		return self:find_in_path_x(-1, class)/AutoPlayer._search_path_length
-	end
-	print("no orientation set", self._orientation)
+function AutoPlayer:is_collision_y(dy)
+	return GridActor._grid:is_blocked_cell(self._cell.x, self._cell.y + dy) and 1 or 0
 end
 
-function AutoPlayer:distance_in_left_class(class)
-	if self._orientation == "up" then
-		return self:find_in_path_x(-1, class)/AutoPlayer._search_path_length
-	elseif self._orientation == "down" then
-		return self:find_in_path_x(1, class)/AutoPlayer._search_path_length
-	elseif self._orientation == "left" then
-		return self:find_in_path_y(1, class)/AutoPlayer._search_path_length
-	elseif self._orientation == "right" then
-		return self:find_in_path_y(-1, class)/AutoPlayer._search_path_length
-	end
-	print("no orientation set", self._orientation)
+function AutoPlayer:grade_path_x(dx, ghost_state)
+	local inputs = {
+		self:is_collision_x(dx),
+		self:distance_to_class_x(dx, "ghost")/AutoPlayer._search_path_length,
+		self:distance_to_class_x(dx, "pill")/AutoPlayer._search_path_length,
+		(ghost_state == "frightened") and 1 or 0, -- ghosts freightned
+		-- (ghost_state == "scattering") and 1 or 0, -- ghosts scattering
+	}
+
+	local outputs = self._ann:get_outputs(inputs, true)
+
+	return outputs[1].value
 end
 
-function AutoPlayer:distance_in_right_class(class)
-	if self._orientation == "up" then
-		return self:find_in_path_x(1, class)/AutoPlayer._search_path_length
-	elseif self._orientation == "down" then
-		return self:find_in_path_x(-1, class)/AutoPlayer._search_path_length
-	elseif self._orientation == "left" then
-		return self:find_in_path_y(-1, class)/AutoPlayer._search_path_length
-	elseif self._orientation == "right" then
-		return self:find_in_path_y(1, class)/AutoPlayer._search_path_length
-	end
-	print("no orientation set", self._orientation)
-end
+function AutoPlayer:grade_path_y(dy, ghost_state)
+	local inputs = {
+		self:is_collision_y(dy),
+		self:distance_to_class_y(dy, "ghost")/AutoPlayer._search_path_length,
+		self:distance_to_class_y(dy, "pill")/AutoPlayer._search_path_length,
+		(ghost_state == "frightened") and 1 or 0, -- ghosts freightned
+		-- (ghost_state == "scattering") and 1 or 0, -- ghosts scattering
+	}
 
-function AutoPlayer:find_collision_in_path_x(dx)
-	local search_path_length = AutoPlayer._search_path_length
-	local cell_x, cell_y = self._cell.x, self._cell.y
+	local outputs = self._ann:get_outputs(inputs, true)
 
-	for i = 1, search_path_length do
-		if GridActor._grid:is_blocked_cell(cell_x + dx * i, cell_y) then
-			return (search_path_length - i)
-		end
-	end
-	return 0
-end
-
-function AutoPlayer:find_collision_in_path_y(dy)
-	local search_path_length = AutoPlayer._search_path_length
-	local cell_x, cell_y = self._cell.x, self._cell.y
-
-	for i = 1, search_path_length do
-		if GridActor._grid:is_blocked_cell(cell_x, cell_y + dy * i) then
-			return (search_path_length - i)
-		end
-	end
-	return 0
-end
-
-function AutoPlayer:distance_in_front_collision()
-	if self._orientation == "up" then
-		return self:find_collision_in_path_y(-1)/AutoPlayer._search_path_length
-	elseif self._orientation == "down" then
-		return self:find_collision_in_path_y(1)/AutoPlayer._search_path_length
-	elseif self._orientation == "left" then
-		return self:find_collision_in_path_x(-1)/AutoPlayer._search_path_length
-	elseif self._orientation == "right" then
-		return self:find_collision_in_path_x(1)/AutoPlayer._search_path_length
-	end
-	print("no orientation set", self._orientation)
-end
-
-function AutoPlayer:is_front_collision()
-	if self._orientation == "up" then
-		return GridActor._grid:is_blocked_cell(self._cell.x, self._cell.y - 1) and 1 or 0
-	elseif self._orientation == "down" then
-		return GridActor._grid:is_blocked_cell(self._cell.x, self._cell.y + 1) and 1 or 0
-	elseif self._orientation == "left" then
-		return GridActor._grid:is_blocked_cell(self._cell.x - 1, self._cell.y) and 1 or 0
-	elseif self._orientation == "right" then
-		return GridActor._grid:is_blocked_cell(self._cell.x + 1, self._cell.y) and 1 or 0
-	end
-	print("no orientation set", self._orientation)
-end
-
-function AutoPlayer:is_left_collision()
-	if self._orientation == "up" then
-		return GridActor._grid:is_blocked_cell(self._cell.x - 1, self._cell.y) and 1 or 0
-	elseif self._orientation == "down" then
-		return GridActor._grid:is_blocked_cell(self._cell.x + 1, self._cell.y) and 1 or 0
-	elseif self._orientation == "left" then
-		return GridActor._grid:is_blocked_cell(self._cell.x, self._cell.y + 1) and 1 or 0
-	elseif self._orientation == "right" then
-		return GridActor._grid:is_blocked_cell(self._cell.x, self._cell.y - 1) and 1 or 0
-	end
-	print("no orientation set", self._orientation)
-end
-
-function AutoPlayer:is_right_collision()
-	if self._orientation == "up" then
-		return GridActor._grid:is_blocked_cell(self._cell.x + 1, self._cell.y) and 1 or 0
-	elseif self._orientation == "down" then
-		return GridActor._grid:is_blocked_cell(self._cell.x - 1, self._cell.y) and 1 or 0
-	elseif self._orientation == "left" then
-		return GridActor._grid:is_blocked_cell(self._cell.x, self._cell.y - 1) and 1 or 0
-	elseif self._orientation == "right" then
-		return GridActor._grid:is_blocked_cell(self._cell.x, self._cell.y + 1) and 1 or 0
-	end
-	print("no orientation set", self._orientation)
+	return outputs[1].value
 end
 
 function AutoPlayer:update(dt, speed, ghost_state)
 	if (self._is_active) then
-		-- local ghost_in_front = self:distance_in_front_class("ghost")
-		-- local ghosts_freighted = (ghost_state == "frightened") and 1 or 0
-		local inputs = {
-			self:is_left_collision(),
-			self:distance_in_front_collision(),
-			self:is_right_collision(),
-			self:distance_in_front_class("ghost"),
-			self:distance_in_back_class("ghost"),
-			self:distance_in_left_class("ghost"),
-			self:distance_in_right_class("ghost"),
-			self:distance_in_front_class("pill"),
-			self:distance_in_back_class("pill"),
-			self:distance_in_left_class("pill"),
-			self:distance_in_right_class("pill"),
-			(ghost_state == "frightened") and 1 or 0, -- ghosts freightned
-			-- (ghost_state == "scattering") and 1 or 0, -- ghosts scattering
-		}
+		self._orientation = self._direction  -- not needed, just to keep it synced
+		self._fitness = self._fitness + 1
 
-		local outputs = self._ann:get_outputs(inputs, true)
+		local enabled_directions = self:get_enabled_directions()
+		local available_paths = {}
+		if enabled_directions[1] == true then -- "up"
+			local this_direction = {}
+			this_direction.grade = self:grade_path_y(-1, ghost_state)
+			this_direction.direction = "up"
+			table.insert(available_paths, this_direction)
+		end
+		if enabled_directions[2] == true then -- "down"
+			local this_direction = {}
+			this_direction.grade = self:grade_path_y(1, ghost_state)
+			this_direction.direction = "down"
+			table.insert(available_paths, this_direction)
+		end
+		if enabled_directions[3] == true then -- "left"
+			local this_direction = {}
+			this_direction.grade = self:grade_path_x(-1, ghost_state)
+			this_direction.direction = "left"
+			table.insert(available_paths, this_direction)
+		end
+		if enabled_directions[4] == true then -- "right"
+			local this_direction = {}
+			this_direction.grade = self:grade_path_x(1, ghost_state)
+			this_direction.direction = "right"
+			table.insert(available_paths, this_direction)
+		end
 
-		local greatest_index = 1
-		local greatest_value = outputs[greatest_index].value
-		for i = 1, #outputs do
-			if outputs[i].value > greatest_value then
-				greatest_index = i
+		if (#available_paths >= 2) then
+			local best_index = 1
+			local best_grade = available_paths[best_index].grade
+			for i = 2, #available_paths do
+				if (available_paths[i].grade >= best_grade) then
+					best_grade = available_paths[i].grade
+					best_index = i
+				end
 			end
+			self._next_direction = available_paths[best_index].direction
+		elseif (#available_paths >= 1) then
+			self._next_direction = available_paths[1].direction
+		else
+			print("AutoPlayer has nowhere to go!")
 		end
-
-		if greatest_index == 1 then
-			keep(self)
-		elseif greatest_index == 2 then
-			flip(self)
-		elseif greatest_index == 3 then
-			rotate_left(self)
-		elseif greatest_index == 4 then
-			rotate_right(self)
-		end
-
-		self._next_direction = self._orientation
 
 		GridActor.update(self, dt, speed)
-
-		-- fitness reward
-		self._fitness = self._fitness + 0.0001
-
-		-- -- rewarded if changed tile
-		-- if self._changed_tile then
-		-- 	if self._cell.x > self._max_cell.x then
-		-- 		self._fitness = self._fitness + (self._cell.x - self._max_cell.x) * 0.01
-		-- 		self._max_cell.x = self._cell.x
-		-- 	elseif self._cell.y > self._max_cell.y then
-		-- 		self._fitness = self._fitness + (self._cell.y - self._max_cell.y) * 0.01
-		-- 		self._max_cell.y = self._cell.y
-		-- 	elseif self._cell.x < self._min_cell.x then
-		-- 		self._fitness = self._fitness + (self._min_cell.x - self._cell.x) * 0.01
-		-- 		self._min_cell.x = self._cell.x
-		-- 	elseif self._cell.y < self._min_cell.y then
-		-- 		self._fitness = self._fitness + (self._min_cell.y - self._cell.y) * 0.01
-		-- 		self._min_cell.y = self._cell.y
-		-- 	end
-		-- end
-
-		-- -- remove if colliding
-		-- if self._has_collided then
-		-- 	self._fitness = self._fitness - 0.01
-		-- 	if self._fitness < 0 then
-		-- 		self._fitness = 0
-		-- 		self._is_active = false
-		-- 	end
-		-- end
 	end
 end
 
