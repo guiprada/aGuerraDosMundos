@@ -1,6 +1,6 @@
 local AutoplayerAnnModes = {}
-AutoplayerAnnModes.updates = {}
-AutoplayerAnnModes.ann_creates = {}
+AutoplayerAnnModes.update = {}
+AutoplayerAnnModes.new = {}
 
 local qpd = require "qpd.qpd"
 
@@ -42,15 +42,15 @@ local function flip(self)
 end
 
 local function keep(self)
-	if self._orientation == "up" then
-		self._orientation = "up"
-	elseif self._orientation == "down" then
-		self._orientation = "down"
-	elseif self._orientation == "left" then
-		self._orientation = "left"
-	elseif self._orientation == "right" then
-		self._orientation = "right"
-	end
+	-- if self._orientation == "up" then
+	-- 	self._orientation = "up"
+	-- elseif self._orientation == "down" then
+	-- 	self._orientation = "down"
+	-- elseif self._orientation == "left" then
+	-- 	self._orientation = "left"
+	-- elseif self._orientation == "right" then
+	-- 	self._orientation = "right"
+	-- end
 end
 
 local function list_has_class(class_name, grid_actor_list)
@@ -291,10 +291,10 @@ local function grade_path_y(self, dy, grid, search_path_length, ghost_state)
 end
 
 -- implementations
-AutoplayerAnnModes.ann_creates["nb4"] = function (self, ann_depth, ann_width)
+AutoplayerAnnModes.new.nb4 = function (self, ann_depth, ann_width)
 	return qpd.ann:new(17, 1, ann_depth, ann_width)
 end
-AutoplayerAnnModes.updates.nb4 = function (self, grid, search_path_length, ghost_state)
+AutoplayerAnnModes.update.nb4 = function (self, grid, search_path_length, ghost_state)
 	local inputs = {
 		is_left_free(self, grid),
 		distance_in_front_collision(self, grid, search_path_length),
@@ -314,10 +314,10 @@ AutoplayerAnnModes.updates.nb4 = function (self, grid, search_path_length, ghost
 		(ghost_state == "frightened") and 1 or 0, -- ghosts freightned
 		(ghost_state == "scattering") and 1 or 0, -- ghosts scattering
 	}
-	for _, input in ipairs(inputs) do
-		io.write(input, " | ")
-	end
-	print("")
+	-- for _, input in ipairs(inputs) do
+	-- 	io.write(input, " | ")
+	-- end
+	-- print("")
 
 	local outputs = self._ann:get_outputs(inputs, true)
 
@@ -345,10 +345,10 @@ AutoplayerAnnModes.updates.nb4 = function (self, grid, search_path_length, ghost
 	self._fitness = self._fitness + 0.0001
 end
 
-AutoplayerAnnModes.ann_creates.nb4_valid_paths = function (self, ann_depth, ann_width)
-	self._ann = qpd.ann:new(6, 1, ann_depth, ann_width)
+AutoplayerAnnModes.new.nb4_path_grading = function (self, ann_depth, ann_width)
+	return qpd.ann:new(6, 1, ann_depth, ann_width)
 end
-AutoplayerAnnModes.updates.nb4_valid_paths = function (self, grid, search_path_length, ghost_state)
+AutoplayerAnnModes.update.nb4_path_grading = function (self, grid, search_path_length, ghost_state)
 	self._orientation = self._direction  -- not needed, just to keep it synced
 	self._fitness = self._fitness + 1
 
@@ -380,10 +380,25 @@ AutoplayerAnnModes.updates.nb4_valid_paths = function (self, grid, search_path_l
 	end
 
 	if (#available_paths >= 2) then
-		local best_index = 1
-		local best_grade = available_paths[best_index].grade
-		for i = 2, #available_paths do
-			if (available_paths[i].grade >= best_grade) then
+		-- keep going unless there is a strictly better path
+		local old_direction = self._direction
+		local best_index
+		local best_grade
+		if old_direction ~= "idle" then
+			for i = 1, #available_paths do
+				if available_paths[i].direction == old_direction then
+					best_index = i
+				end
+			end
+		end
+		if not best_index then
+			best_index = 1
+		end
+
+		best_grade = available_paths[best_index].grade
+
+		for i = 1, #available_paths do
+			if (available_paths[i].grade > best_grade) then
 				best_grade = available_paths[i].grade
 				best_index = i
 			end
@@ -394,6 +409,114 @@ AutoplayerAnnModes.updates.nb4_valid_paths = function (self, grid, search_path_l
 	else
 		print("AutoPlayer has nowhere to go!")
 	end
+end
+
+-------------------------------------------------------------------------
+local function is_left_collision(self, grid)
+	if self._orientation == "up" then
+		return grid:is_blocked_cell(self._cell.x - 1, self._cell.y) and 1 or 0
+	elseif self._orientation == "down" then
+		return grid:is_blocked_cell(self._cell.x + 1, self._cell.y) and 1 or 0
+	elseif self._orientation == "left" then
+		return grid:is_blocked_cell(self._cell.x, self._cell.y + 1) and 1 or 0
+	elseif self._orientation == "right" then
+		return grid:is_blocked_cell(self._cell.x, self._cell.y - 1) and 1 or 0
+	end
+	print("no orientation set", self._orientation)
+end
+
+local function is_right_collision(self, grid)
+	if self._orientation == "up" then
+		return grid:is_blocked_cell(self._cell.x + 1, self._cell.y) and 1 or 0
+	elseif self._orientation == "down" then
+		return grid:is_blocked_cell(self._cell.x - 1, self._cell.y) and 1 or 0
+	elseif self._orientation == "left" then
+		return grid:is_blocked_cell(self._cell.x, self._cell.y - 1) and 1 or 0
+	elseif self._orientation == "right" then
+		return grid:is_blocked_cell(self._cell.x, self._cell.y + 1) and 1 or 0
+	end
+	print("no orientation set", self._orientation)
+end
+
+local function find_collision_in_path_x_old(self, dx, grid, search_path_length)
+	local cell_x, cell_y = self._cell.x, self._cell.y
+
+	for i = 1, search_path_length do
+		if  grid:is_blocked_cell(cell_x + dx * i, cell_y) then
+			return (search_path_length - i)
+		end
+	end
+	return 0
+end
+
+local function find_collision_in_path_y_old(self, dy, grid, search_path_length)
+	local cell_x, cell_y = self._cell.x, self._cell.y
+
+	for i = 1, search_path_length do
+		if grid:is_blocked_cell(cell_x, cell_y + dy * i) then
+			return (search_path_length - i)
+		end
+	end
+	return 0
+end
+
+local function distance_in_front_collision_old(self, grid, search_path_length)
+	if self._orientation == "up" then
+		return find_collision_in_path_y_old(self, -1, grid, search_path_length)/search_path_length
+	elseif self._orientation == "down" then
+		return find_collision_in_path_y_old(self, 1, grid, search_path_length)/search_path_length
+	elseif self._orientation == "left" then
+		return find_collision_in_path_x_old(self, -1, grid, search_path_length)/search_path_length
+	elseif self._orientation == "right" then
+		return find_collision_in_path_x_old(self, 1, grid, search_path_length)/search_path_length
+	end
+	print("no orientation set", self._orientation)
+end
+
+AutoplayerAnnModes.new.nb4_old = function (self, ann_depth, ann_width)
+	return qpd.ann:new(12, 1, ann_depth, ann_width)
+end
+AutoplayerAnnModes.update.nb4_old = function (self, grid, search_path_length, ghost_state)
+	local inputs = {
+		is_left_collision(self, grid),
+		distance_in_front_collision_old(self, grid, search_path_length),
+		is_right_collision(self, grid),
+		distance_in_front_class(self, "ghost", grid, search_path_length),
+		distance_in_back_class(self, "ghost", grid, search_path_length),
+		distance_in_left_class(self, "ghost", grid, search_path_length),
+		distance_in_right_class(self, "ghost", grid, search_path_length),
+		distance_in_front_class(self, "pill", grid, search_path_length),
+		distance_in_back_class(self, "pill", grid, search_path_length),
+		distance_in_left_class(self, "pill", grid, search_path_length),
+		distance_in_right_class(self, "pill", grid, search_path_length),
+		(ghost_state == "frightened") and 1 or 0, -- ghosts freightned
+		-- (ghost_state == "scattering") and 1 or 0, -- ghosts scattering
+	}
+
+	local outputs = self._ann:get_outputs(inputs, true)
+
+	local greatest_index = 1
+	local greatest_value = outputs[greatest_index].value
+	for i = 1, #outputs do
+		if outputs[i].value > greatest_value then
+			greatest_index = i
+		end
+	end
+
+	if greatest_index == 1 then
+		-- keep(self)
+	elseif greatest_index == 2 then
+		flip(self)
+	elseif greatest_index == 3 then
+		rotate_left(self)
+	elseif greatest_index == 4 then
+		rotate_right(self)
+	end
+
+	self._next_direction = self._orientation
+
+	-- fitness reward
+	self._fitness = self._fitness + 0.0001
 end
 
 return AutoplayerAnnModes

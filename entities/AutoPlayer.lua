@@ -68,7 +68,7 @@ function AutoPlayer:reset(reset_table)
 	self._min_cell.y = self._cell.y
 	self._max_cell.y = self._cell.y
 
-	self._ann = ann or AutoPlayerAnnModes.ann_creates[AutoPlayer._ann_mode](self, AutoPlayer._ann_depth, AutoPlayer._ann_width)
+	self._ann = ann or AutoPlayerAnnModes.new[AutoPlayer._ann_mode](self, AutoPlayer._ann_depth, AutoPlayer._ann_width)
 end
 
 function AutoPlayer:crossover(mom, dad)
@@ -112,7 +112,7 @@ end
 
 function AutoPlayer:update(dt, speed, ghost_state)
 	if (self._is_active) then
-		AutoPlayerAnnModes.updates[AutoPlayer._ann_mode](self, AutoPlayer._grid, AutoPlayer._search_path_length, ghost_state)
+		AutoPlayerAnnModes.update[AutoPlayer._ann_mode](self, AutoPlayer._grid, AutoPlayer._search_path_length, ghost_state)
 		GridActor.update(self, dt, speed)
 	end
 end
