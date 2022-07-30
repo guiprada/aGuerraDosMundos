@@ -215,39 +215,39 @@ end
 
 local function is_front_free(self, grid)
 	if self._orientation == "up" then
-		return not grid:is_blocked_cell(self._cell.x, self._cell.y - 1) and 1 or 0
+		return grid:is_blocked_cell(self._cell.x, self._cell.y - 1) and 0 or 1
 	elseif self._orientation == "down" then
-		return not grid:is_blocked_cell(self._cell.x, self._cell.y + 1) and 1 or 0
+		return grid:is_blocked_cell(self._cell.x, self._cell.y + 1) and 0 or 1
 	elseif self._orientation == "left" then
-		return not grid:is_blocked_cell(self._cell.x - 1, self._cell.y) and 1 or 0
+		return grid:is_blocked_cell(self._cell.x - 1, self._cell.y) and 0 or 1
 	elseif self._orientation == "right" then
-		return not grid:is_blocked_cell(self._cell.x + 1, self._cell.y) and 1 or 0
+		return grid:is_blocked_cell(self._cell.x + 1, self._cell.y) and 0 or 1
 	end
 	print("no orientation set", self._orientation)
 end
 
 local function is_left_free(self, grid)
 	if self._orientation == "up" then
-		return not grid:is_blocked_cell(self._cell.x - 1, self._cell.y) and 1 or 0
+		return grid:is_blocked_cell(self._cell.x - 1, self._cell.y) and 0 or 1
 	elseif self._orientation == "down" then
-		return not grid:is_blocked_cell(self._cell.x + 1, self._cell.y) and 1 or 0
+		return grid:is_blocked_cell(self._cell.x + 1, self._cell.y) and 0 or 1
 	elseif self._orientation == "left" then
-		return not grid:is_blocked_cell(self._cell.x, self._cell.y + 1) and 1 or 0
+		return grid:is_blocked_cell(self._cell.x, self._cell.y + 1) and 0 or 1
 	elseif self._orientation == "right" then
-		return not grid:is_blocked_cell(self._cell.x, self._cell.y - 1) and 1 or 0
+		return grid:is_blocked_cell(self._cell.x, self._cell.y - 1) and 0 or 1
 	end
 	print("no orientation set", self._orientation)
 end
 
 local function is_right_free(self, grid)
 	if self._orientation == "up" then
-		return not grid:is_blocked_cell(self._cell.x + 1, self._cell.y) and 1 or 0
+		return grid:is_blocked_cell(self._cell.x + 1, self._cell.y) and 0 or 1
 	elseif self._orientation == "down" then
-		return not grid:is_blocked_cell(self._cell.x - 1, self._cell.y) and 1 or 0
+		return grid:is_blocked_cell(self._cell.x - 1, self._cell.y) and 0 or 1
 	elseif self._orientation == "left" then
-		return not grid:is_blocked_cell(self._cell.x, self._cell.y - 1) and 1 or 0
+		return grid:is_blocked_cell(self._cell.x, self._cell.y - 1) and 0 or 1
 	elseif self._orientation == "right" then
-		return not grid:is_blocked_cell(self._cell.x, self._cell.y + 1) and 1 or 0
+		return grid:is_blocked_cell(self._cell.x, self._cell.y + 1) and 0 or 1
 	end
 	print("no orientation set", self._orientation)
 end
@@ -411,7 +411,7 @@ AutoplayerAnnModes.update.nb4_path_grading = function (self, grid, search_path_l
 	end
 end
 
--------------------------------------------------------------------------
+------------------------------------------------------------------------- OLD
 local function is_left_collision(self, grid)
 	if self._orientation == "up" then
 		return grid:is_blocked_cell(self._cell.x - 1, self._cell.y) and 1 or 0
@@ -460,6 +460,42 @@ local function find_collision_in_path_y_old(self, dy, grid, search_path_length)
 	return 0
 end
 
+local function find_in_path_x(self, dx, class, grid, search_path_length)
+	local cell_x, cell_y = self._cell.x, self._cell.y
+
+	for i = 1, search_path_length do
+		if grid:is_blocked_cell(cell_x + dx * i, cell_y) then
+			return search_path_length
+		end
+
+		local collision_list = grid:get_collisions_in_cell(cell_x + dx * i, cell_y)
+		if (#collision_list > 0) then
+			if list_has_class(class, collision_list) then
+				return i
+			end
+		end
+	end
+	return search_path_length
+end
+
+local function find_in_path_y(self, dy, class, grid, search_path_length)
+	local cell_x, cell_y = self._cell.x, self._cell.y
+
+	for i = 1, search_path_length do
+		if grid:is_blocked_cell(cell_x, cell_y + dy * i) then
+			return search_path_length
+		end
+
+		local collision_list = grid:get_collisions_in_cell(cell_x, cell_y + dy * i)
+		if (#collision_list > 0) then
+			if list_has_class(class, collision_list) then
+				return i
+			end
+		end
+	end
+	return search_path_length
+end
+
 local function distance_in_front_collision_old(self, grid, search_path_length)
 	if self._orientation == "up" then
 		return find_collision_in_path_y_old(self, -1, grid, search_path_length)/search_path_length
@@ -473,6 +509,58 @@ local function distance_in_front_collision_old(self, grid, search_path_length)
 	print("no orientation set", self._orientation)
 end
 
+local function distance_in_front_class_old(self, class, grid, search_path_length)
+	if self._orientation == "up" then
+		return find_in_path_y(self, -1, class, grid, search_path_length)/search_path_length
+	elseif self._orientation == "down" then
+		return find_in_path_y(self, 1, class, grid, search_path_length)/search_path_length
+	elseif self._orientation == "left" then
+		return find_in_path_x(self, -1, class, grid, search_path_length)/search_path_length
+	elseif self._orientation == "right" then
+		return find_in_path_x(self, 1, class, grid, search_path_length)/search_path_length
+	end
+	print("no orientation set", self._orientation)
+end
+
+local function distance_in_back_class_old(self, class, grid, search_path_length)
+	if self._orientation == "up" then
+		return find_in_path_y(self, 1, class, grid, search_path_length)/search_path_length
+	elseif self._orientation == "down" then
+		return find_in_path_y(self, -1, class, grid, search_path_length)/search_path_length
+	elseif self._orientation == "left" then
+		return find_in_path_x(self, 1, class, grid, search_path_length)/search_path_length
+	elseif self._orientation == "right" then
+		return find_in_path_x(self, -1, class, grid, search_path_length)/search_path_length
+	end
+	print("no orientation set", self._orientation)
+end
+
+local function distance_in_left_class_old(self, class, grid, search_path_length)
+	if self._orientation == "up" then
+		return find_in_path_x(self, -1, class, grid, search_path_length)/search_path_length
+	elseif self._orientation == "down" then
+		return find_in_path_x(self, 1, class, grid, search_path_length)/search_path_length
+	elseif self._orientation == "left" then
+		return find_in_path_y(self, 1, class, grid, search_path_length)/search_path_length
+	elseif self._orientation == "right" then
+		return find_in_path_y(self, -1, class, grid, search_path_length)/search_path_length
+	end
+	print("no orientation set", self._orientation)
+end
+
+local function distance_in_right_class_old(self, class, grid, search_path_length)
+	if self._orientation == "up" then
+		return find_in_path_x(self, 1, class, grid, search_path_length)/search_path_length
+	elseif self._orientation == "down" then
+		return find_in_path_x(self, -1, class, grid, search_path_length)/search_path_length
+	elseif self._orientation == "left" then
+		return find_in_path_y(self, -1, class, grid, search_path_length)/search_path_length
+	elseif self._orientation == "right" then
+		return find_in_path_y(self, 1, class, grid, search_path_length)/search_path_length
+	end
+	print("no orientation set", self._orientation)
+end
+
 AutoplayerAnnModes.new.nb4_old = function (self, ann_depth, ann_width)
 	return qpd.ann:new(12, 1, ann_depth, ann_width)
 end
@@ -481,17 +569,21 @@ AutoplayerAnnModes.update.nb4_old = function (self, grid, search_path_length, gh
 		is_left_collision(self, grid),
 		distance_in_front_collision_old(self, grid, search_path_length),
 		is_right_collision(self, grid),
-		distance_in_front_class(self, "ghost", grid, search_path_length),
-		distance_in_back_class(self, "ghost", grid, search_path_length),
-		distance_in_left_class(self, "ghost", grid, search_path_length),
-		distance_in_right_class(self, "ghost", grid, search_path_length),
-		distance_in_front_class(self, "pill", grid, search_path_length),
-		distance_in_back_class(self, "pill", grid, search_path_length),
-		distance_in_left_class(self, "pill", grid, search_path_length),
-		distance_in_right_class(self, "pill", grid, search_path_length),
+		distance_in_front_class_old(self, "ghost", grid, search_path_length),
+		distance_in_back_class_old(self, "ghost", grid, search_path_length),
+		distance_in_left_class_old(self, "ghost", grid, search_path_length),
+		distance_in_right_class_old(self, "ghost", grid, search_path_length),
+		distance_in_front_class_old(self, "pill", grid, search_path_length),
+		distance_in_back_class_old(self, "pill", grid, search_path_length),
+		distance_in_left_class_old(self, "pill", grid, search_path_length),
+		distance_in_right_class_old(self, "pill", grid, search_path_length),
 		(ghost_state == "frightened") and 1 or 0, -- ghosts freightned
 		-- (ghost_state == "scattering") and 1 or 0, -- ghosts scattering
 	}
+	for _, input in ipairs(inputs) do
+		io.write(input, " | ")
+	end
+	print("")
 
 	local outputs = self._ann:get_outputs(inputs, true)
 
