@@ -292,7 +292,7 @@ end
 
 -- implementations
 AutoplayerAnnModes.new.nb4 = function (self, ann_depth, ann_width)
-	return qpd.ann:new(17, 1, ann_depth, ann_width)
+	return qpd.ann:new(17, 4, ann_depth, ann_width)
 end
 AutoplayerAnnModes.update.nb4 = function (self, grid, search_path_length, ghost_state)
 	local inputs = {
@@ -562,7 +562,7 @@ local function distance_in_right_class_old(self, class, grid, search_path_length
 end
 
 AutoplayerAnnModes.new.nb4_old = function (self, ann_depth, ann_width)
-	return qpd.ann:new(12, 1, ann_depth, ann_width)
+	return qpd.ann:new(12, 4, ann_depth, ann_width)
 end
 AutoplayerAnnModes.update.nb4_old = function (self, grid, search_path_length, ghost_state)
 	local inputs = {
@@ -580,10 +580,10 @@ AutoplayerAnnModes.update.nb4_old = function (self, grid, search_path_length, gh
 		(ghost_state == "frightened") and 1 or 0, -- ghosts freightned
 		-- (ghost_state == "scattering") and 1 or 0, -- ghosts scattering
 	}
-	for _, input in ipairs(inputs) do
-		io.write(input, " | ")
-	end
-	print("")
+	-- for _, input in ipairs(inputs) do
+	-- 	io.write(input, " | ")
+	-- end
+	-- print("")
 
 	local outputs = self._ann:get_outputs(inputs, true)
 
