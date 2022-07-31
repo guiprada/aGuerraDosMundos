@@ -113,7 +113,7 @@ function AutoPlayer:reset(reset_table)
 	self._min_cell.y = self._cell.y
 	self._max_cell.y = self._cell.y
 
-	self._ann = ann or qpd.ann:new(11, 4, AutoPlayer._ann_depth, AutoPlayer._ann_width)
+	self._ann = ann or qpd.ann:new(12, 4, AutoPlayer._ann_depth, AutoPlayer._ann_width)
 end
 
 function AutoPlayer:crossover(mom, dad)
