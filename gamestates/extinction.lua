@@ -53,6 +53,17 @@ local function add_ghost()
 	gs.GhostPopulation:add_active()
 end
 
+local function save_config_to_file(file_path, config_table)
+	local file, err = io.open(file_path, "w")
+	if file then
+		for key, value in pairs(config_table) do
+			file:write(key .. " = " .. value .. "\n")
+		end
+	else
+		print("[ERROR] - extinction.load() - failed to save configurations used", err)
+	end
+end
+
 --------------------------------------------------------------------------------
 function gs.load(map_file_path)
 	gs.width = love.graphics.getWidth()
@@ -116,8 +127,21 @@ function gs.load(map_file_path)
 		end
 		gs.grid = qpd.grid.new(gs.map_matrix, collisions)
 
+		-- seed with a known value
+		gs.game_conf.seed = os.time()
+		qpd.random.seed(gs.game_conf.seed )
+		local this_log_path = "logs/" .. tostring(gs.game_conf.seed )
+
+		-- save configuration used
+		save_config_to_file(this_log_path .. ".conf", gs.game_conf)
+
+		-- Create a logger
+		local event_logger_file_path = this_log_path .. ".data"
+		local event_logger_columns = {"timestamp", "actor_id", "actor_type", "event_type", "cell_x", "cell_y"}
+		local event_logger = qpd.logger:new(event_logger_file_path, event_logger_columns, 10)
+
 		-- Initialze GridActor
-		GridActor.init(gs.grid, gs.tilemap_view.tilesize)
+		GridActor.init(gs.grid, gs.tilemap_view.tilesize, event_logger)
 
 		-- Initialize Ghosts
 		gs.ghost_chase_time = gs.game_conf.ghost_chase_time

@@ -12,9 +12,11 @@ local registered_types = {
 	[registered_types_list[1]] = 1,
 }
 
-function GridActor.init(grid, tilesize)
+function GridActor.init(grid, tilesize, event_logger)
 	GridActor._grid = grid
 	GridActor._tilesize = tilesize
+	GridActor._event_logger = event_logger
+	GridActor._current_actor_id = 0
 end
 
 function GridActor.set_tilesize(tilesize)
@@ -78,6 +80,11 @@ function GridActor:new(o)
 end
 
 function GridActor:reset(cell)
+	GridActor._current_actor_id = GridActor._current_actor_id + 1
+	self._id = GridActor._current_actor_id
+
+	self:log("created")
+
 	self._changed_tile = false
 	self._has_collided = false
 	self._direction = "idle"
@@ -295,6 +302,19 @@ end
 function GridActor:is_front_wall()
 	local cell_x, cell_y = self:get_cell_in_front()
 	return GridActor._grid:is_blocked_cell(cell_x, cell_y)
+end
+
+function GridActor:log(event_type)
+	local event_table = {}
+	-- {"timestamp", "actor_id", "actor_type", "event_type", "cell_x", "cell_y"}
+	event_table["timestamp"] = os.time()
+	event_table["actor_id"] = self._id
+	event_table["actor_type"] = registered_types_list[self._type]
+	event_table["event_type"] = event_type
+	event_table["cell_x"] = self._cell.x
+	event_table["cell_y"] = self._cell.y
+
+	GridActor._event_logger:log(event_table)
 end
 
 return GridActor
