@@ -14,7 +14,7 @@ function qpd_timer.update(self, dt)
 		self._timer = self._timer - dt
 		if self._timer <= 0 then
 			self._enabled = false
-			self._callback()
+			self._callback(self._owner)
 		end
 	end
 end
@@ -45,12 +45,14 @@ end
 
 --------------------------------------------------------------------------------
 
-function qpd_timer.new(duration, callback)
+function qpd_timer.new(duration, callback, owner)
 	local o = {}
 	qpd_table.assign_methods(o, qpd_timer)
 
 	o._duration = duration
 	o._callback = callback
+	o._owner = owner
+
 	o._enabled = false
 	o._timer = false
 

@@ -7,6 +7,7 @@ local GeneticPopulation = require "entities.GeneticPopulation"
 local AutoPlayer = require "entities.AutoPlayer"
 local Population = require "entities.Population"
 local Ghost = require "entities.Ghost"
+local Pill = require "entities.Pill"
 
 --------------------------------------------------------------------------------
 local color_array = {}
@@ -47,6 +48,14 @@ local function change_ghost_state()
 
 		gs.ghost_state_timer:reset(gs.ghost_scatter_time)
 	end
+end
+
+local function got_pill_update_callback(value)
+	gs.got_pill = value
+end
+
+local function pill_time_left_update_callback(value)
+	gs.pill_time_left = value
 end
 
 local function add_ghost()
@@ -143,6 +152,12 @@ function gs.load(map_file_path)
 		-- Initialze GridActor
 		GridActor.init(gs.grid, gs.tilemap_view.tilesize, event_logger)
 
+		-- pills
+		gs.got_pill = false
+		gs.pill_is_in_effect = false
+		Pill.init(gs.grid, got_pill_update_callback, pill_time_left_update_callback)
+		gs.pillsPopulation = Population:new(Pill, 2, {pill_time = gs.game_conf.pill_time})
+
 		-- Initialize Ghosts
 		gs.ghost_chase_time = gs.game_conf.ghost_chase_time
 		gs.ghost_scatter_time = gs.game_conf.ghost_scatter_time
@@ -216,6 +231,7 @@ function gs.draw()
 	gs.tilemap_view.camera:draw(
 		function ()
 			gs.tilemap_view:draw()
+			gs.pillsPopulation:draw()
 			gs.AutoPlayerPopulation:draw()
 			gs.GhostPopulation:draw(gs.ghost_state)
 		end)
@@ -242,6 +258,28 @@ function gs.update(dt)
 
 		-- clear grid collisions
 		gs.grid:clear_collisions()
+
+		--pill
+		gs.pillsPopulation:update(dt, 0)
+
+		if (gs.got_pill == true) and (gs.pill_is_in_effect == false) then
+			gs.pill_is_in_effect = true
+			gs.ghost_state = "frightened"
+			gs.ghost_state_timer:stop()
+			-- Ghost.set_speed(gs.ghost_speed * gs.ghost_speed_boost)
+
+			local ghosts = gs.GhostPopulation:get_population()
+			for i=1, #ghosts, 1 do
+				ghosts[i]:flip_direction()
+			end
+		elseif (gs.pill_is_in_effect == true) and (gs.got_pill == false) then
+			gs.pill_is_in_effect = false
+			gs.ghost_state = "scattering"
+
+			-- Ghost.set_speed(gs.ghost_speed)
+			gs.ghost_state_timer:reset()
+			gs.ghost_state_timer:start()
+		end
 
 		-- game.ghost_state timer
 		gs.ghost_state_timer:update(dt)

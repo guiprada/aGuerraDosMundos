@@ -15,12 +15,17 @@ local registered_types = {
 function GridActor.init(grid, tilesize, event_logger)
 	GridActor._grid = grid
 	GridActor._tilesize = tilesize
+
 	GridActor._event_logger = event_logger
 	GridActor._current_actor_id = 0
 end
 
 function GridActor.set_tilesize(tilesize)
 	GridActor._tilesize = tilesize
+end
+
+function GridActor.get_tilesize()
+	return GridActor._tilesize
 end
 
 function GridActor.get_type_by_name(type_name)

@@ -16,10 +16,10 @@ function Ghost.set_speed(new_speed)
 	Ghost._speed = new_speed
 end
 
-function Ghost.init(Grid,
+function Ghost.init(grid,
 					initial_state,
 					target_spread)
-	Ghost._grid = Grid
+	Ghost._grid = grid
 	Ghost._target_spread = target_spread
 	Ghost.set_state(initial_state)
 
