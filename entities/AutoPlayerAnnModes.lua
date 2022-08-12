@@ -340,9 +340,6 @@ AutoplayerAnnModes.update.nb4 = function (self, grid, search_path_length, ghost_
 	end
 
 	self._next_direction = self._orientation
-
-	-- fitness reward
-	self._fitness = self._fitness + 0.0001
 end
 
 AutoplayerAnnModes.new.nb4_path_grading = function (self, ann_depth, ann_width)
@@ -350,7 +347,6 @@ AutoplayerAnnModes.new.nb4_path_grading = function (self, ann_depth, ann_width)
 end
 AutoplayerAnnModes.update.nb4_path_grading = function (self, grid, search_path_length, ghost_state)
 	self._orientation = self._direction  -- not needed, just to keep it synced
-	self._fitness = self._fitness + 1
 
 	local enabled_directions = self:get_enabled_directions()
 	local available_paths = {}

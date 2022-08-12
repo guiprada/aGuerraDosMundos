@@ -309,6 +309,10 @@ function GridActor:is_front_wall()
 	return GridActor._grid:is_blocked_cell(cell_x, cell_y)
 end
 
+function GridActor:get_genes()
+	return ""
+end
+
 function GridActor:log(event_type)
 	local event_table = {}
 	-- {"timestamp", "actor_id", "actor_type", "event_type", "cell_x", "cell_y"}
@@ -318,6 +322,7 @@ function GridActor:log(event_type)
 	event_table["event_type"] = event_type
 	event_table["cell_x"] = self._cell.x
 	event_table["cell_y"] = self._cell.y
+	event_table["genes"] = self:get_genes()
 
 	GridActor._event_logger:log(event_table)
 end

@@ -42,6 +42,8 @@ function AutoPlayer:reset(reset_table)
 
 	cell = cell or AutoPlayer._grid:get_valid_cell()
 
+	self._ann = ann or AutoPlayerAnnModes.new[AutoPlayer._ann_mode](self, AutoPlayer._ann_depth, AutoPlayer._ann_width)
+
 	GridActor.reset(self, cell)
 
 	self._fitness = 0
@@ -67,8 +69,6 @@ function AutoPlayer:reset(reset_table)
 	self._max_cell.x = self._cell.x
 	self._min_cell.y = self._cell.y
 	self._max_cell.y = self._cell.y
-
-	self._ann = ann or AutoPlayerAnnModes.new[AutoPlayer._ann_mode](self, AutoPlayer._ann_depth, AutoPlayer._ann_width)
 end
 
 function AutoPlayer:crossover(mom, dad)
@@ -114,6 +114,9 @@ function AutoPlayer:update(dt, speed, ghost_state)
 	if (self._is_active) then
 		AutoPlayerAnnModes.update[AutoPlayer._ann_mode](self, AutoPlayer._grid, AutoPlayer._search_path_length, ghost_state)
 		GridActor.update(self, dt, speed)
+
+		-- fitness reward
+		self._fitness = self._fitness + 0.0001
 	end
 end
 
@@ -131,6 +134,10 @@ end
 
 function AutoPlayer:get_fitness()
 	return self._fitness
+end
+
+function AutoPlayer:get_genes()
+	return self:get_ann():to_string()
 end
 
 function AutoPlayer:add_fitness(amount)

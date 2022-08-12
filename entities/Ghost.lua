@@ -96,24 +96,6 @@ function Ghost:crossover(mom, dad, reset_table)
 		target_offset = target_offset + math.floor(qpd.random.random(-2, 2))
 	end
 
-	son.try_order = {} -- we should add mutation
-
-	local this_rand = qpd.random.random(0, 10)
-	if (this_rand <= 3) then
-		for i = 1, #mom.try_order, 1 do
-			son.try_order[i] = mom.try_order[i]
-		end
-	elseif (this_rand <= 5) then
-		for i = 1, #dad.try_order, 1 do
-			son.try_order[i] = dad.try_order[i]
-		end
-	else
-		for i = 1, 4, 1 do
-			son.try_order[i] = i
-		end
-		qpd.array.shuffle(son.try_order)
-	end
-
 	self:reset({target_offset = son._target_offset})
 end
 

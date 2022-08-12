@@ -40,11 +40,13 @@ function _Neuron:new(inputs, bias, o)
 	return o
 end
 
-function _Neuron:print()
+function _Neuron:to_string()
+	local str = "("
 	for i = 1, #self do
-		io.write(self[i], " ")
+		str = string.format("%s %s", str, self[i])
 	end
-	print("")
+	str = string.format("%s)", str)
+	return str
 end
 
 function _Neuron:update(inputs, float_output)
@@ -103,11 +105,13 @@ function _NeuronLayer:new(neurons, inputs, bias, o)
 	return o
 end
 
-function _NeuronLayer:print()
+function _NeuronLayer:to_string()
+	local str = "["
 	for i = 1, #self do
-		self[i]:print()
+		str = string.format("%s %s", str, self[i]:to_string())
 	end
-	print("-----------------------------------")
+	str = string.format("%s]", str)
+	return str
 end
 
 function _NeuronLayer:update(inputs, float_output)
@@ -180,10 +184,13 @@ function NN:crossover(mom, dad, mutate_chance, mutate_percentage)
 	return son
 end
 
-function NN:print()
+function NN:to_string()
+	local str = "{"
 	for i = 1, #self do
-		self[i]:print()
+		str = string.format("%s %s", str, self[i]:to_string())
 	end
+	str = string.format("%s}", str)
+	return str
 end
 
 function NN:get_outputs(inputs, float_output)

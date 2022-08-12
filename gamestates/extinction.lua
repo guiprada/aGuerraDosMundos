@@ -146,7 +146,7 @@ function gs.load(map_file_path)
 
 		-- Create a logger
 		local event_logger_file_path = this_log_path .. ".data"
-		local event_logger_columns = {"timestamp", "actor_id", "actor_type", "event_type", "cell_x", "cell_y"}
+		local event_logger_columns = {"timestamp", "actor_id", "actor_type", "event_type", "cell_x", "cell_y", "genes"}
 		local event_logger = qpd.logger:new(event_logger_file_path, event_logger_columns, 10)
 
 		-- Initialze GridActor
