@@ -1,0 +1,54 @@
+
+----------------- ROADMAP
+- implementar ativacao sigmoid, tanh e relu
+- implentar ghoststate continuos timing in input(instead of boolean)
+- implementar suporte a hidden layers com tamanhos diferentes
+- implementar baseline
+- implementar opcao de evolucao somente por mutacao
+- evento de morte deve logar quem matou
+- eventos para pilulas
+- implementar load and save population
+- implementar backpropagation
+
+- implementar NEAT
+- NEAT para fantasmas
+
+----------------- TESTS
+1- 1x7, old simple ann with input fixed
+-- 2- 1x7, nb4 on unify, is_left_collision, distance, is_right_collision
+-- 3- 1x7, nb4 on unify, all collisions
+4- 1x7, nb4
+
+5- 1x7, nb4_path_grading
+6- 1x7, nb4_old
+-- 7- 1x7, new valid_path grading, distance no player and no scattering sensing
+-- 8- 1x7, new valid_path grading, collision
+
+
+
+std 1x5 learned not to collide with collision purge
+
+----------------- NOTES
+** to adapt this to ghosts we could get a next position only when out of corridors **
+** should mutation be only  for greater amplitude?(since crossover always diminishes it) **
+
+----------------- TODO
+- add pills :)
+- add elitism support
+- Add engagement measuring
+- Add map and population loading
+- Add configuration for diferent ann profiles(
+	1 - 1 binary output(rotate_left or not)
+	2 - 2 binary outputs(rotate_left and flip or booth)
+	3 - 3 non-binary outputs(rotate_left, rotate_right and flip)
+	4 - 4 non-binary outputs(up, down, left or right)
+	5 - Valid path grading!
+)
+
+- add the pheromone thingy :)
+
+
+
+----------------- DONE
+- turn on other players and is_scattering sensing
+- Add event logging
