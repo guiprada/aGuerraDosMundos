@@ -1,8 +1,15 @@
 
 ----------------- ROADMAP
 - implementar ativacao sigmoid, tanh e relu
+	- sigmoid ->(Buckland, 246)
+		output = 1 / (1 + e^(-a/p)),
+			onde a e "a" entrada e "p" e(geralmente 1) controla o formato da funcao de ativacao, valores menores de p produzem uma inclinacao maior
+	- tanh
+	- relu
+
 - implentar ghoststate continuos timing in input(instead of boolean)
 - implementar suporte a hidden layers com tamanhos diferentes
+- implementar logging da distancia player-fantasmas para medir engajamento
 - implementar baseline
 - implementar opcao de evolucao somente por mutacao
 - evento de morte deve logar quem matou
