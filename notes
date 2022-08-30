@@ -1,11 +1,30 @@
 
 ----------------- ROADMAP
 - implementar ativacao sigmoid, tanh e relu
+	- identity ->
+		output = a
+
+	- binary step ->
+		output = 1, a >= 0
+		output = 0, a < 0
+
 	- sigmoid ->(Buckland, 246)
 		output = 1 / (1 + e^(-a/p)),
 			onde a e "a" entrada e "p" e(geralmente 1) controla o formato da funcao de ativacao, valores menores de p produzem uma inclinacao maior
+
 	- tanh
+		output = (e^(a) - e^(-a))/(e^(a) + e^(-a))
+
 	- relu
+		output = a, a > 0
+		output = 0, a <= 0
+
+	- softplus
+		output = ln(1 + e^(x))
+
+	- silu
+		output = x/(1 + e^(-x))
+
 
 - implentar ghoststate continuos timing in input(instead of boolean)
 - implementar suporte a hidden layers com tamanhos diferentes
