@@ -4,6 +4,7 @@ NN.__index = NN
 
 local qpd_table = require "qpd.table"
 local qpd_random = require "qpd.random"
+local ann_activations = require "ann_activations"
 
 -- Internal Classes
 local _Neuron = {}
@@ -142,6 +143,31 @@ function NN:new(inputs, outputs, hidden_layers, neurons_per_hidden_layer, o)
 	end
 	local output_layer_index = #o + 1
 	o[output_layer_index] = _NeuronLayer:new(outputs, last_layer_count)
+
+	return o
+end
+
+-- layers = {
+-- 	{
+-- 		count = 5,
+-- 		activation = "identity",
+-- 	},
+-- 	{
+-- 		count = 3,
+-- 		activation = "sigmoid",
+--		extra = {p}
+-- 	},
+-- }
+
+function NN:new_from_layers(layers, o)
+	local o = o or {}
+	setmetatable(o, self)
+
+	local last_layer_count = 1
+	for i, layer in ipairs(layers) do
+		o[i] = _NeuronLayer:new(layer.count, last_layer_count, layer.activation, layer.extra)
+		last_layer_count = layer.count
+	end
 
 	return o
 end
