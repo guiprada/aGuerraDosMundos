@@ -4,7 +4,6 @@ NN.__index = NN
 
 local qpd_table = require "qpd.table"
 local qpd_random = require "qpd.random"
-local ann_activations = require "qpd.ann_activations"
 
 -- Internal Classes
 local _Neuron = {}
